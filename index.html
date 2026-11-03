@@ -74,6 +74,14 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 12px; align-items: center; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend svg { overflow: visible; }
+.fsum { flex-wrap: nowrap !important; }
+.ftoggle { flex: none; font: 700 16px var(--display); letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 7px; padding: 4px 10px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.ftoggle .caret { transition: transform .2s; }
+.filters.collapsed .ftoggle .caret { transform: rotate(-90deg); }
+.filters.collapsed .fbody { display: none; }
+.fbody { display: flex; flex-direction: column; gap: 7px; }
+.fcount { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#fReset { flex: none; }
 /* the filter bar sticks to the top of the screen while you scroll or work in the map */
 .filters { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; padding: 10px 14px;
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; box-shadow: 0 8px 20px rgba(0,0,0,.18); }
@@ -230,13 +238,28 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
   display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 32px); }
 .toast button { font: 700 14px var(--display); letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--bg); border: 1.5px solid var(--bg); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
 .note { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 82ch; }
+/* phones */
+button, .chip, .quest { touch-action: manipulation; }
+@media (pointer: coarse) { .controls button { width: 44px; height: 44px; } .chip, .quest { padding-top: 6px; padding-bottom: 6px; } }
+@media (max-width: 640px) {
+  .wrap { padding-block: 16px 40px; }
+  h1 { font-size: 32px; }
+  .lede { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+  .lede.open { display: block; }
+  .flabel { min-width: 0; width: 100%; }
+  #map { height: calc(100vh - 150px); height: calc(100svh - 150px); min-height: 380px; }
+  .hint { display: none; }
+  .panel { left: 0; right: 0; bottom: 0; width: 100%; max-height: 72vh; border-radius: 16px 16px 0 0; border-left: 0; border-right: 0; border-bottom: 0;
+    padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  .pics img { height: 160px; }
+}
 @media (prefers-reduced-motion: reduce) { .nd.avail .halo { animation: none; } .xpbar i { transition: none; } }
 </style>
 
 <div class="wrap">
   <header>
     <h1>Climbing Skills Audit</h1>
-    <p class="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Earn a bronze ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
+    <p class="lede" id="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Earn a bronze ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
   </header>
 
   <div class="hud">
@@ -265,10 +288,16 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
   </div>
 
   <div class="card filters" id="filters">
-    <div class="fgroup"><span class="flabel">Branches</span><div class="chips" id="fLanes"></div></div>
-    <div class="fgroup"><span class="flabel">Show</span><div class="chips" id="fShow"></div></div>
-    <div class="fpath" id="fPath" hidden></div>
-    <div class="fsum"><span id="fCount"></span><button class="chip" id="fReset">Show everything</button></div>
+    <div class="fsum">
+      <button class="ftoggle" id="fToggle" aria-expanded="true" aria-controls="fBody">Filters <span class="caret" aria-hidden="true">▾</span></button>
+      <span class="fcount" id="fCount"></span>
+      <button class="chip" id="fReset">Show everything</button>
+    </div>
+    <div class="fbody" id="fBody">
+      <div class="fgroup"><span class="flabel">Branches</span><div class="chips" id="fLanes"></div></div>
+      <div class="fgroup"><span class="flabel">Show</span><div class="chips" id="fShow"></div></div>
+      <div class="fpath" id="fPath" hidden></div>
+    </div>
   </div>
 
   <div class="mapwrap">
@@ -828,6 +857,7 @@ window.addEventListener("pointercancel", endPtr);
 document.getElementById("zin").addEventListener("click", () => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, .75));
 document.getElementById("zout").addEventListener("click", () => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 1.33));
 document.getElementById("zfit").addEventListener("click", fit);
+document.getElementById("lede").addEventListener("click", e => e.currentTarget.classList.toggle("open"));
 document.getElementById("zlinks").addEventListener("click", e => { const on = svg.classList.toggle("showall"); e.currentTarget.setAttribute("aria-pressed", on); });
 
 /* ---------- Legend ---------- */
@@ -878,6 +908,15 @@ function isVisible(s) {
   }
   return true;
 }
+// one-line summary, which is all you see when the filter bar is collapsed
+function countText() {
+  if (!filtering()) return `All ${skills.length} skills`;
+  const parts = [];
+  if (pathSet) parts.push((filter.mode === "up" ? "Path to " : "Builds on ") + byKey[filter.path].short);
+  if (filter.lanes.size) parts.push([...filter.lanes].map(i => LANES[i][1]).join(", "));
+  if (filter.show !== "all") parts.push(SHOWS.find(x => x[0] === filter.show)[1]);
+  return `${parts.join(" · ")} · ${skills.filter(isVisible).length} of ${skills.length}`;
+}
 const filtering = () => !!pathSet || filter.lanes.size > 0 || filter.show !== "all";
 function setPath(k, mode) {
   pathSet = new Set([k, ...(mode === "up" ? ancestors(k) : descendants(k))]);
@@ -910,9 +949,19 @@ function renderFilters() {
     fp.append(chipBtn("Clear path", false, () => { clearPath(); applyFilter(); }));
   }
   const n = skills.filter(isVisible).length;
-  document.getElementById("fCount").textContent = filtering() ? `Showing ${n} of ${skills.length} skills` : `Showing all ${skills.length} skills. Pick branches or a status to narrow the map.`;
+  document.getElementById("fCount").textContent = countText();
   document.getElementById("fReset").hidden = !filtering();
 }
+// collapsible filter bar, open by default on wide screens and remembered per browser
+const FOPEN = "climb-filters-open";
+function setFiltersOpen(open) {
+  document.getElementById("filters").classList.toggle("collapsed", !open);
+  document.getElementById("fToggle").setAttribute("aria-expanded", open);
+  try { localStorage.setItem(FOPEN, open ? "1" : "0"); } catch (e) {}
+}
+{ let saved = null; try { saved = localStorage.getItem(FOPEN); } catch (e) {}
+  setFiltersOpen(saved === null ? innerWidth > 700 : saved === "1"); }
+document.getElementById("fToggle").addEventListener("click", () => setFiltersOpen(document.getElementById("filters").classList.contains("collapsed")));
 document.getElementById("fReset").addEventListener("click", () => { filter.lanes.clear(); filter.show = "all"; clearPath(); applyFilter(); });
 
 /* ---------- State painting ---------- */
@@ -947,7 +996,7 @@ function paint() {
   });
   edgeEls.forEach(e => e.path.classList.toggle("met", learned(byKey[e.from])));
   svg.classList.toggle("filtered", filtering());
-  document.getElementById("fCount").textContent = filtering() ? `Showing ${skills.filter(isVisible).length} of ${skills.length} skills` : `Showing all ${skills.length} skills. Pick branches or a status to narrow the map.`;
+  document.getElementById("fCount").textContent = countText();
   document.querySelectorAll(".lanecount").forEach(t => {
     const list = skills.filter(s => s.lane === t.dataset.lane);
     const l = list.filter(learned).length, d = list.filter(s => effective(s) === 2).length;
@@ -1067,7 +1116,8 @@ function toast(msg, undo) {
 }
 
 build();
-fit();
+// phones start zoomed in on the inner rings, where most people begin
+if (innerWidth < 640) { const e = R(3) + 90; vb = { x: -e, y: -e, w: e * 2, h: e * 2 }; applyVB(); } else fit();
 renderFilters();
 paint();
 </script>
