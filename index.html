@@ -13,14 +13,14 @@
 </head>
 <body>
 <style>
-/* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch. Progress shows as green, silver and gold rings around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
+/* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch, from climbing to caving. Progress shows as green, silver and gold rings around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
 /* Always dark, whatever the browser or system theme says */
 :root {
   --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
   --line: #242c31; --contour: #39444b; --edge: #333e45; --accent: #5ab0ff; --crit: #ff4d4d; --ok: #3ddc84;
   --learned: #3ddc84; --next: #4da3ff; --silver: #d4dde3; --gold: #ffcc33;
   --c0: #b388ff; --c1: #ff9f1c; --c2: #4d7cff; --c3: #2ee66b; --c4: #ff3d3d; --c5: #22d3ee;
-  --c6: #e0a96d; --c7: #ff4fd8; --c8: #c6f432; --c9: #ffb3a7; --c10: #a8e6ff;
+  --c6: #e0a96d; --c7: #ff4fd8; --c8: #c6f432; --c9: #ffb3a7; --c10: #a8e6ff; --c11: #ece6d3;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --body: "IBM Plex Sans", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -430,7 +430,7 @@ const TIERS = [
 const LANES = [
   ["knots", "Knots", "Knot Master"], ["belay", "Belaying", "Iron Brake Hand"], ["lead", "Leading", "Sharp End"], ["trad", "Trad", "Gear Whisperer"],
   ["anchor", "Anchors", "Bomber Builder"], ["rap", "Rappelling", "Descent Pro"], ["mp", "Multipitch", "Wall Partner"],
-  ["res", "Rescue", "Rescuer"], ["imp", "Improvising", "MacGyver"], ["judg", "Judgment", "Old Hand"], ["alp", "Alpine", "Mountaineer"]];
+  ["res", "Rescue", "Rescuer"], ["imp", "Improvising", "MacGyver"], ["judg", "Judgment", "Old Hand"], ["alp", "Alpine", "Mountaineer"], ["cave", "Caving", "Troglodyte"]];
 // XP needed for each rank; early ranks come quickly, later ones take real depth
 const RANKS = [
   [0, "Rental Shoe Gumby"], [30, "Top-Rope Tourist"], [80, "Chalk Bag Fashionista"], [160, "Unsolicited Beta Sprayer"], [300, "Crag Dog Whisperer"],
@@ -538,6 +538,27 @@ const N = [
  ["asnow","alp",7,0,"aself","Snow anchors","Pickets, buried deadman anchors and snow bollards.","pickets, shovel","Placing pickets in snow too soft to hold them."],
  ["aglacier","alp",7,0,"kfly,kprus","Glacier travel and crevasse rescue","Rope team spacing and knots, then the drop-loop and Z-drag rescues.","pickets, prusiks, pulleys","Too much slack in the rope between team members."],
  ["aice","alp",7,0,"aself","Ice protection and V-threads","Ice screw placement and V-thread (Abalakov) rappel anchors.","screws, threader, cord","Screws in rotten or aerated ice."],
+ ["ccons","cave",2,0,"","Cave conservation and etiquette","Stay on established paths, never touch formations, and pack out everything, including waste.","trash bag, gloves","Touching formations. Skin oils stop them growing."],
+ ["clight","cave",2,1,"","Lighting and backups","Carry a primary headlamp plus two independent backup lights and spare batteries on every trip.","3 lights, spare batteries","Relying on one light. Darkness underground is total."],
+ ["cplan","cave",2,1,"jcheck","Trip plans and callout times","Leave your route and a callout time with someone on the surface who knows who to call.","written trip plan","Nobody knowing you're overdue."],
+ ["cmove","cave",3,0,"ccons","Horizontal caving movement","Crawls, squeezes, chimneys and traverses without a rope, moving efficiently and protecting the cave.","kneepads, helmet","Forcing a squeeze you can't reverse."],
+ ["chypo","cave",3,1,"cplan","Staying warm underground","Manage layers, food and pace so you don't get cold in a constant cool, often wet environment.","layers, emergency blanket, food","Standing around wet and getting cold fast."],
+ ["csrtkit","cave",3,1,"kbight","SRT kit setup","Sit harness, chest harness, descender, chest ascender, hand ascender with foot loop and cows tails, all adjusted to fit you.","full SRT kit","Cows tails or foot loop the wrong length."],
+ ["crope","cave",3,0,"jgear","Static rope and rope care","Use static rope underground, wash and inspect it, and never take a fall onto it.","static rope","Falling onto static rope. It barely stretches."],
+ ["cdesc","cave",4,1,"csrtkit","Descending on a rack or bobbin","Control speed by adding or removing friction, and lock off hands-free mid-rope.","rack or bobbin descender","Letting go before you've locked off."],
+ ["cfrog","cave",4,1,"csrtkit","Frog-system ascending","Climb a single rope with a chest ascender and a hand ascender on a foot loop, efficiently and safely.","chest and hand ascenders, foot loop","Hand ascender not also clipped to your harness with a cows tail."],
+ ["cprotect","cave",4,1,"crope","Rope protection and rub points","Rig so the rope never runs over sharp rock, using pads, rebelays and deviations.","rope protectors","A loaded rope sawing on an edge can cut quickly."],
+ ["cnav","cave",5,0,"cmove","Cave survey and navigation","Read cave maps, track your route, and recognize junctions on the way out.","cave map, notebook","Not looking back at junctions. The way out looks different."],
+ ["cchange","cave",5,1,"cdesc,cfrog","SRT changeovers","Switch from descending to ascending mid-rope, and back, without ever being unprotected.","full SRT kit","Removing one device before the other is fully weighted."],
+ ["crebelay","cave",5,1,"cdesc,cfrog","Passing rebelays","Move past mid-rope anchors going up and down, staying clipped in with cows tails throughout.","full SRT kit","Unclipping your cows tail before the next device is set."],
+ ["cdev","cave",5,0,"cdesc","Passing deviations","Unclip and reclip redirects that pull the rope away from rubs, on ascent and descent.","full SRT kit","Forgetting to reclip the deviation after you pass it."],
+ ["cyhang","cave",5,0,"abolt,cprotect","Rigging Y-hangs and traverse lines","Rig two-bolt Y-hangs and horizontal safety lines that share the load and keep the rope off rock.","static rope, maillons, hangers","A Y-hang angle so wide it multiplies the force on each bolt."],
+ ["cknot","cave",6,0,"cchange","Passing a knot on SRT","Pass a rope-joining knot going up and down using your changeover skills.","full SRT kit","Weighting the knot before your cows tail is clipped beyond it."],
+ ["cnat","cave",6,0,"anat,cyhang","Natural anchors underground","Rig off solid rock features without damaging the cave.","slings, rope protectors","Slinging a formation that is weaker than it looks."],
+ ["cflood","cave",6,1,"cplan","Flood and weather awareness","Check forecasts, know which passages flood, where high ground is, and when not to go in.","forecast, local knowledge","Entering a flood-prone cave with rain on the way."],
+ ["cair","cave",6,0,"chypo","Bad air awareness","Recognize signs of low oxygen or high carbon dioxide and turn back.","gas meter or lighter test","Pushing on through headaches and heavy breathing."],
+ ["cpick","cave",7,1,"cchange,rescape","Pick-off rescue","Reach a caver stuck hanging on the rope, take their weight onto your system and bring them down.","full SRT kit, spare cows tail, knife","Delay. Hanging still in a harness becomes dangerous within minutes."],
+ ["chaul","cave",7,0,"cyhang,kprus","Hauling underground","Rig mechanical advantage hauls on static rope for gear and rescue.","pulleys, ascenders, static rope","Overloading a single anchor."],
 ];
 
 // Images from Wikimedia Commons: [file, caption, credit key]
@@ -1111,6 +1132,104 @@ Object.assign(DRILL_EXTRA, {
   ],
 });
 
+
+// caving: videos, drills, scenarios and quiz questions
+Object.assign(YT, {
+  ccons: [["ddz7ImwZLiQ", "Cave conservation and ethics", "Alex Sproul"]],
+  csrtkit: [["kR8TIXbQewk", "Setting up an SRT kit", "UVic Caving Club"]],
+  cdesc: [["c14gUdwZJtw", "Caving descenders: overview and principles", "Derek Bristol"]],
+  cfrog: [["TwV7Jk_WW4g", "Frog ascending techniques", "Derek Bristol"]],
+  cchange: [["eP8Gxa9BMW0", "SRT changeover technique", "Derek Bristol"]],
+  crebelay: [["Fu4Z90dH7Io", "Passing a rebelay", "Andy & Rachel Sparrow"]],
+  cdev: [["DQFUIz0ogcE", "Crossing deviations", "Derek Bristol"]],
+  cyhang: [["67zUC7Fjh4o", "Rigging for caving: principles", "Derek Bristol"], ["mwiZBWnGU5U", "Rigging a Y-hang", "Joel Self"]],
+  cknot: [["mwn2wI5nuVk", "Knot crossing technique", "Derek Bristol"]],
+  cpick: [["zCoXEux7S80", "SRT pick-off rescue", "NZcaver"]],
+});
+Object.assign(DRILL, {
+  ccons: "On your next 3 trips, stay on marked paths and pack out everything you brought in.",
+  clight: "Check all three of your lights work before every trip, and practice swapping to a backup in the dark.",
+  cplan: "Leave a written trip plan with a callout time for your next 5 trips.",
+  cmove: "Move through a crawl and a chimney with a mentor, never forcing anything you can't reverse.",
+  chypo: "Plan layers and food for a 6-hour wet trip and finish it without getting cold.",
+  csrtkit: "Put on and adjust your full SRT kit in under 5 minutes, mentor-checked.",
+  crope: "Inspect, wash and log a static rope after a trip.",
+  cdesc: "Descend 10 meters on a rack or bobbin, locking off hands-free twice on the way.",
+  cfrog: "Ascend 10 meters with a frog system using smooth, efficient strokes.",
+  cprotect: "Rig a pitch with a rope protector at every rub point, mentor-checked.",
+  cnav: "Follow a cave map through a route with 5 junctions and back out without help.",
+  cchange: "Change from descending to ascending mid-rope, near the ground, under 2 minutes.",
+  crebelay: "Pass a rebelay going up and going down, 5 times each, at a training wall.",
+  cdev: "Pass a deviation going up and down, reclipping it every time.",
+  cyhang: "Rig a Y-hang on two bolts with a sensible angle, mentor-checked.",
+  cknot: "Pass a knot going up and down at a training wall.",
+  cnat: "Rig 3 natural anchors underground, mentor-checked for strength and cave damage.",
+  cflood: "Before your next 5 trips, check the forecast and the cave's flood risk and write it in your plan.",
+  cair: "Learn the signs of bad air and the lighter or meter test, and brief your team before a trip.",
+  cpick: "Practice a pick-off at a training wall with an instructor and a willing casualty.",
+  chaul: "Rig a 3:1 haul on static rope and raise a gear bag 5 meters.",
+});
+Object.assign(DRILL2, {
+  ccons: "Join a cave cleanup or restoration trip.",
+  clight: "Run a whole trip section on your backup light to learn its limits.",
+  cplan: "Run a mock callout with your surface contact, so they know exactly what to do.",
+  cmove: "Lead a beginner through horizontal passage, coaching their movement.",
+  chypo: "Practice an emergency warm-up: shelter, blanket, food and huddling, on a training day.",
+  csrtkit: "Rebuild your foot loop and cows tails from scratch and set their lengths correctly.",
+  crope: "Retire a rope based on your inspection log and explain why.",
+  cdesc: "Descend through a rebelay and a deviation without stopping to think.",
+  cfrog: "Ascend 30 meters at a steady pace, resting efficiently on your chest ascender.",
+  cprotect: "Rig a pitch so nothing touches rock, using only rebelays and deviations.",
+  cnav: "Survey a short section of passage and draw it.",
+  cchange: "Change from ascending to descending and back, 3 times in a row, without a mistake.",
+  crebelay: "Pass a hanging rebelay with no footholds, going down.",
+  cdev: "Pass a deviation on a free-hanging rope where you can't reach the wall.",
+  cyhang: "Rig a traverse line into a Y-hang at a pitch head.",
+  cknot: "Pass a knot mid-rope while a partner times you, with every safety step in place.",
+  cnat: "Rig a pitch entirely from natural anchors, mentor-checked.",
+  cflood: "Identify the high ground and escape routes on a cave you know before going in.",
+  cair: "Use a gas meter on a trip and log readings at key points.",
+  cpick: "Perform a pick-off where you descend to the casualty from above, under instruction.",
+  chaul: "Raise a person a short distance with a counterweight or mechanical advantage haul, under instruction.",
+});
+Object.assign(DRILL_EXTRA, {
+  csrtkit: ["Adjust your chest harness so the chest ascender sits high and tight.", "Set your long cows tail so you can just reach its carabiner with your arm bent."],
+  cdesc: ["Add and remove a bar on a rack mid-descent to change your speed.", "Lock off a bobbin both ways (half lock and full lock) and explain when to use each."],
+  cfrog: ["Clear the rope below you so your chest ascender feeds smoothly at the start of a climb.", "Climb past a lip where the rope runs tight against the rock, with a mentor."],
+  cchange: ["Do a changeover with gloves on.", "Talk through each changeover step out loud as if teaching it."],
+  crebelay: ["Pass a rebelay where the loop is too short, adjusting it as you go.", "Pass two rebelays in a row on the same pitch."],
+  cyhang: ["Rig a Y-hang with a figure-8 on a bight with two loops and with an alpine butterfly, and compare.", "Rig a traverse line with a deviation in the middle."],
+  cpick: ["Talk through the pick-off steps in order before practicing them.", "Practice taking the casualty's weight onto your system near the ground, with an instructor."],
+});
+
+SCENARIOS.push(
+  { id: "rebelay", title: "Pass a rebelay going up", setup: "You're climbing a rope with a frog system and reach a rebelay, a mid-rope anchor where the rope continues above.",
+    steps: ["Climb until your chest ascender is just below the rebelay", "Clip your short cows tail into the rebelay anchor", "Sit back onto the cows tail",
+      "Move your hand ascender onto the rope above the anchor", "Stand in the foot loop and move your chest ascender onto the rope above", "Unclip your cows tail and keep climbing"],
+    skills: ["crebelay", "cfrog", "csrtkit"] },
+  { id: "change", title: "Changeover: down to up", setup: "Halfway down a pitch you realize you need to go back up. Switch from descending to ascending without ever being unprotected.",
+    steps: ["Lock off your descender hands-free", "Put your hand ascender on the rope above the descender, clipped to your cows tail", "Stand in the foot loop and put your chest ascender on the rope",
+      "Sit down onto the chest ascender", "Unlock and remove your descender", "Start climbing"],
+    skills: ["cchange", "cdesc", "cfrog"] },
+  { id: "pickoff", title: "Pick-off rescue (overview)", setup: "A caver is stuck hanging motionless on the rope below you and isn't responding. Time matters.",
+    steps: ["Shout to check for a response and alert the rest of your team", "Get to the casualty quickly on the same rope", "Clip a cows tail from your harness to the casualty",
+      "Take their weight onto your system and free them from their ascenders", "Descend together under control", "Lay them down, keep them warm and send for rescue"],
+    skills: ["cpick", "cchange", "rescape"] },
+);
+
+QUIZ.push(
+  ["Why do cavers use static rope for SRT?", ["It barely stretches, so you don't bounce as you climb", "It's stronger in a fall", "It's always lighter", "It's cheaper"], "Low stretch makes climbing efficient, but it means you must never fall onto it.", "crope"],
+  ["How many independent lights should each caver carry?", ["Three", "One bright one", "Two", "None if the group has lights"], "A primary plus two backups, because darkness underground is total.", "clight"],
+  ["What is a rebelay?", ["A mid-rope anchor that keeps the rope off rubs", "A rescue knot", "A type of descender", "A rope protector"], "Rebelays split a pitch into sections so the rope never touches sharp rock.", "crebelay"],
+  ["What's the golden rule of an SRT changeover?", ["Never remove one device until the other is weighted and secure", "Go as fast as possible", "Unclip your cows tails first", "Only do it at the bottom"], "There's always something holding you, at every step.", "cchange"],
+  ["Why is a pick-off rescue urgent?", ["Hanging motionless in a harness becomes dangerous within minutes", "Ropes wear out fast", "Batteries run out", "It isn't urgent"], "Suspension in a harness can quickly become life-threatening.", "cpick"],
+  ["What is a callout time?", ["When someone on the surface raises the alarm if you're not out", "The time you start caving", "Sunrise", "A radio check"], "Without one, nobody knows you're in trouble.", "cplan"],
+  ["Why shouldn't you touch cave formations?", ["Skin oils and dirt stop them growing and stain them", "They're sharp", "They're slippery", "They're hot"], "Formations take thousands of years to grow and can be ruined by a touch.", "ccons"],
+  ["What happens when a Y-hang angle is too wide?", ["The force on each bolt increases", "The rope gets shorter", "Nothing", "It becomes easier to pass"], "Keep the angle narrow so each bolt shares the load sensibly.", "cyhang"],
+  ["You've passed a deviation. What next?", ["Reclip it so the rope stays off the rub", "Leave it unclipped", "Take it with you", "Tie a knot in it"], "An unclipped deviation leaves the rope rubbing for the next caver.", "cdev"],
+  ["What can signal bad air underground?", ["Headaches, fast breathing and lighters struggling to stay lit", "Cold feet", "Feeling hungry", "Loud echoes"], "Turn back if you notice these signs.", "cair"]
+);
+
 // embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
 const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
 const CREDITS = {
@@ -1196,7 +1315,10 @@ const SHORT = { k8:"Figure-8 tie-in", kbight:"Fig-8 on a bight", keo:"Flat overh
   rshort:"Rope too short", rlower:"Rescue lower", rasc:"Ascend: hitches", rasc2:"Ascend: device", rescape:"Belay escape", rdamage:"Damaged rope", rhaul:"Hauling 3:1 / 6:1", rcounter:"Counterbalance rap", rtandem:"Tandem rappel",
   imunter:"Munter belay", ibail:"Bail kit", imrap:"Munter rappel", ifriction:"Hitch substitutes", ipulley:"Carabiner pulley", icbrake:"Carabiner brake", ibody:"Body rappel",
   jrock:"Rockfall", jgear:"Gear inspection", jlength:"Rope length", jtopo:"Topos & descents", jscramble:"Scrambling", jweather:"Weather calls", jfirst:"First aid & plan",
-  aglacier:"Crevasse rescue", aice:"Ice & V-threads" };
+  aglacier:"Crevasse rescue", aice:"Ice & V-threads",
+  ccons:"Cave conservation", clight:"Lighting", cplan:"Callout plans", cmove:"Crawls & squeezes", chypo:"Staying warm", csrtkit:"SRT kit", crope:"Static rope care",
+  cdesc:"Rack & bobbin", cfrog:"Frog ascending", cprotect:"Rope protection", cnav:"Cave navigation", cchange:"SRT changeovers", crebelay:"Rebelays", cdev:"Deviations",
+  cyhang:"Y-hangs & traverses", cknot:"SRT knot pass", cnat:"Cave anchors", cflood:"Flood awareness", cair:"Bad air", cpick:"Pick-off rescue", chaul:"Cave hauling" };
 
 const Q = { btr:"how to belay top rope", kgarda:"garda hitch", kbowl:"yosemite bowline", keo:"flat overhand bend rappel", kmmo:"munter mule overhand",
   bweight:"belaying a heavier climber", bdirect:"direct vs redirected belay", bmp:"belaying leader multipitch anchor",
@@ -1209,7 +1331,9 @@ const Q = { btr:"how to belay top rope", kgarda:"garda hitch", kbowl:"yosemite b
   ibail:"climbing bail kit", iharness:"improvised climbing harness", ifriction:"klemheist bachmann hitch", ipulley:"z drag carabiner no pulley", ibody:"dulfersitz body rappel",
   jcheck:"climbing partner check", jrock:"rockfall safety climbing", jgear:"climbing gear inspection retirement", jlength:"climbing rope length middle mark",
   jtopo:"how to read climbing topo", jscramble:"scrambling downclimbing technique", jweather:"mountain weather turnaround time", jfirst:"wilderness first aid climbing",
-  aglacier:"crevasse rescue z drag", aice:"v thread abalakov" };
+  aglacier:"crevasse rescue z drag", aice:"v thread abalakov",
+  csrtkit:"SRT kit setup", cdesc:"SRT descender rack bobbin", cfrog:"frog system SRT ascending", cchange:"SRT changeover", crebelay:"passing a rebelay SRT", cdev:"passing a deviation SRT",
+  cyhang:"y hang rigging", cknot:"passing a knot SRT", cpick:"SRT pick off rescue", chaul:"cave rescue hauling system", cnav:"cave survey navigation" };
 
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const skills = N.map(([key, lane, tier, crit, pre, name, what, gear, pit]) =>
@@ -1243,12 +1367,12 @@ function tutorials(s) {
   const yt = t => "https://www.youtube.com/results?search_query=" + encodeURIComponent(t);
   const g = t => "https://www.google.com/search?q=" + encodeURIComponent(t);
   const list = [
-    ["Video tutorials", "YouTube", yt(q + " climbing tutorial")],
+    ["Video tutorials", "YouTube", yt(q + (s.lane === "cave" ? " caving tutorial" : " climbing tutorial"))],
     ["Beginner-friendly walkthroughs", "VDiff Climbing", yt("VDiff " + q)],
   ];
   if (s.lane === "knots" || ["imunter", "ifriction", "imrap"].includes(s.key)) list.push(["Step-by-step animation", "Animated Knots", g("site:animatedknots.com " + q)]);
   if (s.lane !== "judg") list.push(["Illustrated tech tips", "Alpine Savvy", g("site:alpinesavvy.com " + q)]);
-  if (["belay", "anchor", "rap", "res", "mp", "imp", "trad"].includes(s.lane)) list.push(["Manufacturer technical guides", "Petzl", g("site:petzl.com " + q)]);
+  if (["belay", "anchor", "rap", "res", "mp", "imp", "trad", "cave"].includes(s.lane)) list.push(["Manufacturer technical guides", "Petzl", g("site:petzl.com " + q)]);
   if (s.lane === "judg") list.push(["Accident case studies", "American Alpine Club", g("site:publications.americanalpineclub.org " + q)]);
   return list;
 }
