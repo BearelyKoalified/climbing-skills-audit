@@ -213,7 +213,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .panel > * { flex-shrink: 0; }
 .pics img { display: block; width: 100%; height: 230px; object-fit: contain; }
 .pics figure.vid { flex-basis: 100%; }
-.pics iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; background: #000; }
+.ytframe { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; background: #000; }
+.ytframe iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; transform: scale(1.32); pointer-events: none; }
+.pics figcaption a { color: var(--muted); }
 .ytlinks { display: flex; flex-direction: column; gap: 6px; }
 .ytlinks a { display: flex; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid var(--c); border-radius: 7px; color: var(--fg); text-decoration: none; font-weight: 600; font-size: 14px; }
 .ytlinks a span { font-weight: 400; font-size: 12px; color: var(--muted); }
@@ -1159,7 +1161,7 @@ function select(key, move) {
   panel.innerHTML = `<button class="close" aria-label="Close details">×</button>
     <h2>${esc(s.name)}</h2>
     <div class="meta"><span class="pill lane">${LANES[s.ci][1]}</span><span class="pill">Tier ${TIERS[s.tier - 1][0]} · ${TIERS[s.tier - 1][1]}</span>${s.crit ? '<span class="pill crit">Critical</span>' : ""}<span class="pill">up to +${s.tier * 20} XP</span></div>
-    ${yt.length && CAN_EMBED ? `<div class="pics">${yt.map(([id, cap, src]) => `<figure class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&rel=0&playsinline=1" title="${esc(cap)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><figcaption>${esc(cap)} · ${esc(src)} on YouTube</figcaption></figure>`).join("")}</div>` : ""}
+    ${yt.length && CAN_EMBED ? `<div class="pics">${yt.map(([id, cap, src]) => `<figure class="vid"><div class="ytframe"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&rel=0&iv_load_policy=3&disablekb=1&fs=0&cc_load_policy=0&playsinline=1" title="${esc(cap)}" allow="autoplay; encrypted-media" tabindex="-1"></iframe></div><figcaption>${esc(cap)} · ${esc(src)} · <a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">open with sound ↗</a></figcaption></figure>`).join("")}</div>` : ""}
     ${yt.length && !CAN_EMBED ? `<div class="ytlinks">${yt.map(([id, cap, src]) => `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">▶ Watch: ${esc(cap)}<span>${esc(src)} ↗</span></a>`).join("")}</div>` : ""}
     ${pics.length ? `<div class="pics">${pics.map(([src, cap]) => src.endsWith(".webm") ? `<figure class="vid"><video src="${src}" muted autoplay loop playsinline controls preload="auto" aria-label="${esc(cap)}"></video><figcaption>${esc(cap)}</figcaption></figure>` : `<figure><button data-src="${src}" aria-label="Enlarge image"><img src="${src}" alt="${esc(cap)}" loading="lazy"></button><figcaption>${esc(cap)}</figcaption></figure>`).join("")}</div>` : ""}
     <p>${esc(s.what)}</p>
