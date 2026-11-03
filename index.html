@@ -75,6 +75,48 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend svg { overflow: visible; }
 .fsum { flex-wrap: nowrap !important; }
+.grab { display: none; }
+.controls #zhelp { display: none; }
+.lghint { flex-basis: 100%; font-size: 12px; color: var(--muted); }
+.searchrow { position: relative; }
+#search { width: 100%; font: 500 14px var(--body); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+.sresults { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.45); padding: 4px; display: flex; flex-direction: column; max-height: 320px; overflow-y: auto; }
+.sresults button { display: flex; align-items: center; gap: 8px; text-align: left; background: none; border: 0; color: var(--fg); font: 500 14px var(--body); padding: 9px 10px; border-radius: 7px; cursor: pointer; }
+.sresults button:hover, .sresults button:focus-visible { background: var(--bg); }
+.sresults i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.sresults span { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.sresults p { margin: 8px 10px; color: var(--muted); font-size: 13px; }
+.viewtoggle { display: flex; gap: 4px; margin-top: 16px; }
+.viewtoggle button { font: 600 13px var(--body); padding: 6px 16px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 8px; cursor: pointer; }
+.viewtoggle button[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.viewtoggle + .mapwrap { margin-top: 8px; }
+.skilllist { margin-top: 8px; display: flex; flex-direction: column; gap: 12px; }
+.lgroup { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.lgroup h3 { display: flex; align-items: center; gap: 8px; font-size: 18px; color: var(--c); margin-bottom: 4px; }
+.lgroup h3 i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.lgroup h3 span { margin-left: auto; font: 500 12px var(--mono); color: var(--muted); }
+.lrow { display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line); }
+.lgroup h3 + .lrow { border-top: 0; }
+.lmain { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; background: none; border: 0; color: var(--fg); font: 500 14px var(--body); text-align: left; padding: 10px 2px; cursor: pointer; }
+.lname { flex: 1; min-width: 0; }
+.ltier { font: 500 11px var(--mono); color: var(--muted); }
+.ldot { flex: none; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); background: color-mix(in srgb, var(--c) 38%, var(--surface)); box-shadow: 0 0 0 2px var(--c); }
+.lrow.lv-1 .ldot, .lrow.lv-15 .ldot, .lrow.lv-2 .ldot, .lrow.lv-review .ldot { background: var(--c); }
+.lrow.lv-1 .ldot { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--learned); }
+.lrow.lv-15 .ldot { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--silver); }
+.lrow.lv-2 .ldot, .lrow.lv-review .ldot { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--gold); }
+.lrow.lv-gap .ldot { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--crit); }
+.lrow.locked .lname { color: #c4cbcf; }
+.lrow.locked .ltier::after { content: " · locked"; color: #e5383b; }
+.lcheck { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--line); background: transparent; color: var(--muted); font-size: 16px; cursor: pointer; }
+.lcheck[aria-pressed="true"] { background: var(--learned); border-color: var(--learned); color: #0b0e10; }
+.ptabs { display: none; }
+@media (max-width: 860px) {
+  .ptabs { display: flex; gap: 6px; grid-column: 1 / -1; }
+  .ptabs button { flex: 1; font: 600 14px var(--body); padding: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 8px; cursor: pointer; }
+  .ptabs button[aria-selected="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+  .practice[data-tab="drills"] > .card:not(.drills), .practice[data-tab="scen"] > .card:not(.scen), .practice[data-tab="quiz"] > .card:not(.quiz) { display: none; }
+}
 .ftoggle { flex: none; font: 700 16px var(--display); letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 7px; padding: 4px 10px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
 .ftoggle .caret { transition: transform .2s; }
 .filters.collapsed .ftoggle .caret { transform: rotate(-90deg); }
@@ -337,11 +379,19 @@ button, .chip, .quest { touch-action: manipulation; }
   .lede { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
   .lede.open { display: block; }
   .flabel { min-width: 0; width: 100%; }
-  #map { height: calc(100vh - 150px); height: calc(100svh - 150px); min-height: 380px; }
+  #map { height: calc(100vh - 200px); height: calc(100svh - 200px); min-height: 380px; }
   .hint { display: none; }
   .inview { bottom: 50px; right: 12px; }
-  .panel { left: 0; right: 0; bottom: 0; width: 100%; max-height: 62vh; border-radius: 16px 16px 0 0; border-left: 0; border-right: 0; border-bottom: 0;
+  .panel { left: 0; right: 0; bottom: 0; width: 100%; max-height: 55vh; border-radius: 16px 16px 0 0; transition: max-height .25s ease, transform .2s ease; border-left: 0; border-right: 0; border-bottom: 0;
     padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  .panel.full { max-height: 92vh; }
+  .grab { display: block; position: sticky; top: -18px; z-index: 2; margin: -18px -18px 0; height: 26px; touch-action: none; cursor: grab; background: var(--surface); }
+  .grab::before { content: ""; position: absolute; left: 50%; top: 10px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: var(--muted); }
+  .inview { flex-wrap: nowrap; overflow-x: auto; pointer-events: auto; scrollbar-width: none; }
+  .ivchip { flex: none; }
+  .controls #zhelp { display: block; }
+  .legend { display: none; }
+  .legend.show { display: flex; }
   .pics img { height: 200px; }
   .pics figure:only-child img { height: 240px; }
 }
@@ -375,6 +425,10 @@ button, .chip, .quest { touch-action: manipulation; }
   </div>
 
   <div class="card filters" id="filters">
+    <div class="searchrow">
+      <input id="search" type="search" placeholder="Search skills" autocomplete="off" aria-label="Search skills">
+      <div class="sresults" id="sresults" hidden></div>
+    </div>
     <div class="fsum">
       <button class="ftoggle" id="fToggle" aria-expanded="true" aria-controls="fBody">Filters <span class="caret" aria-hidden="true">▾</span></button>
       <span class="fcount" id="fCount"></span>
@@ -387,6 +441,11 @@ button, .chip, .quest { touch-action: manipulation; }
     </div>
   </div>
 
+  <div class="viewtoggle" role="group" aria-label="View">
+    <button id="vMap" aria-pressed="true">Map</button>
+    <button id="vList" aria-pressed="false">List</button>
+  </div>
+
   <div class="mapwrap">
     <svg id="map" role="group" aria-label="Skill map"></svg>
     <div class="inview" id="inview" aria-label="Branches in view"></div>
@@ -394,14 +453,21 @@ button, .chip, .quest { touch-action: manipulation; }
       <button id="zin" aria-label="Zoom in">+</button>
       <button id="zout" aria-label="Zoom out">−</button>
       <button id="zfit" aria-label="Fit whole map">⤢</button>
+      <button id="zhelp" aria-label="Show legend" aria-expanded="false">?</button>
     </div>
     <div class="hint">Double-tap a skill to mark it learned · drag to pan · scroll or pinch to zoom</div>
     <button class="linkbtn" id="zlinks" aria-pressed="false">Show all connections</button>
   </div>
+  <div class="skilllist" id="skillList" hidden></div>
 
   <div class="legend" id="legend"></div>
 
-  <section class="practice">
+  <section class="practice" id="practice" data-tab="drills">
+    <div class="ptabs" role="tablist">
+      <button data-tab="drills" aria-selected="true">Drills</button>
+      <button data-tab="scen" aria-selected="false">Scenarios</button>
+      <button data-tab="quiz" aria-selected="false">Quiz</button>
+    </div>
     <div class="card drills" id="drills">
       <h2>Practice drills</h2>
       <p class="sub" id="drillSub"></p>
@@ -1619,6 +1685,7 @@ function shimmerPath(keys, from, color, times = 1) {
 }
 // sparks and a shockwave at the skill, then a shimmer running along every line from the center out to it
 function celebrate(k) {
+  if (navigator.vibrate) navigator.vibrate(25); // a short buzz on phones that support it
   const s = byKey[k], reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   shimmerPath(new Set([k, ...ancestors(k)]), 1);
   if (reduce) return;
@@ -1688,15 +1755,15 @@ function focusLane(i) {
 svg.addEventListener("wheel", e => { e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(p.x, p.y, Math.exp(e.deltaY * .0015)); }, { passive: false });
 const ptrs = new Map(); let moved = 0, downTarget = null, pinch = null, lastTap = { key: null, t: 0 };
 // double-tap toggles a skill between Learned and not rated, with an undo in the toast
-function quickToggle(k) {
+function quickToggle(k, open = true) {
   const s = byKey[k], prev = level(s), prevDate = dates[s.id];
   setLevel(s, learned(s) ? undefined : 1);
-  select(k);
-  if (learned(s)) celebrate(k);
+  if (open) select(k); else paint();
+  if (learned(s)) celebrate(k); else if (navigator.vibrate) navigator.vibrate(10);
   toast(learned(s) ? `${s.short}: Learned` : `${s.short}: cleared`, () => {
     if (prev === undefined) delete marks[s.id]; else marks[s.id] = prev;
     if (prevDate) dates[s.id] = prevDate; else delete dates[s.id];
-    save(); select(k);
+    save(); open ? select(k) : paint();
   });
 }
 svg.addEventListener("pointerdown", e => {
@@ -1757,7 +1824,7 @@ document.getElementById("legend").innerHTML = [
   [ringIcon("var(--silver)", "", "var(--c1)", "★"), "Practiced"],
   [ringIcon("var(--gold)", "", "var(--c1)", "★", "var(--gold)"), "Drilled"],
   [ringIcon("var(--gold)", "4 3", "var(--c1)", "★", "var(--gold)"), "Due for review"],
-].map(([i, t]) => `<span>${i}${t}</span>`).join("");
+].map(([i, t]) => `<span>${i}${t}</span>`).join("") + `<span class="lghint">Double-tap a skill to mark it learned · tap a branch name to zoom in · drag to pan, pinch to zoom</span>`;
 
 /* ---------- Filters ---------- */
 const filter = { lanes: new Set(), show: "all", path: null, mode: null };
@@ -1854,6 +1921,7 @@ function renderScenList() {
   list.querySelectorAll("button").forEach(b => b.addEventListener("click", () => startScenario(b.dataset.id)));
 }
 function startScenario(id) {
+  setPracticeTab("scen");
   scenActive = SCENARIOS.find(s => s.id === id); scenPos = 0;
   const body = document.getElementById("scenBody"); body.hidden = false;
   body.innerHTML = `<p class="setup">${esc(scenActive.setup)}</p><ol class="scen-done" id="scenDone"></ol>
@@ -1918,6 +1986,76 @@ function renderDrills() {
   const ul = document.getElementById("drillList");
   ul.innerHTML = list.map(s => `<li style="--c: var(--c${s.ci})"><a data-k="${s.key}">${esc(s.name)}</a><span>${esc(effective(s) >= 1.5 && DRILL2[s.key] ? DRILL2[s.key] : DRILL[s.key])}</span></li>`).join("") || "<li>Everything here is drilled. Nice work.</li>";
   wireLinks(ul);
+}
+
+/* ---------- Mobile helpers ---------- */
+// on phones the panel is a bottom sheet: drag the handle up for full height, down to shrink or close, tap to toggle
+function wireSheet(panel) {
+  const grab = panel.querySelector(".grab"); if (!grab) return;
+  let y0 = null, dy = 0;
+  grab.addEventListener("pointerdown", e => { y0 = e.clientY; dy = 0; grab.setPointerCapture(e.pointerId); panel.style.transition = "none"; });
+  grab.addEventListener("pointermove", e => { if (y0 === null) return; dy = e.clientY - y0; if (dy > 0) panel.style.transform = `translateY(${dy}px)`; });
+  const end = () => {
+    if (y0 === null) return;
+    panel.style.transition = ""; panel.style.transform = "";
+    if (dy < -30) panel.classList.add("full");
+    else if (dy > 80) { if (panel.classList.contains("full")) panel.classList.remove("full"); else closePanel(); }
+    else if (Math.abs(dy) < 6) panel.classList.toggle("full");
+    y0 = null;
+  };
+  grab.addEventListener("pointerup", end); grab.addEventListener("pointercancel", end);
+}
+
+// list view: the same skills grouped by branch, easier to browse with one thumb
+let view = "map";
+function setView(v) {
+  view = v;
+  document.getElementById("vMap").setAttribute("aria-pressed", v === "map");
+  document.getElementById("vList").setAttribute("aria-pressed", v === "list");
+  document.querySelector(".mapwrap").hidden = v === "list";
+  document.getElementById("skillList").hidden = v !== "list";
+  try { localStorage.setItem("climb-view", v); } catch (e) {}
+  if (v === "list") renderList(); else fit();
+}
+function renderList() {
+  const box = document.getElementById("skillList"); if (box.hidden) return;
+  box.innerHTML = LANES.map(([, label], i) => {
+    const list = skills.filter(s => s.ci === i && isVisible(s)).sort((a, b) => a.tier - b.tier);
+    if (!list.length) return "";
+    return `<section class="lgroup" style="--c: var(--c${i})"><h3><i></i>${label}<span>${list.filter(learned).length}/${list.length}</span></h3>${list.map(s =>
+      `<div class="lrow ${status(s)}${lvClass(s)}" data-k="${s.key}"><button class="lmain" data-k="${s.key}"><span class="ldot"></span><span class="lname">${esc(s.name)}</span><span class="ltier">${TIERS[s.tier - 1][0]}</span></button><button class="lcheck" data-k="${s.key}" aria-pressed="${learned(s)}" aria-label="Mark ${esc(s.name)} learned">✓</button></div>`).join("")}</section>`;
+  }).join("") || '<p class="empty">No skills match these filters.</p>';
+  box.querySelectorAll(".lmain").forEach(b => b.addEventListener("click", () => select(b.dataset.k)));
+  box.querySelectorAll(".lcheck").forEach(b => b.addEventListener("click", () => quickToggle(b.dataset.k, false)));
+}
+
+// search: jump straight to a skill
+function wireSearch() {
+  const input = document.getElementById("search"), res = document.getElementById("sresults");
+  const go = k => {
+    res.hidden = true; input.value = ""; input.blur();
+    if (view === "list") { select(k); document.querySelector(`.lrow[data-k="${k}"]`)?.scrollIntoView({ block: "center" }); }
+    else { document.querySelector(".mapwrap").scrollIntoView({ block: "start" }); scrollBy(0, -document.getElementById("filters").offsetHeight - 8); select(k, true); }
+  };
+  input.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) { res.hidden = true; return; }
+    const hits = skills.filter(s => (s.name + " " + s.short + " " + LANES[s.ci][1]).toLowerCase().includes(q)).slice(0, 8);
+    res.innerHTML = hits.map(s => `<button data-k="${s.key}" style="--c: var(--c${s.ci})"><i></i>${esc(s.name)}<span>${LANES[s.ci][1]} · ${TIERS[s.tier - 1][0]}</span></button>`).join("") || "<p>No matching skills</p>";
+    res.hidden = false;
+    res.querySelectorAll("button").forEach(b => b.addEventListener("click", () => go(b.dataset.k)));
+  });
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") res.querySelector("button")?.click();
+    if (e.key === "Escape") { res.hidden = true; input.blur(); }
+  });
+  document.addEventListener("click", e => { if (!e.target.closest(".searchrow")) res.hidden = true; });
+}
+
+// practice tabs (shown on narrow screens)
+function setPracticeTab(t) {
+  document.getElementById("practice").dataset.tab = t;
+  document.querySelectorAll(".ptabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
 }
 
 /* ---------- Achievements ---------- */
@@ -2054,6 +2192,7 @@ function paint() {
   lastRank = ri;
   checkAchievements();
   renderDrills();
+  renderList();
   highlight(selected);
 }
 
@@ -2068,7 +2207,7 @@ function select(key, move) {
   panel.style.setProperty("--c", `var(--c${s.ci})`);
   const missing = s.pre.filter(p => !learned(byKey[p]));
   const credits = [...new Set(pics.map(p => p[2]))].map(c => { const [a, lic, f] = CREDITS[c]; return `<a href="https://commons.wikimedia.org/wiki/File:${f}" target="_blank" rel="noopener noreferrer">${esc(a)}, ${esc(lic)}</a>`; });
-  panel.innerHTML = `<button class="close" aria-label="Close details">×</button>
+  panel.innerHTML = `<div class="grab" aria-hidden="true"></div><button class="close" aria-label="Close details">×</button>
     <h2>${esc(s.name)}</h2>
     <div class="meta"><span class="pill lane">${LANES[s.ci][1]}</span><span class="pill">Tier ${TIERS[s.tier - 1][0]} · ${TIERS[s.tier - 1][1]}</span>${s.crit ? '<span class="pill crit">Critical</span>' : ""}<span class="pill">up to +${s.tier * 20} XP</span></div>
     ${yt.length && CAN_EMBED ? `<div class="pics">${yt.map(([id, cap, src], i) => `<figure class="vid"><div class="ytframe"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=${i === 0 ? 1 : 0}&mute=0&loop=1&playlist=${id}&controls=1&rel=0&iv_load_policy=3&cc_load_policy=0&playsinline=1" title="${esc(cap)}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div><figcaption>${esc(cap)} · ${esc(src)} · <a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">open on YouTube ↗</a></figcaption></figure>`).join("")}</div>` : ""}
@@ -2110,6 +2249,7 @@ function select(key, move) {
   panel.querySelectorAll(".pathbtns button").forEach(b => b.addEventListener("click", () => setPath(key, b.dataset.path)));
   panel.querySelectorAll(".pics button").forEach(b => b.addEventListener("click", () => openLight(b.dataset.src)));
   panel.querySelector(".close").addEventListener("click", closePanel);
+  wireSheet(panel);
   panel.hidden = false;
   paint();
   markSelected();
@@ -2130,6 +2270,7 @@ function closePanel() {
   const panel = document.getElementById("panel");
   panel.hidden = true;
   panel.replaceChildren(); // removing the player stops the video and its sound
+  panel.classList.remove("full");
   markSelected(); paint();
 }
 function markSelected() {
@@ -2159,6 +2300,15 @@ function toast(msg, undo) {
 }
 
 build();
+wireSearch();
+document.getElementById("vMap").addEventListener("click", () => setView("map"));
+document.getElementById("vList").addEventListener("click", () => setView("list"));
+document.querySelectorAll(".ptabs button").forEach(b => b.addEventListener("click", () => setPracticeTab(b.dataset.tab)));
+document.getElementById("zhelp").addEventListener("click", e => {
+  const lg = document.getElementById("legend"), on = lg.classList.toggle("show");
+  e.currentTarget.setAttribute("aria-expanded", on);
+  if (on) lg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
 renderScenList();
 renderQuiz();
 // redraw the rank once the display font has loaded so its measurements are right
@@ -2167,6 +2317,7 @@ document.fonts && document.fonts.ready.then(() => { badgeRank = -1; paint(); });
 if (innerWidth < 640) { const e = R(3) + 90; vb = { x: -e, y: -e, w: e * 2, h: e * 2 }; applyVB(); } else fit();
 renderFilters();
 paint();
+{ let v = null; try { v = localStorage.getItem("climb-view"); } catch (e) {} if (v === "list") setView("list"); }
 </script>
 </body>
 </html>
