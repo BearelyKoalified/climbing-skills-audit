@@ -1676,18 +1676,25 @@ function select(key, move) {
     <div class="pathbtns"><button data-path="up">Show the path to this skill</button><button data-path="down">Show what it leads to</button></div>
     ${missing.length && !learned(s) ? `<p class="warn">Locked until you learn ${missing.map(k => esc(byKey[k].name)).join(" and ")}. You can still rate it if you already know it.</p>` : ""}
     <div class="levels"><h3>Your level</h3>
-      <div class="seg" role="group" aria-label="Your level">${LEVELS.map(([v, n]) => `<button data-v="${v}" aria-pressed="${level(s) === v}">${n}</button>`).join("")}</div>
-      ${needsReview(s) ? `<button class="redrill" id="redrill">I re-drilled it today</button>` : ""}
-      <small>${level(s) === 2 && dates[s.id] ? `Drilled on ${dates[s.id]}. ${needsReview(s) ? "It's been over six months, so it counts as Practiced until you re-drill it." : "You'll be reminded to re-drill it after six months."}` : "Learned: you know how. Practiced: you've done it for real. Drilled: you could do it tired, cold and in the dark."}</small>
+      <div class="seg" role="group" aria-label="Your level">${LEVELS.map(([v, n]) => `<button data-v="${v}">${n}</button>`).join("")}</div>
+      <button class="redrill" id="redrill" hidden>I re-drilled it today</button>
+      <small id="lvNote"></small>
     </div>
     <div class="learn"><h3>Learn it</h3><small>Opens a search on each source in a new tab.</small>
       ${tutorials(s).map(([what, src, url]) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${what}<span>${src} ↗</span></a>`).join("")}
     </div>
     ${credits.length ? `<p class="credits">Images via Wikimedia Commons: ${credits.join("; ")}.</p>` : ""}`;
+  // levels stack: Drilled also lights Learned and Practiced. Tapping your current top level steps back one.
   panel.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
-    const v = +b.dataset.v, before = level(s) ?? -1; setLevel(s, level(s) === v ? undefined : v); select(key); if (learned(s) && level(s) > before) celebrate(key);
+    const v = +b.dataset.v, cur = level(s), before = cur ?? -1;
+    let next = v;
+    if (v === 0) next = cur === 0 ? undefined : 0;
+    else if (cur === v) next = v === 2 ? 1.5 : v === 1.5 ? 1 : undefined;
+    setLevel(s, next); updateLevelUI(s); paint();
+    if (learned(s) && level(s) > before) celebrate(key);
   }));
-  const rd = panel.querySelector("#redrill"); if (rd) rd.addEventListener("click", () => { setLevel(s, 2); select(key); celebrate(key); toast("Re-drilled. Nice work."); });
+  updateLevelUI(s);
+  panel.querySelector("#redrill").addEventListener("click", () => { setLevel(s, 2); updateLevelUI(s); paint(); celebrate(key); toast("Re-drilled. Nice work."); });
   panel.querySelectorAll(".rel a").forEach(a => a.addEventListener("click", () => select(a.dataset.k, true)));
   panel.querySelectorAll(".pathbtns button").forEach(b => b.addEventListener("click", () => setPath(key, b.dataset.path)));
   panel.querySelectorAll(".pics button").forEach(b => b.addEventListener("click", () => openLight(b.dataset.src)));
@@ -1696,6 +1703,16 @@ function select(key, move) {
   paint();
   markSelected();
   if (move) centerOn(s);
+}
+// refresh just the level controls, leaving the rest of the panel (and its video) alone
+function updateLevelUI(s) {
+  const panel = document.getElementById("panel"), lv = level(s);
+  panel.querySelectorAll(".seg button").forEach(b => { const v = +b.dataset.v; b.setAttribute("aria-pressed", v === 0 ? lv === 0 : lv !== undefined && lv >= v); });
+  panel.querySelector("#redrill").hidden = !needsReview(s);
+  panel.querySelector("#lvNote").textContent = lv === 2 && dates[s.id]
+    ? `Drilled on ${dates[s.id]}. ${needsReview(s) ? "It's been over six months, so it counts as Practiced until you re-drill it." : "You'll be reminded to re-drill it after six months."}`
+    : "Learned: you know how. Practiced: you've done it for real. Drilled: you could do it tired, cold and in the dark. Tap your top level again to step back.";
+  const warn = panel.querySelector(".warn"); if (warn && learned(s)) warn.remove();
 }
 function closePanel() {
   selected = null;
