@@ -84,7 +84,7 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 
 .mapwrap { position: relative; margin-top: 16px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
   background: radial-gradient(circle at 50% 50%, var(--map-center), var(--map) 70%); }
-#map { display: block; width: 100%; height: min(84vh, 940px); min-height: 460px; touch-action: none; cursor: grab; user-select: none; }
+#map { display: block; width: 100%; height: min(calc(100vh - 190px), 940px); min-height: 460px; touch-action: none; cursor: grab; user-select: none; }
 #map.dragging { cursor: grabbing; }
 .controls { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; }
 .controls button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 600 18px var(--body); cursor: pointer; }
@@ -94,7 +94,14 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 12px; align-items: center; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend svg { overflow: visible; }
-.filters { margin-top: 14px; display: flex; flex-direction: column; gap: 9px; }
+/* the filter bar sticks to the top of the screen while you scroll or work in the map */
+.filters { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; padding: 10px 14px;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; box-shadow: 0 8px 20px rgba(0,0,0,.18); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 16; background: var(--bg); }
+@media (max-width: 700px) {
+  .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .chip { flex: none; }
+}
 .fgroup { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 .flabel { font: 600 12px var(--body); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); min-width: 72px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; }
