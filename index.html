@@ -213,6 +213,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .panel > * { flex-shrink: 0; }
 .pics img { display: block; width: 100%; height: 230px; object-fit: contain; }
 .pics figure.vid { flex-basis: 100%; }
+.pics iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; background: #000; }
+.ytlinks { display: flex; flex-direction: column; gap: 6px; }
+.ytlinks a { display: flex; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid var(--c); border-radius: 7px; color: var(--fg); text-decoration: none; font-weight: 600; font-size: 14px; }
+.ytlinks a span { font-weight: 400; font-size: 12px; color: var(--muted); }
 .pics video { display: block; width: 100%; height: 250px; object-fit: contain; background: #000; border-radius: 8px; }
 .pics figure:only-child img { height: 280px; }
 .pics figcaption { font-size: 12px; color: var(--muted); line-height: 1.35; }
@@ -334,7 +338,7 @@ button, .chip, .quest { touch-action: manipulation; }
 
   <div class="legend" id="legend"></div>
 
-  <p class="note">Skill XP per tier: 10 for Learned, 15 for Practiced, 20 for Drilled. Mastery counts skills at Practiced or Drilled, the same way Khan Academy only counts Proficient and Mastered skills. Knot photos and diagrams come from Wikimedia Commons under free licenses, credited in each panel. Tutorial links open searches on trusted instruction sources so you always get current material. Learn rescue, rappel and anchor systems in person from a qualified instructor or an experienced mentor, practice them close to the ground, and re-drill them every season.</p>
+  <p class="note">Skill XP per tier: 10 for Learned, 15 for Practiced, 20 for Drilled. Mastery counts skills at Practiced or Drilled, the same way Khan Academy only counts Proficient and Mastered skills. Knot photos and diagrams come from Wikimedia Commons under free licenses, credited in each panel. Tying videos play from YouTube, credited to their creators. Tutorial links open searches on trusted instruction sources so you always get current material. Learn rescue, rappel and anchor systems in person from a qualified instructor or an experienced mentor, practice them close to the ground, and re-drill them every season.</p>
 </div>
 
 <div class="panel" id="panel" hidden></div>
@@ -480,6 +484,29 @@ const IMG = {
   kmmoAlt: [],
   ifriction: [["img/klem.jpg", "Klemheist with a sling.", "klem"], ["img/bach.jpg", "Bachmann hitch around a carabiner.", "bach"]],
 };
+// YouTube tying tutorials, embedded with YouTube's own player (all checked as embeddable and on-topic)
+const YT = {
+  k8: [["aLopeVBb7yU", "Figure-8 follow-through", "Animated Knots by Grog"]],
+  kstop: [["Jehd_61AsN0", "Stopper knot", "REI"]],
+  kclove: [["pMRTmEZ4-JU", "Clove hitch, loop method", "Animated Knots by Grog"]],
+  kbight: [["kbB85p_uJsE", "Figure-8 on a bight", "REI"]],
+  kgirth: [["FhFmIKxW4lw", "Girth hitch", "REI"]],
+  kobight: [["_fOKk1HPjbI", "Overhand on a bight", "REI"]],
+  kauto: [["KHMSF6Py8Yc", "Autoblock", "REI"]],
+  keo: [["-w4Qin_1QZY", "Flat overhand bend", "Animated Knots by Grog"]],
+  kfish: [["O6oJwedcb18", "Double fisherman's", "Animated Knots by Grog"]],
+  kprus: [["CP7iAF_YU7A", "Prusik", "Animated Knots by Grog"], ["iqP7eWN4EIs", "Klemheist", "Animated Knots by Grog"]],
+  kmmo: [["IslYcjJ-htI", "Munter-mule. Add the overhand backup from the steps below.", "Animated Knots by Grog"]],
+  kfly: [["gX1dWKg6Ttc", "Alpine butterfly", "Animated Knots by Grog"]],
+  kgarda: [["pOnH2GRprIc", "Garda hitch", "The Knot Guide"]],
+  kbowl: [["YXRnPES0Qec", "Bowline. Finish it with the Yosemite tuck in the steps below.", "Animated Knots by Grog"]],
+  kwater: [["sO20BG1dkb0", "Water knot", "Animated Knots by Grog"]],
+  imunter: [["6HNCXTWojnI", "Munter hitch", "REI"]],
+  imrap: [["6HNCXTWojnI", "Munter hitch", "REI"]],
+  ifriction: [["iqP7eWN4EIs", "Klemheist", "Animated Knots by Grog"], ["04iWKJtQEWU", "Bachmann hitch", "Wooden Shoes Knots and Climbing"]],
+};
+// embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
+const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
 const CREDITS = {
   k8: ["Wagner Cxxx", "CC BY-SA 4.0", "Angeseilt_mit_Achter.jpg"], kstop: ["LadyofHats", "Public domain", "Double_overhand_knot.svg"],
   kclove: ["WikipedianYknOK", "CC BY-SA 3.0", "Clove_hitch_WPK.jpg"], kbight: ["WikipedianYknOK", "CC BY-SA 3.0", "Figure-of-eight_loop_2_WPK.jpg"],
@@ -1124,13 +1151,16 @@ const list = items => `<ul>${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>
 
 function select(key, move) {
   selected = key;
-  const s = byKey[key], panel = document.getElementById("panel"), how = HOW[key], pics = IMG[key] || [];
+  const s = byKey[key], panel = document.getElementById("panel"), how = HOW[key], yt = YT[key] || [];
+  const pics = (IMG[key] || []).filter(p => !(CAN_EMBED && yt.length && p[0].endsWith(".webm")));
   panel.style.setProperty("--c", `var(--c${s.ci})`);
   const missing = s.pre.filter(p => !learned(byKey[p]));
   const credits = [...new Set(pics.map(p => p[2]))].map(c => { const [a, lic, f] = CREDITS[c]; return `<a href="https://commons.wikimedia.org/wiki/File:${f}" target="_blank" rel="noopener noreferrer">${esc(a)}, ${esc(lic)}</a>`; });
   panel.innerHTML = `<button class="close" aria-label="Close details">×</button>
     <h2>${esc(s.name)}</h2>
     <div class="meta"><span class="pill lane">${LANES[s.ci][1]}</span><span class="pill">Tier ${TIERS[s.tier - 1][0]} · ${TIERS[s.tier - 1][1]}</span>${s.crit ? '<span class="pill crit">Critical</span>' : ""}<span class="pill">up to +${s.tier * 20} XP</span></div>
+    ${yt.length && CAN_EMBED ? `<div class="pics">${yt.map(([id, cap, src]) => `<figure class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&rel=0&playsinline=1" title="${esc(cap)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe><figcaption>${esc(cap)} · ${esc(src)} on YouTube</figcaption></figure>`).join("")}</div>` : ""}
+    ${yt.length && !CAN_EMBED ? `<div class="ytlinks">${yt.map(([id, cap, src]) => `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">▶ Watch: ${esc(cap)}<span>${esc(src)} ↗</span></a>`).join("")}</div>` : ""}
     ${pics.length ? `<div class="pics">${pics.map(([src, cap]) => src.endsWith(".webm") ? `<figure class="vid"><video src="${src}" muted autoplay loop playsinline controls preload="auto" aria-label="${esc(cap)}"></video><figcaption>${esc(cap)}</figcaption></figure>` : `<figure><button data-src="${src}" aria-label="Enlarge image"><img src="${src}" alt="${esc(cap)}" loading="lazy"></button><figcaption>${esc(cap)}</figcaption></figure>`).join("")}</div>` : ""}
     <p>${esc(s.what)}</p>
     ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
