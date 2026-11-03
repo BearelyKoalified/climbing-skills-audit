@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An interactive skill map for climbing technique, rescue and knots.">
+<style>[hidden]{display:none!important}body{margin:0}</style>
+<title>Climbing Skills Audit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+</head>
+<body>
+<style>
+/* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch. Progress shows as bronze, silver and gold rings around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
+:root {
+  --bg: #eef1f3;
+  --map: #fbfcfc;
+  --map-center: #ffffff;
+  --wedge: transparent;
+  --surface: #ffffff;
+  --fg: #0e1316;
+  --muted: #4b565d;
+  --line: #cfd6db;
+  --contour: #a9b3ba;
+  --edge: #a8b2b8;
+  --accent: #1557c0;
+  --crit: #d00000;
+  --ok: #138a36;
+  --bronze: #b0602a;
+  --silver: #7d8a94;
+  --gold: #d49b00;
+  --c0: #7b2cbf; --c1: #e06c00; --c2: #1f4fe0; --c3: #138a36; --c4: #d00000; --c5: #0091ad;
+  --c6: #8a5a2b; --c7: #d6248f; --c8: #5f8a00; --c9: #b5543f; --c10: #5d7f95;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
+  --line: #242c31; --contour: #39444b; --edge: #333e45; --accent: #5ab0ff; --crit: #ff4d4d; --ok: #3ddc84;
+  --bronze: #e08a45; --silver: #d4dde3; --gold: #ffcc33;
+  --c0: #b388ff; --c1: #ff9f1c; --c2: #4d7cff; --c3: #2ee66b; --c4: #ff3d3d; --c5: #22d3ee;
+  --c6: #e0a96d; --c7: #ff4fd8; --c8: #c6f432; --c9: #ffb3a7; --c10: #a8e6ff; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
+  --line: #242c31; --contour: #39444b; --edge: #333e45; --accent: #5ab0ff; --crit: #ff4d4d; --ok: #3ddc84;
+  --bronze: #e08a45; --silver: #d4dde3; --gold: #ffcc33;
+  --c0: #b388ff; --c1: #ff9f1c; --c2: #4d7cff; --c3: #2ee66b; --c4: #ff3d3d; --c5: #22d3ee;
+  --c6: #e0a96d; --c7: #ff4fd8; --c8: #c6f432; --c9: #ffb3a7; --c10: #a8e6ff; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
+.lede { color: var(--muted); max-width: 76ch; margin: 8px 0 0; }
+
+.hud { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; margin-top: 20px; }
+@media (max-width: 760px) { .hud { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.rank { display: flex; gap: 14px; align-items: center; }
+.badge { flex: none; width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; font: 700 26px var(--display);
+  border: 3px solid var(--gold); box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 5px var(--contour); }
+.rank-body { flex: 1; min-width: 0; }
+.rank-name { font: 700 26px/1 var(--display); text-transform: uppercase; }
+.rank-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.xpbar { height: 8px; border-radius: 4px; background: var(--bg); margin-top: 10px; overflow: hidden; }
+.xpbar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--bronze), var(--silver), var(--gold)); transition: width .5s; }
+.xpnums { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.skip { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.skip select, .skip button { font: 500 13px var(--body); border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 6px; padding: 3px 8px; }
+.skip button { cursor: pointer; }
+.skip button.go { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.next h2 { font-size: 18px; }
+.next p { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.quests { display: flex; flex-wrap: wrap; gap: 6px; }
+.quest { display: inline-flex; align-items: center; gap: 6px; font: 500 13px var(--body); border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 3px 10px 3px 6px; cursor: pointer; }
+.quest i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.quest.crit { border-color: var(--crit); }
+.quest.review { border-color: var(--gold); border-style: dashed; }
+.quest:hover { border-color: var(--fg); }
+
+.mapwrap { position: relative; margin-top: 16px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, var(--map-center), var(--map) 70%); }
+#map { display: block; width: 100%; height: min(84vh, 940px); min-height: 460px; touch-action: none; cursor: grab; user-select: none; }
+#map.dragging { cursor: grabbing; }
+.controls { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; }
+.controls button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 600 18px var(--body); cursor: pointer; }
+.hint { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; max-width: calc(100% - 200px); }
+.linkbtn { position: absolute; right: 12px; bottom: 10px; font: 500 12px var(--body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.linkbtn[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 12px; align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend svg { overflow: visible; }
+.filters { margin-top: 14px; display: flex; flex-direction: column; gap: 9px; }
+.fgroup { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.flabel { font: 600 12px var(--body); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); min-width: 72px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; }
+.chip { font: 500 13px var(--body); border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 999px; padding: 3px 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.chip i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.chip[aria-pressed="true"] i { box-shadow: 0 0 0 1.5px var(--surface); }
+.fpath { font-size: 13.5px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 6px 10px; border-radius: 8px; background: var(--bg); }
+.fsum { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+.pathbtns { display: flex; gap: 6px; flex-wrap: wrap; }
+.pathbtns button { flex: 1; font: 600 13px var(--body); border: 1px solid var(--c); background: transparent; color: var(--fg); border-radius: 7px; padding: 6px 8px; cursor: pointer; }
+.pathbtns button:hover { background: var(--bg); }
+.nd.hidden { opacity: .06 !important; pointer-events: none; }
+.nd.hidden .lbl { display: none; }
+.edge.hidden { opacity: 0 !important; }
+#map.filtered .edge.cross:not(.hidden) { opacity: .55; }
+
+/* SVG map */
+.wedge { fill: var(--wedge); }
+.contour { fill: none; stroke: var(--contour); stroke-width: 1.5; opacity: .5; }
+.tierlbl { font: 700 15px var(--display); letter-spacing: .08em; text-transform: uppercase; fill: var(--contour); text-anchor: middle;
+  paint-order: stroke; stroke: var(--map); stroke-width: 5px; stroke-linejoin: round; }
+.lanehit { cursor: pointer; }
+.lanelbl { font: 700 26px var(--display); letter-spacing: .1em; text-transform: uppercase; text-anchor: middle; fill: var(--c); }
+.lanehit:hover .lanelbl { text-decoration: underline; }
+.lanecount { font: 500 12px var(--mono); text-anchor: middle; fill: var(--muted); }
+.edge { fill: none; stroke: var(--edge); stroke-width: 1.5; transition: opacity .2s; }
+.edge.met { stroke: var(--c); stroke-width: 2; opacity: .6; }
+.edge.cross { opacity: 0; }
+#map.showall .edge.cross { opacity: .35; }
+#map.focus .edge:not(.hl) { opacity: 0; }
+#map.focus .edge.hl { opacity: 1; stroke: var(--fg); stroke-width: 2.6; }
+#map.focus .nd:not(.related):not(.sel):not(.focal) { opacity: .4; }
+.nd.focal .halo { opacity: .45; animation: none; transform: scale(1.25); transform-box: fill-box; transform-origin: center; }
+.nd.focal .fill { stroke-width: 4.5; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
+.nd.focal .lbl { font-size: 14.5px; font-weight: 700; }
+.nd.related .fill { stroke-width: 3.5; }
+.nd { cursor: pointer; transition: opacity .2s; }
+.nd .halo { fill: var(--c); opacity: 0; }
+.nd .ring { fill: none; stroke: transparent; stroke-width: 4.5; }
+.nd .fill { fill: color-mix(in srgb, var(--c) 38%, var(--surface)); stroke: var(--c); stroke-width: 2.6; }
+.nd .star { font-size: 13px; text-anchor: middle; dominant-baseline: central; fill: var(--surface); opacity: 0; pointer-events: none; }
+.nd .critmark { fill: var(--crit); stroke: var(--surface); stroke-width: 1.5; }
+.nd .lock { opacity: 0; }
+.nd .lock circle { fill: var(--fg); stroke: var(--surface); stroke-width: 1.2; }
+.nd .lock rect { fill: var(--surface); }
+.nd .lock path { fill: none; stroke: var(--surface); stroke-width: 1.3; }
+.nd .lbl { font: 600 12.5px var(--body); fill: var(--fg); text-anchor: middle; paint-order: stroke; stroke: var(--map); stroke-width: 4.5px; stroke-linejoin: round; pointer-events: none; }
+.nd.locked .lock { opacity: 1; }
+.nd.avail .halo { opacity: .25; animation: pulse 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.nd.lv-gap .ring { stroke: var(--crit); stroke-dasharray: 4 3; }
+.nd.lv-1 .ring { stroke: var(--bronze); }
+.nd.lv-15 .ring { stroke: var(--silver); }
+.nd.lv-2 .ring { stroke: var(--gold); stroke-width: 5.5; }
+.nd.lv-1 .fill, .nd.lv-15 .fill, .nd.lv-2 .fill, .nd.lv-review .fill { fill: var(--c); }
+.nd.lv-1 .star, .nd.lv-15 .star, .nd.lv-2 .star, .nd.lv-review .star { opacity: 1; font-weight: 700; }
+.nd.lv-2 .star, .nd.lv-review .star { fill: var(--gold); font-size: 16px; paint-order: stroke; stroke: rgba(0,0,0,.35); stroke-width: 1px; }
+.nd.lv-review .ring { stroke: var(--gold); stroke-dasharray: 5 4; }
+.nd.sel .halo { opacity: .35; animation: none; }
+.nd:hover .fill, .nd:focus-visible .fill { stroke-width: 4; }
+.nd:focus { outline: none; }
+.nd:focus-visible .halo { opacity: .45; }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: .28; } 50% { transform: scale(1.3); opacity: .08; } }
+.center-disc { fill: var(--surface); stroke: var(--fg); stroke-width: 2; }
+.center-ring { fill: none; stroke: var(--gold); stroke-width: 2; stroke-dasharray: 3 4; }
+.center-k { font: 600 11px var(--display); letter-spacing: .2em; text-anchor: middle; fill: var(--muted); }
+.center-n { font: 700 40px var(--display); text-anchor: middle; fill: var(--fg); }
+.center-r { font: 600 13px var(--display); letter-spacing: .06em; text-transform: uppercase; text-anchor: middle; fill: var(--fg); }
+
+/* Panel */
+.panel { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--line); border-top: 5px solid var(--c); border-radius: 12px; padding: 16px 18px 18px; box-shadow: 0 16px 48px rgba(0,0,0,.25);
+  display: flex; flex-direction: column; gap: 11px; }
+.panel h2 { font-size: 28px; line-height: 1.02; padding-right: 34px; }
+.meta { display: flex; flex-wrap: wrap; gap: 5px; }
+.pill { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border-radius: 3px; background: var(--bg); color: var(--muted); }
+.pill.lane { background: var(--c); color: var(--surface); }
+.pill.crit { background: transparent; border: 1px solid var(--crit); color: var(--crit); }
+.pics { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.pics figure { margin: 0; flex: 1 0 46%; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.pics figure:only-child { flex-basis: 100%; }
+.pics button { padding: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #fff; cursor: zoom-in; display: block; }
+.pics img { display: block; width: 100%; height: 190px; object-fit: contain; }
+.pics figcaption { font-size: 12px; color: var(--muted); line-height: 1.35; }
+.panel p { margin: 0; font-size: 14px; }
+.usegrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+@media (max-width: 480px) { .usegrid { grid-template-columns: minmax(0, 1fr); } }
+.usegrid div { border-radius: 8px; padding: 9px 11px; background: var(--bg); min-width: 0; }
+.usegrid h3 { font-size: 15px; margin-bottom: 4px; }
+.usegrid .yes h3 { color: var(--ok); }
+.usegrid .no h3 { color: var(--crit); }
+.usegrid ul { margin: 0; padding-left: 17px; font-size: 13px; display: flex; flex-direction: column; gap: 3px; }
+.steps h3 { font-size: 15px; margin-bottom: 4px; }
+.steps ol { margin: 0; padding-left: 20px; font-size: 13.5px; display: flex; flex-direction: column; gap: 3px; }
+.gear { font: 13px var(--mono); color: var(--muted); }
+.gear b, .pit b, .rel b { color: var(--fg); font: 600 13px var(--body); }
+.pit, .rel { font-size: 13px; color: var(--muted); }
+.rel a { color: var(--fg); cursor: pointer; text-decoration: underline; text-decoration-color: var(--c); text-underline-offset: 2px; }
+.rel a.miss { color: var(--crit); text-decoration-color: var(--crit); }
+.warn { font-size: 13px; color: var(--crit); }
+.levels h3 { font-size: 15px; margin-bottom: 5px; }
+.seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+.seg button { font: 600 12.5px var(--body); padding: 7px 2px; border: 2px solid var(--line); background: transparent; color: var(--fg); border-radius: 7px; cursor: pointer; }
+.seg button[data-v="0"] { border-color: color-mix(in srgb, var(--crit) 45%, var(--line)); }
+.seg button[data-v="1"] { border-color: color-mix(in srgb, var(--bronze) 55%, var(--line)); }
+.seg button[data-v="1.5"] { border-color: color-mix(in srgb, var(--silver) 60%, var(--line)); }
+.seg button[data-v="2"] { border-color: color-mix(in srgb, var(--gold) 60%, var(--line)); }
+.seg button[aria-pressed="true"][data-v="0"] { background: var(--crit); border-color: var(--crit); color: var(--surface); }
+.seg button[aria-pressed="true"][data-v="1"] { background: var(--bronze); border-color: var(--bronze); color: var(--surface); }
+.seg button[aria-pressed="true"][data-v="1.5"] { background: var(--silver); border-color: var(--silver); color: var(--surface); }
+.seg button[aria-pressed="true"][data-v="2"] { background: var(--gold); border-color: var(--gold); color: #1d2420; }
+.levels small { display: block; font-size: 12px; color: var(--muted); margin-top: 5px; }
+.redrill { font: 600 13px var(--body); border: 2px dashed var(--gold); background: transparent; color: var(--fg); border-radius: 7px; padding: 6px; cursor: pointer; margin-top: 6px; width: 100%; }
+.learn { border-top: 1px dashed var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.learn h3 { font-size: 17px; }
+.learn small, .credits { font-size: 12px; color: var(--muted); }
+.learn a { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; color: var(--fg); text-decoration: none; font-size: 14px; }
+.learn a span { font-size: 12px; color: var(--muted); }
+.learn a:hover { border-color: var(--c); }
+.credits a { color: var(--muted); }
+.close { position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 50%; background: var(--bg); color: var(--fg); cursor: pointer; font-size: 16px; line-height: 1; }
+button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.lightbox { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.82); display: grid; place-items: center; cursor: zoom-out;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.lightbox img { max-width: 100%; max-height: 90vh; border-radius: 8px; background: #fff; }
+.toast { position: fixed; z-index: 30; left: 50%; top: calc(16px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg);
+  font: 700 18px var(--display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 18px; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+.note { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 82ch; }
+@media (prefers-reduced-motion: reduce) { .nd.avail .halo { animation: none; } .xpbar i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Climbing Skills Audit</h1>
+    <p class="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each colored wedge is a branch. Earn a bronze ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
+  </header>
+
+  <div class="hud">
+    <div class="card">
+      <div class="rank">
+        <div class="badge" id="rankNum">1</div>
+        <div class="rank-body">
+          <div class="rank-name" id="rankName">Fresh Chalk</div>
+          <div class="rank-sub" id="rankSub"></div>
+          <div class="xpbar"><i id="xpFill" style="width:0"></i></div>
+          <div class="xpnums"><span id="xpNums"></span><span id="mastery"></span></div>
+        </div>
+      </div>
+      <div class="skip" id="skip">
+        <span>Already experienced? Mark every unrated skill through</span>
+        <select id="skipTier" aria-label="Tier"></select>
+        <span>as Learned.</span>
+        <button id="skipBtn">Mark them</button>
+      </div>
+    </div>
+    <div class="card next">
+      <h2>Up next</h2>
+      <p>Skills due for review, then unlocked skills you haven't learned, critical ones first.</p>
+      <div class="quests" id="quests"></div>
+    </div>
+  </div>
+
+  <div class="card filters" id="filters">
+    <div class="fgroup"><span class="flabel">Branches</span><div class="chips" id="fLanes"></div></div>
+    <div class="fgroup"><span class="flabel">Show</span><div class="chips" id="fShow"></div></div>
+    <div class="fpath" id="fPath" hidden></div>
+    <div class="fsum"><span id="fCount"></span><button class="chip" id="fReset">Show everything</button></div>
+  </div>
+
+  <div class="mapwrap">
+    <svg id="map" role="group" aria-label="Skill map"></svg>
+    <div class="controls">
+      <button id="zin" aria-label="Zoom in">+</button>
+      <button id="zout" aria-label="Zoom out">−</button>
+      <button id="zfit" aria-label="Fit whole map">⤢</button>
+    </div>
+    <div class="hint">Drag to pan · scroll or pinch to zoom · tap a branch name to zoom in</div>
+    <button class="linkbtn" id="zlinks" aria-pressed="false">Show all connections</button>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <p class="note">Skill XP per tier: 10 for Learned, 15 for Practiced, 20 for Drilled. Mastery counts skills at Practiced or Drilled, the same way Khan Academy only counts Proficient and Mastered skills. Knot photos and diagrams come from Wikimedia Commons under free licenses, credited in each panel. Tutorial links open searches on trusted instruction sources so you always get current material. Learn rescue, rappel and anchor systems in person from a qualified instructor or an experienced mentor, practice them close to the ground, and re-drill them every season.</p>
+</div>
+
+<div class="panel" id="panel" hidden></div>
+<div class="lightbox" id="lightbox" hidden><img id="lightimg" alt=""></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+const TIERS = [
+  ["I", "First Ropes"], ["II", "Crag Ready"], ["III", "Outdoor Systems"], ["IV", "Descent & Trad"],
+  ["V", "Multipitch"], ["VI", "Self-Rescue"], ["VII", "Expert & Alpine"]];
+const LANES = [
+  ["knots", "Knots", "Knot Master"], ["belay", "Belaying", "Iron Brake Hand"], ["lead", "Leading", "Sharp End"], ["trad", "Trad", "Gear Whisperer"],
+  ["anchor", "Anchors", "Bomber Builder"], ["rap", "Rappelling", "Descent Pro"], ["mp", "Multipitch", "Wall Partner"],
+  ["res", "Rescue", "Rescuer"], ["imp", "Improvising", "MacGyver"], ["judg", "Judgment", "Old Hand"], ["alp", "Alpine", "Mountaineer"]];
+const RANKS = [
+  [0, "Fresh Chalk"], [.05, "Top-Rope Regular"], [.14, "Crag Climber"], [.26, "Gear Placer"],
+  [.40, "Rope Gun"], [.56, "Wall Partner"], [.72, "Self-Rescuer"], [.88, "Alpine Veteran"]];
+const LEVELS = [[0, "Gap"], [1, "Learned"], [1.5, "Practiced"], [2, "Drilled"]];
+const REVIEW_DAYS = 180;
+
+// key, lane, tier, critical, prerequisites, name, what, gear, watch for
+const N = [
+ ["k8","knots",1,1,"","Figure-8 follow-through","The standard tie-in to your harness. Dress it, set it, leave a fist-length tail.","rope, harness","Getting distracted mid-tie and leaving it unfinished."],
+ ["kstop","knots",1,1,"","Stopper knot","A double overhand in the rope end so it can't pass through a belay or rappel device.","none","Skipping it on a lower or rappel that looks short."],
+ ["kclove","knots",2,0,"k8","Clove hitch","An adjustable attachment to a locker. Your main anchor tether on multipitch.","locking carabiner","Tying it on a non-locking carabiner."],
+ ["kbight","knots",2,0,"k8","Figure-8 on a bight","A strong fixed loop for clipping in, master points and mid-rope tie-ins.","none","A loop too small to clip a second carabiner."],
+ ["kgirth","knots",2,0,"","Girth hitch","Attaches a sling to your harness or around a tree or horn.","sling","Girth-hitching Dyneema slings into chains, which weakens them."],
+ ["kobight","knots",3,0,"kbight","Overhand on a bight","A low-bulk fixed loop for cordelette master points and isolating strands.","none","Hard to untie after a big load."],
+ ["kauto","knots",3,1,"kstop","Autoblock","A friction hitch below your rappel device that backs up your brake hand.","autoblock cord","Too many or too few wraps for the rope diameter."],
+ ["keo","knots",4,1,"kobight","Flat overhand (rope join)","Joins two ropes for rappels. Tails at least 30 cm, pulled very tight.","none","Using a flat figure-8, which can roll off the rope end."],
+ ["kfish","knots",4,0,"k8","Double fisherman's","Joins cord into a permanent loop for prusiks or a cordelette.","accessory cord","Tails too short."],
+ ["kprus","knots",5,1,"kauto","Prusik and Klemheist","Friction hitches that grip under load and slide when unloaded.","prusik loops, sling","Cord too close to the rope diameter, so it slips."],
+ ["kmmo","knots",5,1,"imunter","Munter-mule-overhand","Locks off a Munter so it can be released under load. The base of most rescue systems.","HMS locker","Leaving off the backup overhand."],
+ ["kfly","knots",5,0,"kbight","Alpine butterfly","A mid-rope loop that takes load in any direction. For glacier travel and isolating rope damage.","none","Tying a look-alike that capsizes."],
+ ["kgarda","knots",7,0,"kclove","Garda hitch / alpine clutch","A two-carabiner hitch that lets rope run one way only.","2 identical carabiners","It can't be released under load."],
+ ["kbowl","knots",7,0,"k8","Bowline variations","A Yosemite or double bowline tie-in, easy to untie after falls.","none","Easy to tie wrong. Needs a solid finish."],
+ ["kwater","knots",7,0,"kfish","Water knot","Joins the ends of flat webbing.","webbing","It slowly loosens. Check it every time."],
+
+ ["btr","belay",1,1,"","Top-rope belay and lower","Brake-hand discipline, taking in slack and controlled lowering.","belay device, locker","Letting go of the brake strand to adjust anything."],
+ ["bsoft","belay",2,1,"btr","Soft lead catch","Give a dynamic catch by moving with the fall, so the climber doesn't slam into the wall.","any device","Too much slack low on the route. Below the third clip, a soft catch can turn into a ground fall."],
+ ["bweight","belay",3,0,"bsoft","Belaying with a big weight difference","Stand close to the wall, anchor yourself to the ground, or use an inline resistor when the climber is much heavier than you.","ground anchor sling, resistor","Standing far back, so the belayer gets yanked into the first bolt."],
+ ["bguide","belay",4,1,"btr,kclove","Guide-mode belay from above","Belay followers directly off the anchor with an auto-locking device.","guide-mode device, locker","Treating it as hands-free. Keep a hand on the brake strand."],
+ ["bmp","belay",5,1,"bsoft,bguide","Belaying a leader off a multipitch anchor","Clip a first piece right off the belay and position yourself so a fall never comes straight onto the anchor.","quickdraw on the anchor","Leader falls past the belay before the first piece: a factor-2 fall."],
+ ["bdirect","belay",5,0,"bguide","Direct, redirected and harness belays","Know when to belay off the anchor, through a redirect, or off your harness, and how much load each puts on the anchor.","none","Redirecting a lead belay through a single piece, which roughly doubles the load on it."],
+ ["brelease","belay",6,1,"bguide,kprus","Releasing a loaded guide-mode device","Lower a weighted follower using a redirect and the release hole, with a backup hitch.","sling or cord, extra carabiner","Levering it open without a redirect and dropping the climber."],
+ ["btwo","belay",7,0,"bguide","Belaying two followers","Bring up two followers at once, on one rope or two.","device that takes two ropes","Ropes crossing and jamming the device."],
+
+ ["lclip","lead",2,0,"btr","Clean clipping","Avoid back-clips and Z-clips, keep the rope in front of your leg, clip from a stable stance.","quickdraws","Rope behind the leg flips you upside down in a fall."],
+ ["lfall","lead",2,0,"btr","Falling well","Feet on the wall, hands off the draws, eyes on what's below. Know where a fall is not an option.","none","Grabbing a quickdraw on the way down."],
+ ["lclean","lead",3,1,"lclip,kclove","Cleaning a sport anchor","Thread and lower, or rappel, with the plan agreed on the ground before the climber leaves.","personal tether, 2 lockers","Belayer takes the climber off belay after a miscommunication. A very common accident."],
+ ["lbail","lead",4,1,"lclean","Bailing mid-route","Lower off a single good piece or bail carabiner, backed up until the last climber.","quick link, old carabiner, nut","Lowering with the rope running through a nylon sling. The friction melts it."],
+ ["laid","lead",7,0,"tcams","Aid and French-free climbing","Pull on or stand in gear to get through a crux or out of trouble.","slings or aiders","Never practicing it until you need it on a route."],
+
+ ["tmock","trad",3,0,"btr,lclip","Mock leading","Lead on gear while also on a top rope, so you practice placements with no risk.","rack, top rope","Treating mock-lead placements as proven. Nobody has fallen on them."],
+ ["track","trad",3,0,"lclip","Racking and gear selection","Organize the rack and pick gear for the crack sizes on the topo, with enough slings.","rack, slings","Running out of the size you need at the crux."],
+ ["tclean","trad",3,0,"lclip","Cleaning trad gear","Remove nuts and cams with a nut tool without dropping them, and free stuck pieces.","nut tool","Yanking a stuck cam deeper into the crack."],
+ ["tcrack","trad",4,0,"lfall","Crack climbing technique","Finger, hand and fist jams, and resting on jams while you place gear.","tape or crack gloves","Over-gripping. Good jams let you rest."],
+ ["tnuts","trad",4,1,"track","Placing nuts and passive gear","Seat nuts in constrictions with full contact for the direction of pull, and set them with a tug.","nuts, hexes","Nuts that lift out when the rope pulls up or sideways."],
+ ["tcams","trad",4,1,"track","Placing cams","Cams in parallel-sided cracks, lobes in their good range, stem pointing the way you'd fall.","cams","Overcammed, tipped-out or walking cams."],
+ ["trock","trad",4,1,"jrock","Judging rock quality","Spot loose blocks, hollow flakes and weak rock before trusting gear or holds.","none","A cam behind a flake that expands when loaded."],
+ ["textend","trad",5,0,"tnuts,tcams","Extending gear to manage drag","Use runners on wandering lines and make the first piece multidirectional so it doesn't zipper.","alpine draws","Rope drag lifting pieces out, or a crack zippering in a fall."],
+ ["tsecond","trad",5,0,"tnuts,tcams","Protecting the follower","Place gear after traverses and cruxes so the second doesn't take a big swing.","slings","A long traverse with no gear right before the belay."],
+
+ ["abolt","anchor",3,0,"kclove,kbight","Bolted anchors","Two-bolt setups using a master point, a quad, or clove hitches with the lead rope.","slings or quad, lockers","A single sling clipped across both bolts in a triangle, which multiplies the force on each."],
+ ["atr","anchor",3,0,"kbight","Toprope setups over edges","Extend the master point over the lip and protect the rope from the edge.","static line or long slings, rope protector","Loaded rope sawing back and forth over a sharp edge."],
+ ["afixed","anchor",4,1,"abolt","Assessing fixed gear","Check bolts, hangers, pitons and tat for spinning, rust, cracks and sun fading.","knife, spare cord, quick links","Rappelling off sun-bleached tat without replacing it or backing it up."],
+ ["anat","anchor",4,0,"kgirth","Natural anchors","Judge trees, horns, threads, chockstones and boulders by size, roots and the direction of pull.","slings, cord","A sling rolling off a horn when the pull is upward or sideways."],
+ ["agear","anchor",5,1,"tnuts,tcams,afixed","Gear anchor principles","Strong, redundant, load spread sensibly, little extension if a piece fails, built for the expected direction of pull.","rack, cordelette","Two pieces behind the same flake, so one failure takes both."],
+ ["arope","anchor",5,0,"kclove,abolt","Anchor built with the climbing rope","Clove hitches to each piece and a master point made with the lead rope. No cordelette needed.","lead rope, lockers","Not planning the changeover, so swapping leads gets messy."],
+ ["aup","anchor",6,0,"agear","Upward-pull protection","Add a piece that holds an upward pull, for leader falls onto the belay or traverses.","one nut or cam","Belayer lifted off the ledge, pulling a downward-only anchor apart."],
+
+ ["rclose","rap",2,1,"kstop","Closing the system","Stopper knots in both ends, every time, and confirm the rope reaches the ground or next station.","none","Lowering or rappelling off the end of the rope."],
+ ["rfire","rap",3,0,"rclose","Fireman's belay","Pull down on the rope ends from below to stop a rappeller who loses control.","none","The person below not watching or not holding the ends."],
+ ["rext","rap",4,1,"kauto,rclose","Extended rappel with autoblock","Device on an extension, autoblock backup below it on the belay loop or leg loop.","sling or tether, autoblock cord, locker","Autoblock long enough to touch the device, so it never grabs."],
+ ["rwind","rap",4,0,"rclose","Rappelling in wind and tangles","Saddlebag the rope on your harness or feed it out as you go instead of throwing it.","slings or rope bags","Throwing the rope into a tree or flake where it snags."],
+ ["rpre","rap",5,0,"rext","Pre-rigging and partner checks","Both climbers rig before the first one goes, so you can check each other.","an extension for each climber","The second rigging alone with nobody watching."],
+ ["rstuck","rap",5,1,"rext","Stuck rope prevention and recovery","Test-pull before the last person leaves and watch where the knot sits. If it sticks, ascend both strands with backups.","prusiks","Climbing a single strand of a stuck rope that could suddenly come free."],
+ ["rblock","rap",7,0,"rext","Single-strand and blocked rappels","Use a carabiner or clove-hitch block to rappel a full rope length and pull it with a light cord.","locker, pull cord","Rappelling on the strand that gets pulled."],
+ ["rknot","rap",7,0,"rext,kprus","Passing a knot on rappel","Get past a joining knot on a long rappel or during a rescue lower.","prusiks, sling, locker","Letting go of the brake to deal with the knot."],
+
+ ["mcomm","mp",3,1,"jcheck","Communication without sight or sound","Agreed commands, a rope-tug system, or radios, and a plan for when you can't hear each other.","radios (optional)","Mistaking another party's \"off belay\" for your partner's."],
+ ["mretreat","mp",5,1,"rext,keo","Retreat planning","Know the rappel line, rope lengths needed and bail options before leaving the ground, and carry bail gear.","quick links, cord, knife, headlamp","Committing to a route whose rappels need two ropes when you brought one."],
+ ["mchange","mp",5,0,"abolt,bguide","Efficient changeovers","Run belay transitions in a fixed order so nobody is ever unattached and nothing gets dropped.","none","Unclipping from the anchor to get a better position."],
+ ["mropes","mp",5,0,"kclove","Rope management at hanging belays","Stack the rope in lap coils or over your tether so it feeds cleanly for the next lead.","none","Rope hanging down into cracks and snagging."],
+ ["msimul","mp",7,0,"mchange,kprus","Simul-climbing and short-fixing","Moving together with protection and progress capture, or the leader self-belaying while the follower ascends.","progress capture device","A follower fall pulling the leader off. Needs strong judgment."],
+ ["mhaul","mp",7,0,"bguide","Hauling a pack","Simple hauls off the anchor with a guide-mode device or progress capture pulley.","progress capture device","Hauling off your harness instead of the anchor."],
+
+ ["rshort","res",3,1,"rclose,btr","Recognizing a rope too short to lower","Spot it before the end reaches the device. Tie in the end and have the climber anchor or rappel instead.","stopper knot","The end running through the device. A common lowering accident."],
+ ["rlower","res",6,0,"kmmo,bdirect","Lowering an injured climber","Lower off the anchor with a Munter or redirected device, including a knot pass if ropes are tied together.","locker","Lowering them into terrain you can't reach afterward."],
+ ["rasc","res",6,1,"kprus","Ascending with friction hitches","Two friction hitches, one to your harness and one to a foot loop, with backup knots tied below as you go.","2 prusik loops, sling","No backup knot below the hitches, so a slip means a fall."],
+ ["rasc2","res",6,0,"kprus,bguide","Ascending with a guide-mode device","Faster and safer than two hitches: device in guide mode on your harness, one hitch to a foot loop.","guide-mode device, prusik, sling","Device rigged the wrong way so it doesn't lock."],
+ ["rescape","res",6,1,"kmmo,kprus","Escaping the belay","Tie off the device, then move the load onto the anchor with a friction hitch and a Munter-mule so you're free to act.","prusik, cordelette, 2 lockers","Moving the load onto an anchor nobody has checked."],
+ ["rdamage","res",6,0,"kfly","Isolating a damaged rope","Tie an alpine butterfly around a core shot so the rope can still be used to descend.","none","Rappelling over the damage."],
+ ["rhaul","res",7,1,"rescape","Hauling systems (assisted, 3:1, 6:1)","Raise a climber who can't climb, using friction hitches and carabiners.","prusiks, spare carabiners, pulley (optional)","Overloading a weak anchor. Carabiners instead of pulleys lose much of the advantage."],
+ ["rcounter","res",7,0,"rasc,rext","Counterbalance rappel","Reach a hurt climber by rappelling the opposite strand with them as the counterweight, then descend together.","prusik, slings, lockers","Unweighting the rope so the injured climber drops."],
+ ["rtandem","res",7,0,"rext,rescape","Tandem rappel with a patient","Rappel with an incapacitated partner clipped to your extension.","slings, autoblock, extra friction","Too little friction for the weight of two people."],
+
+ ["imunter","imp",3,1,"btr","Munter hitch belay","Belay or lower on a pear-shaped locker if you drop your device.","1 HMS locker","Loading the brake strand across the gate, which can unscrew it."],
+ ["ibail","imp",3,0,"kgirth","Carrying bail gear on the harness","A knife, quick links, extra cord and a spare locker on you, not in the pack at the base.","knife, 2 quick links, 5 m cord","Leaving it all in the pack."],
+ ["imrap","imp",4,0,"imunter","Munter hitch rappel","Rappel with a Munter on one or both strands.","HMS locker","Heavy twisting. Keep strands managed."],
+ ["iharness","imp",4,0,"kgirth","Improvised harness","Diaper harness from a 120 cm sling or a Swiss seat tied with rope. Add a chest harness for an unconscious climber.","120 cm sling, locker","No backup if a single sling fails."],
+ ["ifriction","imp",6,0,"kprus","Friction hitch substitutes","Klemheist with a sewn sling, or a Bachmann around a carabiner, when you have no prusik cord.","nylon sling, carabiner","Dyneema slings grip poorly and can melt under friction."],
+ ["ipulley","imp",6,0,"kprus","Carabiner in place of a pulley","Redirect the rope through a carabiner. Expect a lot more friction.","carabiner","Planning a haul around ideal mechanical advantage."],
+ ["icbrake","imp",7,0,"imrap","Carabiner brake rappel","Stack several carabiners across each other to make a friction brake.","4 to 6 carabiners","The rope running over a gate."],
+ ["ibody","imp",7,0,"imrap","Body rappel (Dülfersitz)","Wrap the rope around your body for friction on low-angle terrain only.","rope only","Using it on steep ground. Painful and hard to control."],
+ ["ihip","imp",7,0,"imunter","Hip belay","Body belay with no device or carabiner, for low-angle terrain and followers.","rope only","Expecting it to hold a hard lead fall."],
+
+ ["jcheck","judg",1,1,"","Partner checks","Knots, harness buckles, lockers, device threading and rope end, every time.","none","Skipping it when tired or climbing with someone familiar."],
+ ["jrock","judg",2,0,"","Rockfall awareness","Helmet on, belayer out of the fall line, call \"Rock!\", don't climb beneath other parties.","helmet","Belaying directly under the climber on loose terrain."],
+ ["jgear","judg",2,0,"","Gear inspection and retirement","Check rope, slings, harness and cams, and know when to retire them.","none","Old soft goods kept long past their life."],
+ ["jlength","judg",2,1,"jcheck","Rope length awareness","Know your rope length and pitch lengths, and watch the middle mark.","none","Assuming the guidebook pitch matches your rope."],
+ ["jtopo","judg",4,0,"jrock","Topo reading and descent research","Know the route, belays and descent before you leave the ground.","topo, photos","Finding out about the descent on the summit."],
+ ["jscramble","judg",4,0,"jrock","Scrambling and downclimbing","Move safely on 3rd and 4th class terrain and know when to rope up.","none","Approaches and descents cause a large share of accidents."],
+ ["jweather","judg",5,1,"jlength","Weather and turnaround times","Read the forecast and the sky, and set a turnaround time you stick to.","none","Pushing on because the top feels close."],
+ ["jfirst","judg",5,1,"jcheck","First aid and an emergency plan","A wilderness first aid course, a satellite messenger and a trip plan left with someone at home.","first aid kit, satellite messenger, headlamp","No way to call for help out of cell range."],
+
+ ["aself","alp",6,0,"jscramble","Self-arrest","Stop a slide with an ice axe from any position, including head-first.","ice axe","Practicing only the easy feet-first case."],
+ ["asnow","alp",7,0,"aself","Snow anchors","Pickets, buried deadman anchors and snow bollards.","pickets, shovel","Placing pickets in snow too soft to hold them."],
+ ["aglacier","alp",7,0,"kfly,kprus","Glacier travel and crevasse rescue","Rope team spacing and knots, then the drop-loop and Z-drag rescues.","pickets, prusiks, pulleys","Too much slack in the rope between team members."],
+ ["aice","alp",7,0,"aself","Ice protection and V-threads","Ice screw placement and V-thread (Abalakov) rappel anchors.","screws, threader, cord","Screws in rotten or aerated ice."],
+];
+
+// Images from Wikimedia Commons: [file, caption, credit key]
+const IMG = {
+  k8: [["img/k8.jpg", "A figure-8 tie-in loop. A follow-through finishes in this same shape, tied through both harness tie-in points.", "k8"]],
+  kstop: [["img/kstop.png", "Double overhand, step by step. For a climbing stopper, wrap it around the rope itself so it forms a barrel.", "kstop"]],
+  kclove: [["img/kclove.jpg", "Clove hitch, finished and dressed.", "kclove"]],
+  kbight: [["img/kbight.jpg", "Figure-8 on a bight.", "kbight"]],
+  kgirth: [["img/kgirth.png", "Girth hitch (also called a cow hitch).", "kgirth"]],
+  kobight: [["img/kobight.jpg", "Overhand on a bight.", "kobight"]],
+  kauto: [["img/kauto.png", "A prusik (left) and an autoblock (right) clipped to lockers.", "kauto"]],
+  keo: [["img/keo.jpg", "Flat overhand joining two ropes. Note the long tails.", "keo"]],
+  kfish: [["img/kfish.jpg", "Double fisherman's. The two halves should sit flush together.", "kfish"]],
+  kprus: [["img/kprus.jpg", "Prusik hitches with two wraps (top) and three wraps (bottom).", "kprus"], ["img/klem.jpg", "Klemheist, tied with a sling.", "klem"]],
+  kmmo: [["img/kmmo.jpg", "Munter-mule-overhand on a locker.", "kmmo"]],
+  kfly: [["img/kfly.jpg", "Alpine butterfly, finished.", "kfly"], ["img/kflyhow.jpg", "Tying it around your hand: three wraps, move the middle one, pull it under.", "kflyhow"]],
+  kgarda: [["img/kgarda.jpg", "Garda hitch on two identical carabiners.", "kgarda"]],
+  kbowl: [["img/kbowl.jpg", "Bowline with a Yosemite finish.", "kbowl"]],
+  kwater: [["img/kwater.jpg", "Water knot joining webbing.", "kwater"]],
+  imunter: [["img/imunter.jpg", "Munter hitch (also called an Italian hitch).", "imunter"]],
+  imrap: [["img/imunter.jpg", "Munter hitch (also called an Italian hitch).", "imunter"]],
+  kmmoAlt: [],
+  ifriction: [["img/klem.jpg", "Klemheist with a sling.", "klem"], ["img/bach.jpg", "Bachmann hitch around a carabiner.", "bach"]],
+};
+const CREDITS = {
+  k8: ["Wagner Cxxx", "CC BY-SA 4.0", "Angeseilt_mit_Achter.jpg"], kstop: ["LadyofHats", "Public domain", "Double_overhand_knot.svg"],
+  kclove: ["WikipedianYknOK", "CC BY-SA 3.0", "Clove_hitch_WPK.jpg"], kbight: ["WikipedianYknOK", "CC BY-SA 3.0", "Figure-of-eight_loop_2_WPK.jpg"],
+  kgirth: ["Whidou", "CC BY-SA 4.0", "Cow_hitch.svg"], kobight: ["USCG PTC Developer", "CC BY-SA 4.0", "Loop-overhand-ABoK_1046-USCG.jpg"],
+  kauto: ["Aricooperdavis", "CC BY-SA 4.0", "Prusik_and_Autoblock_Loops.png"], keo: ["WikipedianYknOK", "CC BY-SA 3.0", "One_Sided_Overhand_Bend_WPK.JPG"],
+  kfish: ["WikipedianYknOK", "CC BY-SA 3.0", "Double_fisherman%27s_knot_WPK.jpg"], kprus: ["Bibliothèque nationale de France", "CC0", "Prusik_knot.jpg"],
+  klem: ["WikipedianYknOK", "CC BY-SA 3.0", "Klemheist_knot_WPK.jpg"], kmmo: ["Zaripov999", "CC BY-SA 4.0", "Munter_Mule_Hitch.jpg"],
+  kfly: ["Mark A. Taff", "CC BY-SA 3.0 US", "Alpine_butterfly_loop.jpg"], kflyhow: ["Johan Andersson", "Public domain", "Alpine_butterfly_on_the_bight_howto.jpg"],
+  kgarda: ["WikiTryHardDieHard", "CC0", "Garda_hitch.jpg"], kbowl: ["Nodurosul", "Public domain", "Yosemitebowline.jpg"],
+  kwater: ["WikipedianYknOK", "CC BY-SA 3.0", "Water_knot_WPK.jpg"], imunter: ["WikipedianYknOK", "CC BY-SA 3.0", "Italian_hitch_WPK.jpg"],
+  bach: ["WikipedianYknOK", "CC BY-SA 3.0", "Bachmann_knot_WPK.jpg"],
+};
+
+// When to use, when not to, and how to tie
+const HOW = {
+  k8: { use: ["Tying in to lead, top rope or follow", "Any time you are the climber on the sharp end of the rope"],
+    avoid: ["Joining two rappel ropes (a flat figure-8 can roll off)", "When you need to adjust the length", "Through only one tie-in point or the belay loop"],
+    steps: ["Tie a single figure-8 about an arm's length from the rope end.", "Pass the tail through both harness tie-in points, the same path as the belay loop.", "Retrace the eight exactly, following the original strand back.", "Dress it so strands run parallel with no crossovers, then pull all four strands tight.", "Leave a fist-length tail. Have your partner check it."] },
+  kstop: { use: ["Both rope ends before every rappel", "The free end when lowering on long pitches", "Backing up a tie-in tail"],
+    avoid: ["As a loop or attachment point (it's an end knot only)", "Tied loosely near the very end, where it can pull through"],
+    steps: ["Wrap the tail twice around the standing rope, working back toward yourself.", "Pass the tail back through both wraps.", "Pull it snug so it forms a neat barrel.", "Leave 10 to 15 cm of tail."] },
+  kclove: { use: ["Tethering to an anchor with the rope", "Adjusting your distance from the anchor", "Attaching the rope to pieces in a rope-built anchor"],
+    avoid: ["On a non-locking carabiner", "As a stopper or end knot", "On a smooth post or tree where cyclic loading can roll it"],
+    steps: ["Make two loops in the rope, both twisted the same way.", "Slide the second loop behind the first.", "Clip both loops into a locking carabiner.", "Put the loaded strand next to the spine, cinch it tight and lock the gate."] },
+  kbight: { use: ["Clipping into a carabiner or anchor", "Master points", "Tying in mid-rope", "Fixing a line"],
+    avoid: ["When you need to adjust length (use a clove hitch)", "When bulk matters (an overhand on a bight is smaller)", "Joining ropes"],
+    steps: ["Fold a bight of rope.", "Treat the bight as a single strand and tie a figure-8 with it.", "Dress the strands parallel, size the loop and pull all strands tight."] },
+  kgirth: { use: ["Attaching a sling to your harness", "Slinging trees, horns and chockstones", "Quick, simple sling attachments"],
+    avoid: ["Joining Dyneema slings into chains", "Around sharp edges", "Where the sling could slide up and off a feature"],
+    steps: ["Pass the sling around the object or through the harness.", "Pull one end of the sling through the loop at the other end.", "Cinch it down so it sits flat and snug."] },
+  kobight: { use: ["Cordelette and quad master points", "Isolating strands", "Backup knots while ascending"],
+    avoid: ["Knots you must untie after a big load (it jams)", "Tying in to your harness"],
+    steps: ["Fold a bight of rope or cord.", "Tie a simple overhand with the doubled strand.", "Dress it and tighten each strand."] },
+  kauto: { use: ["Backing up your brake hand on rappel", "Backing up a lower"],
+    avoid: ["Dyneema or Spectra cord (it melts and slips)", "So long it touches the device", "As your only progress capture under repeated heavy loads"],
+    steps: ["Wrap the cord loop around the rope 3 to 5 times, spiralling down.", "Clip both ends into a locker on your leg loop or belay loop.", "Weight it. Adjust the wraps until it grips when loaded and slides when pushed."] },
+  keo: { use: ["Joining two ropes for a rappel"],
+    avoid: ["A flat figure-8 in its place (it rolls)", "Short tails", "Ropes of very different diameters without extra care", "Permanent loops (use a double fisherman's)"],
+    steps: ["Lay the two rope ends side by side.", "Tie an overhand knot with both strands together.", "Dress it so the strands lie parallel and don't cross.", "Pull each of the four strands very tight.", "Leave tails of at least 30 cm."] },
+  kfish: { use: ["Making prusik loops", "Tying a cordelette into a loop", "Permanent loops in accessory cord"],
+    avoid: ["Rope you'll need to untie (it jams)", "Joining rappel ropes (it snags when pulled)"],
+    steps: ["Overlap the two ends.", "Wrap one end twice around the other, then pass it back through both wraps.", "Repeat with the other end in the opposite direction.", "Pull the two halves together. One side shows an X, the other parallel lines."] },
+  kprus: { use: ["Ascending a rope", "Escaping the belay", "Progress capture in haul systems"],
+    avoid: ["Cord too close to the rope's diameter", "Dyneema slings", "Trusting one hitch with no backup"],
+    steps: ["Lay the cord loop behind the rope.", "Pass the loop through itself around the rope two or three times.", "Dress the wraps so they lie neat and parallel.", "Weight it. Add a wrap if it slips."] },
+  kmmo: { use: ["Tying off a loaded Munter", "Escaping the belay", "Releasable load transfers"],
+    avoid: ["Leaving off the overhand backup", "On a non-HMS carabiner"],
+    steps: ["With the Munter loaded, take a bight of the brake strand.", "Tie a slip knot (the mule) around the loaded strand, snug to the carabiner.", "Back it up with an overhand on a bight around the loaded strand.", "To release: untie the overhand, keep a brake hand on, pull the mule loose and lower."] },
+  kfly: { use: ["The middle climber on a rope", "Glacier rope teams", "Isolating a damaged section", "A loop loaded in several directions"],
+    avoid: ["As your main end-of-rope tie-in (use a figure-8)", "If you can't check it confidently. Look-alikes capsize."],
+    steps: ["Wrap the rope around your hand three times.", "Move the middle wrap toward your fingertips, over the other two.", "Pull that wrap under the other two, back toward your wrist, to form the loop.", "Tighten it and load the loop sideways to check it holds."] },
+  kgarda: { use: ["Emergency progress capture when hauling", "Improvising a one-way belay with no auto-locking device"],
+    avoid: ["Anywhere you might need to release it under load", "With carabiners that aren't identical", "When a proper device is available"],
+    steps: ["Clip two identical carabiners side by side, gates facing the same way.", "Clip the rope through both.", "Bring the rope back and clip it through the first carabiner only.", "Test it. The rope should run one way and lock the other."] },
+  kbowl: { use: ["A tie-in that's easy to untie after many falls", "Tying around a tree"],
+    avoid: ["Without a Yosemite finish or backup (it can loosen)", "If you can't check it at a glance"],
+    steps: ["Make a small loop with the standing part on top.", "Pass the tail up through the loop, around the standing part and back down.", "Yosemite finish: wrap the tail around the loop leg and tuck it up beside the standing part.", "Dress it, tighten it, leave a long tail."] },
+  kwater: { use: ["Joining flat webbing into a runner or anchor"],
+    avoid: ["Rope", "Short tails", "Leaving it unchecked. It creeps loose over time."],
+    steps: ["Tie a loose overhand in one end of the webbing.", "Feed the other end back through it, tracing the knot exactly in reverse.", "Pull it hard and leave tails of at least 7 cm."] },
+  imunter: { use: ["Belaying or lowering without a device", "Rappelling without a device", "The base of a Munter-mule-overhand"],
+    avoid: ["A non-HMS (narrow) carabiner", "Brake strand running across the gate", "Fast lowers that twist the rope"],
+    steps: ["Make two loops side by side, as for a clove hitch.", "Fold them together like closing a book, rather than stacking them.", "Clip both into a pear-shaped locker.", "Keep the brake strand on the spine side. Brake by holding it parallel to the load strand."] },
+  ifriction: { use: ["Making a friction hitch when you have no prusik cord", "Progress capture using a sling or carabiner"],
+    avoid: ["Dyneema slings, which grip poorly and can melt", "Loading a klemheist upward (it only grips one way)"],
+    steps: ["Klemheist: wrap a nylon sling up around the rope 4 or 5 times.", "Pass the bottom end of the sling through the loop at the top.", "Load it downward. It grips under load and slides when you push it up."] },
+};
+
+const SHORT = { k8:"Figure-8 tie-in", kbight:"Fig-8 on a bight", keo:"Flat overhand", kprus:"Prusik & Klemheist", kmmo:"Munter-mule", kgarda:"Garda / clutch", kbowl:"Bowlines",
+  btr:"Top-rope belay", bweight:"Weight difference", bguide:"Guide mode", bmp:"Multipitch lead belay", bdirect:"Belay methods", brelease:"Guide-mode release", btwo:"Two followers",
+  lclean:"Cleaning anchors", lbail:"Bailing", laid:"Aid & French-free",
+  tmock:"Mock leading", track:"Racking", tclean:"Cleaning gear", tcrack:"Crack technique", tnuts:"Placing nuts", tcams:"Placing cams", trock:"Rock quality", textend:"Extending gear", tsecond:"Protect the follower",
+  atr:"Toprope setups", afixed:"Fixed gear", agear:"Gear anchors", arope:"Rope anchor", aup:"Upward pull",
+  rext:"Extended rappel", rwind:"Wind & tangles", rpre:"Pre-rigging", rstuck:"Stuck ropes", rblock:"Blocked rappel", rknot:"Knot pass",
+  mcomm:"Communication", mchange:"Changeovers", mropes:"Rope stacking", msimul:"Simul & short-fix", mhaul:"Pack hauling",
+  rshort:"Rope too short", rlower:"Rescue lower", rasc:"Ascend: hitches", rasc2:"Ascend: device", rescape:"Belay escape", rdamage:"Damaged rope", rhaul:"Hauling 3:1 / 6:1", rcounter:"Counterbalance rap", rtandem:"Tandem rappel",
+  imunter:"Munter belay", ibail:"Bail kit", imrap:"Munter rappel", ifriction:"Hitch substitutes", ipulley:"Carabiner pulley", icbrake:"Carabiner brake", ibody:"Body rappel",
+  jrock:"Rockfall", jgear:"Gear inspection", jlength:"Rope length", jtopo:"Topos & descents", jscramble:"Scrambling", jweather:"Weather calls", jfirst:"First aid & plan",
+  aglacier:"Crevasse rescue", aice:"Ice & V-threads" };
+
+const Q = { btr:"how to belay top rope", kgarda:"garda hitch", kbowl:"yosemite bowline", keo:"flat overhand bend rappel", kmmo:"munter mule overhand",
+  bweight:"belaying a heavier climber", bdirect:"direct vs redirected belay", bmp:"belaying leader multipitch anchor",
+  lclip:"lead climbing clipping back clip z clip", lfall:"how to fall lead climbing", lclean:"cleaning sport climbing anchor", lbail:"bail lead climb lower off gear",
+  tmock:"mock leading trad", track:"trad rack organization", tclean:"cleaning trad gear nut tool", tcrack:"crack climbing technique jamming", tnuts:"placing nuts trad",
+  tcams:"placing cams trad", trock:"assessing rock quality loose rock climbing", textend:"extending trad placements alpine draw", tsecond:"protecting the second traverse trad",
+  atr:"top rope anchor setup edge", arope:"anchor with climbing rope clove hitches", aup:"upward pull piece multipitch anchor",
+  mcomm:"multipitch climbing communication commands", mropes:"rope management hanging belay", mretreat:"multipitch retreat bail rappel",
+  rshort:"rope too short lowering climbing", rasc:"ascending rope with prusiks", rasc2:"ascend rope guide mode belay device", rhaul:"3:1 haul climbing rescue",
+  ibail:"climbing bail kit", iharness:"improvised climbing harness", ifriction:"klemheist bachmann hitch", ipulley:"z drag carabiner no pulley", ibody:"dulfersitz body rappel",
+  jcheck:"climbing partner check", jrock:"rockfall safety climbing", jgear:"climbing gear inspection retirement", jlength:"climbing rope length middle mark",
+  jtopo:"how to read climbing topo", jscramble:"scrambling downclimbing technique", jweather:"mountain weather turnaround time", jfirst:"wilderness first aid climbing",
+  aglacier:"crevasse rescue z drag", aice:"v thread abalakov" };
+
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const skills = N.map(([key, lane, tier, crit, pre, name, what, gear, pit]) =>
+  ({ key, lane, tier, crit: !!crit, pre: pre ? pre.split(",") : [], name, short: SHORT[key] || name, what, gear, pit, id: slug(name),
+     ci: LANES.findIndex(l => l[0] === lane) }));
+const byKey = Object.fromEntries(skills.map(s => [s.key, s]));
+skills.forEach(s => s.unlocks = skills.filter(o => o.pre.includes(s.key)).map(o => o.key));
+const TOTAL_XP = skills.reduce((a, s) => a + s.tier * 20, 0);
+
+const KEY = "climb-audit-v1", DKEY = "climb-audit-dates-v1";
+const load = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
+let marks = load(KEY), dates = load(DKEY);
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(marks)); localStorage.setItem(DKEY, JSON.stringify(dates)); } catch (e) {} };
+const level = s => marks[s.id];
+const learned = s => level(s) >= 1;
+const daysSince = s => dates[s.id] ? (Date.now() - new Date(dates[s.id]).getTime()) / 864e5 : 0;
+const needsReview = s => level(s) === 2 && daysSince(s) > REVIEW_DAYS;
+const effective = s => needsReview(s) ? 1.5 : level(s);
+const status = s => level(s) !== undefined ? "rated" : s.pre.every(p => learned(byKey[p])) ? "avail" : "locked";
+const skillXP = s => ({ 1: 10, 1.5: 15, 2: 20 })[effective(s)] * s.tier || 0;
+const xp = () => skills.reduce((a, s) => a + skillXP(s), 0);
+const rankIndex = x => { let i = 0; RANKS.forEach(([f], j) => { if (x >= f * TOTAL_XP) i = j; }); return i; };
+function setLevel(s, v) {
+  if (v === undefined) { delete marks[s.id]; delete dates[s.id]; }
+  else { marks[s.id] = v; if (v === 2) dates[s.id] = new Date().toISOString().slice(0, 10); else delete dates[s.id]; }
+  save();
+}
+
+function tutorials(s) {
+  const q = Q[s.key] || s.name.replace(/\(.*?\)/g, "");
+  const yt = t => "https://www.youtube.com/results?search_query=" + encodeURIComponent(t);
+  const g = t => "https://www.google.com/search?q=" + encodeURIComponent(t);
+  const list = [
+    ["Video tutorials", "YouTube", yt(q + " climbing tutorial")],
+    ["Beginner-friendly walkthroughs", "VDiff Climbing", yt("VDiff " + q)],
+  ];
+  if (s.lane === "knots" || ["imunter", "ifriction", "imrap"].includes(s.key)) list.push(["Step-by-step animation", "Animated Knots", g("site:animatedknots.com " + q)]);
+  if (s.lane !== "judg") list.push(["Illustrated tech tips", "Alpine Savvy", g("site:alpinesavvy.com " + q)]);
+  if (["belay", "anchor", "rap", "res", "mp", "imp", "trad"].includes(s.lane)) list.push(["Manufacturer technical guides", "Petzl", g("site:petzl.com " + q)]);
+  if (s.lane === "judg") list.push(["Accident case studies", "American Alpine Club", g("site:publications.americanalpineclub.org " + q)]);
+  return list;
+}
+
+/* ---------- Geometry ---------- */
+/* LAYOUT START */
+// Each node plus its label is treated as a box. Every ring is sized to fit its own boxes side by side
+// with a gap, and nodes sit as close to their branch's direction as that spacing allows. Nothing overlaps,
+// and no ring is bigger than it needs to be.
+const GAP = 12, SLACK = 1.1, CENTER_DISC = 72, RING_PAD = 10, MARK = 16;
+const TOP = -Math.PI / 2, TAU = Math.PI * 2;
+const ringR = [0];
+const R = t => ringR[t];
+const laneMid = [];
+function nodeBox(s) {
+  const lines = wrapLabel(s.short);
+  const w = Math.max(...lines.map(l => l.length)) * 7.6;
+  const y0 = -23, y1 = 38 + 14 * (lines.length - 1);
+  return { hw: Math.max(23, w / 2 + 4), cy: (y0 + y1) / 2, hh: (y1 - y0) / 2 };
+}
+// how far a box reaches backward and forward along the ring's direction at angle a
+function tangentExtent(b, a) {
+  const tx = -Math.sin(a), ty = Math.cos(a);
+  const c = b.cy * ty, half = Math.abs(tx) * b.hw + Math.abs(ty) * b.hh;
+  return [half - c, half + c];
+}
+function layout() {
+  skills.forEach(s => s.box = nodeBox(s));
+  const counts = LANES.map((_, i) => skills.filter(s => s.ci === i).length), tot = counts.reduce((a, b) => a + b, 0);
+  let acc = 0;
+  counts.forEach((c, i) => { laneMid[i] = TOP + (acc + c / 2) / tot * TAU; acc += c; });
+  for (let t = 1; t <= 7; t++) {
+    // grow the ring until none of its boxes touch an inner ring's boxes or the center disc
+    let minR = t === 1 ? CENTER_DISC + 40 : ringR[t - 1] + 40;
+    while (placeRing(t, minR)) minR = ringR[t] + 4;
+  }
+}
+const boxOf = s => ({ x0: s.x - s.box.hw, x1: s.x + s.box.hw, y0: s.y + s.box.cy - s.box.hh - RING_PAD / 2, y1: s.y + s.box.cy + s.box.hh + RING_PAD / 2 });
+function placeRing(t, minR) {
+  {
+    // u is the angle measured clockwise from the top, where the ring's tier marker sits
+    const items = skills.filter(s => s.tier === t).sort((x, y) => x.ci - y.ci || skills.indexOf(x) - skills.indexOf(y));
+    items.forEach(s => s.u = laneMid[s.ci] - TOP);
+    let r = 0, g = [];
+    for (let pass = 0; pass < 5; pass++) {
+      const ext = items.map(s => tangentExtent(s.box, TOP + s.u));
+      const need = [MARK + GAP + ext[0][0]];
+      for (let i = 1; i < items.length; i++) need.push(ext[i - 1][1] + GAP + ext[i][0]);
+      need.push(ext[items.length - 1][1] + GAP + MARK);
+      r = Math.max(minR, need.reduce((a, b) => a + b, 0) * SLACK / TAU);
+      g = need.map(p => p / r);
+      // targets: a branch's skills on this ring spread evenly around the branch's direction
+      const byLane = {};
+      items.forEach((s, i) => (byLane[s.ci] = byLane[s.ci] || []).push(i));
+      Object.values(byLane).forEach(idx => {
+        const width = idx.slice(1).reduce((a, k) => a + g[k], 0);
+        let cur = laneMid[items[idx[0]].ci] - TOP - width / 2;
+        idx.forEach((k, j) => { if (j) cur += g[k]; items[k].target = cur; if (pass === 0) items[k].u = cur; });
+      });
+      for (let it = 0; it < 600; it++) {
+        items.forEach(s => s.u += (s.target - s.u) * .05);
+        for (let i = 1; i < items.length; i++) {
+          const d = items[i].u - items[i - 1].u;
+          if (d < g[i]) { const p = (g[i] - d) / 2; items[i - 1].u -= p; items[i].u += p; }
+        }
+        items[0].u = Math.max(items[0].u, g[0]);
+        items[items.length - 1].u = Math.min(items[items.length - 1].u, TAU - g[items.length]);
+      }
+    }
+    // final sweeps guarantee every gap
+    for (let i = 0; i < items.length; i++) items[i].u = Math.max(items[i].u, i ? items[i - 1].u + g[i] : g[0]);
+    for (let i = items.length - 1; i >= 0; i--) items[i].u = Math.min(items[i].u, i < items.length - 1 ? items[i + 1].u - g[i + 1] : TAU - g[items.length]);
+    ringR[t] = r;
+    items.forEach(s => { s.a = TOP + s.u; s.x = r * Math.cos(s.a); s.y = r * Math.sin(s.a); });
+  }
+  // true if this ring collides with the center disc or any inner ring
+  return skills.filter(s => s.tier === t).some(s => {
+    const a = boxOf(s);
+    if (Math.hypot(Math.max(a.x0, Math.min(0, a.x1)), Math.max(a.y0, Math.min(0, a.y1))) < CENTER_DISC) return true;
+    return skills.some(o => o.tier < t && (() => { const c = boxOf(o); return a.x0 < c.x1 && c.x0 < a.x1 && a.y0 < c.y1 && c.y0 < a.y1; })());
+  });
+}
+/* LAYOUT END */
+layout();
+const OUT = R(7) + 105;
+const EXTENT = OUT + 60;
+
+const svg = document.getElementById("map");
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.append(e); return e; };
+const nodeEls = {}, edgeEls = [];
+const pol = (r, a) => [r * Math.cos(a), r * Math.sin(a)];
+
+function wrapLabel(text, max = 13) {
+  const words = text.split(" "), lines = [];
+  let cur = "";
+  words.forEach(w => { if ((cur + " " + w).trim().length > max && cur) { lines.push(cur); cur = w; } else cur = (cur + " " + w).trim(); });
+  if (cur) lines.push(cur);
+  return lines.slice(0, 3);
+}
+
+function build() {
+  const gC = el("g", {}, svg), gE = el("g", {}, svg), gN = el("g", {}, svg), gL = el("g", {}, svg);
+  for (let t = 1; t <= 7; t++) {
+    el("circle", { class: "contour", r: R(t) }, gC);
+    const tl = el("text", { class: "tierlbl", x: 0, y: -R(t) + 5 }, gC); tl.textContent = TIERS[t - 1][0];
+    el("title", {}, tl).textContent = `Tier ${TIERS[t - 1][0]}: ${TIERS[t - 1][1]}`;
+  }
+  LANES.forEach(([lane, label], i) => {
+    const am = laneMid[i], deg = am * 180 / Math.PI;
+    const flip = Math.sin(am) > 0.05;
+    const [x, y] = pol(OUT, am);
+    const g = el("g", { class: "lanehit", transform: `translate(${x},${y}) rotate(${flip ? deg - 90 : deg + 90})`, style: `--c: var(--c${i})`, "data-lane": i, tabindex: 0, role: "button", "aria-label": `Zoom to ${label}` }, gL);
+    el("rect", { x: -80, y: flip ? -16 : -26, width: 160, height: 52, fill: "transparent" }, g);
+    el("text", { class: "lanelbl", y: flip ? 18 : 0 }, g).textContent = label;
+    el("text", { class: "lanecount", y: flip ? -6 : 20, "data-lane": lane }, g);
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); focusLane(i); } });
+  });
+  skills.forEach(s => {
+    s.pre.map(p => byKey[p]).forEach(p => {
+      const rp = R(p.tier), rs = R(s.tier), k = (rs - rp) * .5;
+      const [c1x, c1y] = pol(rp + k, p.a), [c2x, c2y] = pol(rs - k, s.a);
+      const d = `M${p.x},${p.y} C${c1x},${c1y} ${c2x},${c2y} ${s.x},${s.y}`;
+      const path = el("path", { class: "edge" + (p.lane !== s.lane ? " cross" : ""), d, style: `--c: var(--c${s.ci})` }, gE);
+      edgeEls.push({ path, from: p.key, to: s.key });
+    });
+  });
+  skills.forEach(s => {
+    const g = el("g", { class: "nd", transform: `translate(${s.x},${s.y})`, style: `--c: var(--c${s.ci})`, tabindex: 0, role: "button", "data-k": s.key }, gN);
+    el("circle", { class: "halo", r: 22 }, g);
+    el("circle", { class: "ring", r: 17.5 }, g);
+    el("circle", { class: "fill", r: 12 }, g);
+    el("text", { class: "star" }, g).textContent = "★";
+    if (s.crit) el("circle", { class: "critmark", cx: 11, cy: -11, r: 4.4 }, g);
+    const lock = el("g", { class: "lock", transform: "translate(11,11)" }, g);
+    el("circle", { r: 6.5 }, lock);
+    el("path", { d: "M-2,-0.5 v-1.6 a2,2 0 0 1 4,0 v1.6" }, lock);
+    el("rect", { x: -3, y: -0.8, width: 6, height: 4.2, rx: .8 }, lock);
+    const tx = el("text", { class: "lbl", y: 33 }, g);
+    wrapLabel(s.short).forEach((ln, i) => { el("tspan", { x: 0, dy: i ? 14 : 0 }, tx).textContent = ln; });
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(s.key); } });
+    g.addEventListener("mouseenter", () => highlight(s.key));
+    g.addEventListener("mouseleave", () => highlight(selected));
+    nodeEls[s.key] = g;
+  });
+  const c = el("g", {}, svg);
+  el("circle", { class: "center-ring", r: 64 }, c);
+  el("circle", { class: "center-disc", r: 54 }, c);
+  el("text", { class: "center-k", y: -22 }, c).textContent = "START · RANK";
+  el("text", { class: "center-n", y: 14, id: "cRank" }, c);
+  el("text", { class: "center-r", y: 32, id: "cRankName" }, c);
+}
+
+/* ---------- Pan and zoom ---------- */
+let vb = { x: -EXTENT, y: -EXTENT, w: EXTENT * 2, h: EXTENT * 2 };
+const applyVB = () => svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+const toSvg = (cx, cy) => { const p = svg.createSVGPoint(); p.x = cx; p.y = cy; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+function zoomAt(px, py, f) {
+  const nw = Math.min(EXTENT * 2.4, Math.max(260, vb.w * f)), r = nw / vb.w;
+  vb.x = px - (px - vb.x) * r; vb.y = py - (py - vb.y) * r; vb.w *= r; vb.h *= r; applyVB();
+}
+function fit() { vb = { x: -EXTENT, y: -EXTENT, w: EXTENT * 2, h: EXTENT * 2 }; applyVB(); }
+function centerOn(s) { const w = Math.min(vb.w, 900); vb = { x: s.x - w / 2, y: s.y - w / 2, w, h: w }; applyVB(); }
+function focusLane(i) {
+  const list = skills.filter(s => s.ci === i);
+  const am = laneMid[i];
+  const pts = list.map(s => [s.x, s.y]).concat([pol(OUT, am), pol(80, am)]);
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const pad = 70, w = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) + pad * 2;
+  vb = { x: (Math.max(...xs) + Math.min(...xs)) / 2 - w / 2, y: (Math.max(...ys) + Math.min(...ys)) / 2 - w / 2, w, h: w }; applyVB();
+}
+svg.addEventListener("wheel", e => { e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(p.x, p.y, Math.exp(e.deltaY * .0015)); }, { passive: false });
+const ptrs = new Map(); let moved = 0, downTarget = null, pinch = null;
+svg.addEventListener("pointerdown", e => {
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 1) { moved = 0; downTarget = e.target.closest(".nd, .lanehit"); }
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = Math.hypot(a.x - b.x, a.y - b.y); }
+});
+window.addEventListener("pointermove", e => {
+  if (!ptrs.has(e.pointerId)) return;
+  const prev = ptrs.get(e.pointerId), cur = { x: e.clientX, y: e.clientY };
+  ptrs.set(e.pointerId, cur);
+  if (ptrs.size === 1) {
+    const dx = cur.x - prev.x, dy = cur.y - prev.y; moved += Math.abs(dx) + Math.abs(dy);
+    if (moved > 5) { svg.classList.add("dragging"); const k = 1 / svg.getScreenCTM().a; vb.x -= dx * k; vb.y -= dy * k; applyVB(); }
+  } else if (ptrs.size === 2 && pinch) {
+    moved = 99;
+    const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+    const m = toSvg((a.x + b.x) / 2, (a.y + b.y) / 2);
+    zoomAt(m.x, m.y, pinch / d); pinch = d;
+  }
+});
+const endPtr = e => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.delete(e.pointerId);
+  if (ptrs.size < 2) pinch = null;
+  if (ptrs.size === 0) {
+    svg.classList.remove("dragging");
+    if (moved <= 5 && downTarget) {
+      if (downTarget.classList.contains("nd")) select(downTarget.dataset.k);
+      else focusLane(+downTarget.dataset.lane);
+    } else if (moved <= 5 && selected) closePanel();
+    downTarget = null;
+  }
+};
+window.addEventListener("pointerup", endPtr);
+window.addEventListener("pointercancel", endPtr);
+document.getElementById("zin").addEventListener("click", () => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, .75));
+document.getElementById("zout").addEventListener("click", () => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 1.33));
+document.getElementById("zfit").addEventListener("click", fit);
+document.getElementById("zlinks").addEventListener("click", e => { const on = svg.classList.toggle("showall"); e.currentTarget.setAttribute("aria-pressed", on); });
+
+/* ---------- Legend ---------- */
+const ringIcon = (stroke, dash = "", fill = "color-mix(in srgb, var(--c1) 30%, var(--surface))", glyph = "", glyphFill = "var(--surface)") =>
+  `<svg width="24" height="24" viewBox="-12 -12 24 24"><circle r="10.5" fill="none" stroke="${stroke}" stroke-width="2.6" ${dash ? `stroke-dasharray="${dash}"` : ""}/><circle r="7.5" fill="${fill}" stroke="var(--c1)" stroke-width="1.6"/>${glyph ? `<text text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="${glyphFill}">${glyph}</text>` : ""}</svg>`;
+document.getElementById("legend").innerHTML = [
+  [ringIcon("transparent"), "Not rated"],
+  [`<svg width="22" height="22" viewBox="-11 -11 22 22"><circle r="6" fill="color-mix(in srgb, var(--c1) 30%, var(--surface))" stroke="var(--c1)" stroke-width="1.6"/><g transform="translate(5,5)"><circle r="4.5" fill="var(--fg)"/></g></svg>`, "Locked (prerequisites not learned yet)"],
+  [ringIcon("var(--crit)", "3 2"), "Gap"],
+  [ringIcon("var(--bronze)", "", "var(--c1)", "✓"), "Learned"],
+  [ringIcon("var(--silver)", "", "var(--c1)", "★"), "Practiced"],
+  [ringIcon("var(--gold)", "", "var(--c1)", "★", "var(--gold)"), "Drilled"],
+  [ringIcon("var(--gold)", "4 3", "var(--c1)", "★", "var(--gold)"), "Due for review"],
+  [`<svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--crit)"/></svg>`, "Critical skill"],
+].map(([i, t]) => `<span>${i}${t}</span>`).join("");
+
+/* ---------- Skip ahead ---------- */
+const skipSel = document.getElementById("skipTier"), skipBtn = document.getElementById("skipBtn");
+TIERS.forEach(([r, n], i) => { const o = document.createElement("option"); o.value = i + 1; o.textContent = `Tier ${r} · ${n}`; skipSel.append(o); });
+skipSel.value = 2;
+let skipArmed = false;
+const skipTargets = () => skills.filter(s => s.tier <= +skipSel.value && level(s) === undefined);
+function resetSkip() { skipArmed = false; skipBtn.classList.remove("go"); skipBtn.textContent = "Mark them"; }
+skipSel.addEventListener("change", resetSkip);
+skipBtn.addEventListener("click", () => {
+  const list = skipTargets();
+  if (!list.length) { skipBtn.textContent = "Nothing left to mark"; return; }
+  if (!skipArmed) { skipArmed = true; skipBtn.classList.add("go"); skipBtn.textContent = `Confirm: mark ${list.length} skills`; return; }
+  list.forEach(s => setLevel(s, 1)); resetSkip(); paint();
+  toast(`${list.length} skills marked Learned`);
+});
+
+/* ---------- Filters ---------- */
+const filter = { lanes: new Set(), show: "all", path: null, mode: null };
+const SHOWS = [["all", "Everything"], ["todo", "Gaps & unrated"], ["avail", "Ready to learn"], ["done", "Learned or better"], ["review", "Due for review"], ["crit", "Critical only"]];
+let pathSet = null;
+function ancestors(k, set = new Set()) { byKey[k].pre.forEach(p => { if (!set.has(p)) { set.add(p); ancestors(p, set); } }); return set; }
+function descendants(k, set = new Set()) { byKey[k].unlocks.forEach(p => { if (!set.has(p)) { set.add(p); descendants(p, set); } }); return set; }
+function isVisible(s) {
+  if (pathSet && !pathSet.has(s.key)) return false;
+  if (filter.lanes.size && !filter.lanes.has(s.ci)) return false;
+  switch (filter.show) {
+    case "todo": return level(s) === undefined || level(s) === 0;
+    case "avail": return status(s) === "avail";
+    case "done": return learned(s);
+    case "review": return needsReview(s);
+    case "crit": return s.crit;
+  }
+  return true;
+}
+const filtering = () => !!pathSet || filter.lanes.size > 0 || filter.show !== "all";
+function setPath(k, mode) {
+  pathSet = new Set([k, ...(mode === "up" ? ancestors(k) : descendants(k))]);
+  filter.path = k; filter.mode = mode; applyFilter();
+}
+function clearPath() { pathSet = null; filter.path = filter.mode = null; }
+function applyFilter() { renderFilters(); paint(); fitVisible(); }
+function fitVisible() {
+  if (!filtering()) { fit(); return; }
+  const v = skills.filter(isVisible); if (!v.length) return;
+  const xs = v.flatMap(s => [s.x - s.box.hw, s.x + s.box.hw]), ys = v.flatMap(s => [s.y + s.box.cy - s.box.hh, s.y + s.box.cy + s.box.hh]);
+  const pad = 60, w = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), 380) + pad * 2;
+  vb = { x: (Math.max(...xs) + Math.min(...xs)) / 2 - w / 2, y: (Math.max(...ys) + Math.min(...ys)) / 2 - w / 2, w, h: w }; applyVB();
+}
+function chipBtn(label, pressed, onClick, color) {
+  const b = document.createElement("button");
+  b.className = "chip"; b.setAttribute("aria-pressed", pressed);
+  if (color !== undefined) { b.style.setProperty("--c", `var(--c${color})`); b.innerHTML = "<i></i>"; }
+  b.append(label); b.addEventListener("click", onClick); return b;
+}
+function renderFilters() {
+  const fl = document.getElementById("fLanes"), fs = document.getElementById("fShow"), fp = document.getElementById("fPath");
+  fl.replaceChildren(chipBtn("All branches", filter.lanes.size === 0, () => { filter.lanes.clear(); applyFilter(); }),
+    ...LANES.map(([, label], i) => chipBtn(label, filter.lanes.has(i), () => { filter.lanes.has(i) ? filter.lanes.delete(i) : filter.lanes.add(i); applyFilter(); }, i)));
+  fs.replaceChildren(...SHOWS.map(([k, label]) => chipBtn(label, filter.show === k, () => { filter.show = k; applyFilter(); })));
+  fp.hidden = !pathSet;
+  if (pathSet) {
+    fp.innerHTML = `<span>${filter.mode === "up" ? "Showing everything you need before" : "Showing everything that builds on"} <b>${esc(byKey[filter.path].name)}</b></span>`;
+    fp.append(chipBtn(filter.mode === "up" ? "Show what it leads to" : "Show the path to it", false, () => setPath(filter.path, filter.mode === "up" ? "down" : "up")));
+    fp.append(chipBtn("Clear path", false, () => { clearPath(); applyFilter(); }));
+  }
+  const n = skills.filter(isVisible).length;
+  document.getElementById("fCount").textContent = filtering() ? `Showing ${n} of ${skills.length} skills` : `Showing all ${skills.length} skills. Pick branches or a status to narrow the map.`;
+  document.getElementById("fReset").hidden = !filtering();
+}
+document.getElementById("fReset").addEventListener("click", () => { filter.lanes.clear(); filter.show = "all"; clearPath(); applyFilter(); });
+
+/* ---------- State painting ---------- */
+let selected = null;
+let lastRank = rankIndex(xp());
+
+function highlight(key) {
+  svg.classList.toggle("focus", !!key);
+  edgeEls.forEach(e => e.path.classList.toggle("hl", !!key && (e.from === key || e.to === key)));
+  const rel = key ? new Set([...byKey[key].pre, ...byKey[key].unlocks]) : new Set();
+  // the hovered and selected skills, plus their prerequisites and unlocks, always show even when filtered out
+  const keep = new Set([key, selected].filter(Boolean).flatMap(k => [k, ...byKey[k].pre, ...byKey[k].unlocks]));
+  const shown = s => isVisible(s) || keep.has(s.key);
+  skills.forEach(s => {
+    nodeEls[s.key].classList.toggle("related", rel.has(s.key));
+    nodeEls[s.key].classList.toggle("focal", s.key === key || s.key === selected);
+    nodeEls[s.key].classList.toggle("hidden", !shown(s));
+  });
+  edgeEls.forEach(e => e.path.classList.toggle("hidden", !shown(byKey[e.from]) || !shown(byKey[e.to])));
+  // draw the emphasized node last so its label sits on top of its neighbors
+  if (key && nodeEls[key].nextSibling) nodeEls[key].parentNode.append(nodeEls[key]);
+}
+const lvClass = s => { const v = level(s); if (v === undefined) return ""; if (needsReview(s)) return " lv-review"; return " lv-" + ({ 0: "gap", 1: "1", 1.5: "15", 2: "2" })[v]; };
+const lvName = s => { const v = level(s); if (v === undefined) return "not rated"; if (needsReview(s)) return "drilled, due for review"; return LEVELS.find(l => l[0] === v)[1].toLowerCase(); };
+
+function paint() {
+  skills.forEach(s => {
+    const g = nodeEls[s.key];
+    g.setAttribute("class", "nd " + status(s) + lvClass(s) + (selected === s.key ? " sel" : ""));
+    g.querySelector(".star").textContent = level(s) === 1 ? "✓" : "★";
+    g.setAttribute("aria-label", `${s.name}, tier ${TIERS[s.tier - 1][0]}, ${lvName(s)}${status(s) === "locked" ? ", locked" : ""}${s.crit ? ", critical" : ""}`);
+  });
+  edgeEls.forEach(e => e.path.classList.toggle("met", learned(byKey[e.from])));
+  svg.classList.toggle("filtered", filtering());
+  document.getElementById("fCount").textContent = filtering() ? `Showing ${skills.filter(isVisible).length} of ${skills.length} skills` : `Showing all ${skills.length} skills. Pick branches or a status to narrow the map.`;
+  document.querySelectorAll(".lanecount").forEach(t => {
+    const list = skills.filter(s => s.lane === t.dataset.lane);
+    const l = list.filter(learned).length, d = list.filter(s => effective(s) === 2).length;
+    const title = LANES.find(x => x[0] === t.dataset.lane)[2];
+    t.textContent = d === list.length ? `★ ${title}` : l === list.length ? `${title} · ${l}/${list.length}` : `${l}/${list.length} learned`;
+  });
+
+  const x = xp(), ri = rankIndex(x);
+  document.getElementById("rankNum").textContent = ri + 1;
+  document.getElementById("rankName").textContent = RANKS[ri][1];
+  document.getElementById("cRank").textContent = ri + 1;
+  document.getElementById("cRankName").textContent = RANKS[ri][1];
+  const lo = RANKS[ri][0] * TOTAL_XP, hi = ri < RANKS.length - 1 ? RANKS[ri + 1][0] * TOTAL_XP : TOTAL_XP;
+  document.getElementById("xpFill").style.width = (hi > lo ? Math.min(100, (x - lo) / (hi - lo) * 100) : 100) + "%";
+  document.getElementById("xpNums").textContent = `${x} / ${TOTAL_XP} XP`;
+  const mastered = skills.filter(s => effective(s) >= 1.5).length;
+  document.getElementById("mastery").textContent = `Mastery ${Math.round(mastered / skills.length * 100)}%`;
+  const nL = skills.filter(learned).length, nR = skills.filter(needsReview).length;
+  document.getElementById("rankSub").textContent = (ri < RANKS.length - 1
+    ? `Rank ${ri + 1} of ${RANKS.length} · ${Math.ceil(hi - x)} XP to ${RANKS[ri + 1][1]}`
+    : `Top rank`) + ` · ${nL} of ${skills.length} learned` + (nR ? ` · ${nR} due for review` : "");
+
+  const review = skills.filter(needsReview);
+  const avail = skills.filter(s => status(s) === "avail").sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier));
+  const q = [...review, ...avail].slice(0, 9);
+  const qe = document.getElementById("quests"); qe.innerHTML = "";
+  if (!q.length) qe.textContent = "Nothing unlocked is left to learn. Move learned skills up to Practiced and Drilled.";
+  q.forEach(s => {
+    const b = document.createElement("button"); b.className = "quest" + (needsReview(s) ? " review" : s.crit ? " crit" : ""); b.style.setProperty("--c", `var(--c${s.ci})`);
+    b.innerHTML = "<i></i><span></span>"; b.querySelector("span").textContent = needsReview(s) ? `Review · ${s.short}` : `${TIERS[s.tier - 1][0]} · ${s.short}`;
+    b.addEventListener("click", () => select(s.key, true)); qe.append(b);
+  });
+
+  if (ri > lastRank) toast(`Rank up: ${RANKS[ri][1]}`);
+  lastRank = ri;
+  highlight(selected);
+}
+
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const link = k => `<a data-k="${k}" class="${learned(byKey[k]) ? "" : "miss"}">${esc(byKey[k].name)}</a>`;
+const list = items => `<ul>${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
+
+function select(key, move) {
+  selected = key;
+  const s = byKey[key], panel = document.getElementById("panel"), how = HOW[key], pics = IMG[key] || [];
+  panel.style.setProperty("--c", `var(--c${s.ci})`);
+  const missing = s.pre.filter(p => !learned(byKey[p]));
+  const credits = [...new Set(pics.map(p => p[2]))].map(c => { const [a, lic, f] = CREDITS[c]; return `<a href="https://commons.wikimedia.org/wiki/File:${f}" target="_blank" rel="noopener noreferrer">${esc(a)}, ${esc(lic)}</a>`; });
+  panel.innerHTML = `<button class="close" aria-label="Close details">×</button>
+    <h2>${esc(s.name)}</h2>
+    <div class="meta"><span class="pill lane">${LANES[s.ci][1]}</span><span class="pill">Tier ${TIERS[s.tier - 1][0]} · ${TIERS[s.tier - 1][1]}</span>${s.crit ? '<span class="pill crit">Critical</span>' : ""}<span class="pill">up to +${s.tier * 20} XP</span></div>
+    ${pics.length ? `<div class="pics">${pics.map(([src, cap]) => `<figure><button data-src="${src}" aria-label="Enlarge image"><img src="${src}" alt="${esc(cap)}" loading="lazy"></button><figcaption>${esc(cap)}</figcaption></figure>`).join("")}</div>` : ""}
+    <p>${esc(s.what)}</p>
+    ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
+      <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
+    <p class="gear"><b>Gear:</b> ${esc(s.gear)}</p>
+    <p class="pit"><b>Watch for:</b> ${esc(s.pit)}</p>
+    <p class="rel"><b>Requires:</b> ${s.pre.length ? s.pre.map(link).join(", ") : "nothing, start here"}</p>
+    ${s.unlocks.length ? `<p class="rel"><b>Unlocks:</b> ${s.unlocks.map(link).join(", ")}</p>` : ""}
+    <div class="pathbtns"><button data-path="up">Show the path to this skill</button><button data-path="down">Show what it leads to</button></div>
+    ${missing.length && !learned(s) ? `<p class="warn">Locked until you learn ${missing.map(k => esc(byKey[k].name)).join(" and ")}. You can still rate it if you already know it.</p>` : ""}
+    <div class="levels"><h3>Your level</h3>
+      <div class="seg" role="group" aria-label="Your level">${LEVELS.map(([v, n]) => `<button data-v="${v}" aria-pressed="${level(s) === v}">${n}</button>`).join("")}</div>
+      ${needsReview(s) ? `<button class="redrill" id="redrill">I re-drilled it today</button>` : ""}
+      <small>${level(s) === 2 && dates[s.id] ? `Drilled on ${dates[s.id]}. ${needsReview(s) ? "It's been over six months, so it counts as Practiced until you re-drill it." : "You'll be reminded to re-drill it after six months."}` : "Learned: you know how. Practiced: you've done it for real. Drilled: you could do it tired, cold and in the dark."}</small>
+    </div>
+    <div class="learn"><h3>Learn it</h3><small>Opens a search on each source in a new tab.</small>
+      ${tutorials(s).map(([what, src, url]) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${what}<span>${src} ↗</span></a>`).join("")}
+    </div>
+    ${credits.length ? `<p class="credits">Images via Wikimedia Commons: ${credits.join("; ")}.</p>` : ""}`;
+  panel.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
+    const v = +b.dataset.v; setLevel(s, level(s) === v ? undefined : v); select(key);
+  }));
+  const rd = panel.querySelector("#redrill"); if (rd) rd.addEventListener("click", () => { setLevel(s, 2); select(key); toast("Re-drilled. Nice work."); });
+  panel.querySelectorAll(".rel a").forEach(a => a.addEventListener("click", () => select(a.dataset.k, true)));
+  panel.querySelectorAll(".pathbtns button").forEach(b => b.addEventListener("click", () => setPath(key, b.dataset.path)));
+  panel.querySelectorAll(".pics button").forEach(b => b.addEventListener("click", () => openLight(b.dataset.src)));
+  panel.querySelector(".close").addEventListener("click", closePanel);
+  panel.hidden = false;
+  paint();
+  if (move) centerOn(s);
+}
+function closePanel() { selected = null; document.getElementById("panel").hidden = true; paint(); }
+const lb = document.getElementById("lightbox");
+function openLight(src) { document.getElementById("lightimg").src = src; lb.hidden = false; }
+lb.addEventListener("click", () => { lb.hidden = true; });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (!lb.hidden) lb.hidden = true; else if (selected) closePanel();
+});
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+}
+
+build();
+fit();
+renderFilters();
+paint();
+</script>
+</body>
+</html>
