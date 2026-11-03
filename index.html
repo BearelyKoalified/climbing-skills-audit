@@ -1032,18 +1032,11 @@ function paint() {
   // the rank star fills from the bottom as you near the next rank (star spans y -30 to 24)
   const frac = hi > lo ? Math.min(1, (x - lo) / (hi - lo)) : 1, fr = document.getElementById("badgeFillRect");
   fr.setAttribute("y", 24 - 54 * frac); fr.setAttribute("height", 54 * frac);
-  // each branch is a pointed spike with curved sides, so the chart reads as a star
-  const L = LANES.length, base = radarR(0), TAU2 = Math.PI * 2;
-  LANES.forEach((_, i) => {
-    const a = laneMid[i], tipR = radarR(competency(i));
-    let prev = laneMid[(i + L - 1) % L], next = laneMid[(i + 1) % L];
-    if (prev > a) prev -= TAU2; if (next < a) next += TAU2;
-    const aL = a - (a - prev) / 2, aR = a + (next - a) / 2, k = .3;
-    const P = (r, ang) => pol(r, ang).map(v => v.toFixed(1)).join(",");
-    const ctrlR = base + (tipR - base) * .35;
-    document.getElementById(`rp-${i}`).setAttribute("d",
-      `M${P(base, aL)} Q${P(ctrlR, a - (a - aL) * k)} ${P(tipR, a)} Q${P(ctrlR, a + (aR - a) * k)} ${P(base, aR)} Z`);
-  });
+  // straight lines join the branch endpoints; each branch's slice of the shape takes its color
+  const L = LANES.length, verts = LANES.map((_, i) => pol(radarR(competency(i)), laneMid[i]));
+  const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], P = p => p.map(v => v.toFixed(1)).join(",");
+  verts.forEach((v, i) => document.getElementById(`rp-${i}`).setAttribute("d",
+    `M0,0 L${P(mid(verts[(i + L - 1) % L], v))} L${P(v)} L${P(mid(v, verts[(i + 1) % L]))} Z`));
   LANES.forEach((_, i) => { const [px, py] = pol(radarR(competency(i)), laneMid[i]); const d = document.getElementById(`rv-${i}`); d.setAttribute("cx", px); d.setAttribute("cy", py); });
   document.getElementById("xpFill").style.width = (hi > lo ? Math.min(100, (x - lo) / (hi - lo) * 100) : 100) + "%";
   document.getElementById("xpNums").textContent = `${x} / ${TOTAL_XP} XP`;
