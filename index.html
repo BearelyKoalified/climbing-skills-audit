@@ -154,9 +154,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .center-prog { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0 999; transition: stroke-dasharray .6s ease-out; filter: drop-shadow(0 0 4px var(--gold)); }
 .radar-grid { fill: none; stroke: var(--line); stroke-width: 1; }
 .radar-spoke { stroke: var(--c); stroke-width: 1.2; opacity: .55; }
-.radar-petal { fill: color-mix(in srgb, var(--c) 40%, transparent); stroke: var(--c); stroke-width: 1.6; stroke-linejoin: round; }
+.radar-petal { fill: color-mix(in srgb, var(--c) 45%, transparent); stroke: var(--c); stroke-width: 1.4; stroke-linejoin: round; }
 .radar-dot { fill: var(--c); stroke: var(--surface); stroke-width: 1.2; transition: cx .5s ease-out, cy .5s ease-out; }
-.badge-star { fill: color-mix(in srgb, var(--gold) var(--fillpct), var(--bg)); stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; }
+.badge-star { fill: var(--bg); }
+.badge-fill { fill: var(--gold); transition: none; }
+.badge-outline { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; }
 .badge-back { fill: color-mix(in srgb, var(--gold) 18%, transparent); stroke: var(--gold); stroke-width: 1.2; stroke-linejoin: round; opacity: .7; }
 .badge-back.spin { animation: spin 30s linear infinite; }
 .badge-core { fill: var(--bg); stroke: var(--gold); stroke-width: 1.5; }
@@ -166,7 +168,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .center-badge.pulse:not(.pop) { animation: badgepulse 2.8s ease-in-out infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes badgepulse { 50% { transform: scale(1.08); } }
-.center-badge text { paint-order: stroke; stroke: var(--bg); stroke-width: 3px; font: 700 22px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: central; }
+.center-badge text { paint-order: stroke; stroke: var(--bg); stroke-width: 3.5px; font: 700 20px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: central; }
 .center-badge { transform-box: fill-box; transform-origin: center; }
 .center-badge.pop { animation: badgepop .8s ease-out; }
 @keyframes badgepop { 0% { transform: scale(1); } 35% { transform: scale(1.8); } 100% { transform: scale(1); } }
@@ -739,12 +741,9 @@ function build() {
   });
   // center: a star chart of competency per branch (each spoke points at its branch), ringed by rank progress
   const c = el("g", {}, svg);
-  el("circle", { class: "center-disc", r: PROG_R + 6 }, c);
-  el("circle", { class: "center-track", r: PROG_R }, c);
-  el("circle", { class: "center-prog", r: PROG_R, id: "cProg", transform: "rotate(-90)" }, c);
-  [.25, .5, .75, 1].forEach(f => el("polygon", { class: "radar-grid", points: LANES.map((_, i) => pol(radarR(f), laneMid[i]).join(",")).join(" ") }, c));
+  [.5, 1].forEach(f => el("circle", { class: "radar-grid", r: radarR(f) }, c));
   LANES.forEach((_, i) => { const [x, y] = pol(RADAR_R, laneMid[i]); el("line", { class: "radar-spoke", x1: 0, y1: 0, x2: x, y2: y, style: `--c: var(--c${i})` }, c); });
-  LANES.forEach((_, i) => el("polygon", { class: "radar-petal", id: `rp-${i}`, style: `--c: var(--c${i})` }, c));
+  LANES.forEach((_, i) => el("path", { class: "radar-petal", id: `rp-${i}`, style: `--c: var(--c${i})` }, c));
   LANES.forEach((_, i) => el("circle", { class: "radar-dot", id: `rv-${i}`, r: 3.6, style: `--c: var(--c${i})` }, c));
   el("g", { class: "center-badge", id: "badge" }, c);
   fxT = el("g", { class: "fx" }, svg);
@@ -757,15 +756,14 @@ function starPath(n, ro, ri, rot = 0) {
   return Array.from({ length: n * 2 }, (_, k) => pol(k % 2 ? ri : ro, -Math.PI / 2 + rot + k * Math.PI / n).map(v => v.toFixed(2)).join(",")).join(" ");
 }
 function drawBadge(ri) {
-  const g = document.getElementById("badge"), n = Math.min(5 + ri, 12), deep = .5 + Math.min(ri, 8) * .02;
+  const g = document.getElementById("badge"), pts = starPath(5, 30, 13);
   g.replaceChildren();
-  g.setAttribute("class", "center-badge" + (ri >= 5 ? " glow" : "") + (ri >= 10 ? " pulse" : ""));
-  if (ri >= 8) el("circle", { class: "badge-ring", r: 31 }, g);
-  if (ri >= 4) el("polygon", { class: "badge-back" + (ri >= 7 ? " spin" : ""), points: starPath(n, 30, 30 * deep, Math.PI / n) }, g);
-  el("polygon", { class: "badge-star", points: starPath(n, 27, 27 * deep), style: `--fillpct: ${Math.min(10 + ri * 9, 85)}%` }, g);
-  if (ri >= 3) el("circle", { class: "badge-core", r: 13 }, g);
-  if (ri >= 6) Array.from({ length: n }, (_, k) => { const [x, y] = pol(27, -Math.PI / 2 + k * 2 * Math.PI / n); el("circle", { class: "badge-tip", cx: x, cy: y, r: 2.6, style: `--c: var(--c${k % LANES.length})` }, g); });
-  el("text", { y: 1 }, g).textContent = ri + 1;
+  g.setAttribute("class", "center-badge" + (ri >= 5 ? " glow" : ""));
+  el("polygon", { class: "badge-star", points: pts }, g);
+  el("rect", { id: "badgeFillRect", x: -32, y: 25, width: 64, height: 0 }, el("clipPath", { id: "badgeClip" }, g));
+  el("polygon", { class: "badge-fill", points: pts, "clip-path": "url(#badgeClip)" }, g);
+  el("polygon", { class: "badge-outline", points: pts }, g);
+  el("text", { y: 3 }, g).textContent = ri + 1;
   el("title", {}, g).textContent = `Rank ${ri + 1}: ${RANKS[ri][1]}`;
   badgeRank = ri;
 }
@@ -1007,12 +1005,21 @@ function paint() {
   document.getElementById("rankName").textContent = RANKS[ri][1];
   if (ri !== badgeRank) drawBadge(ri);
   const lo = RANKS[ri][0], hi = ri < RANKS.length - 1 ? RANKS[ri + 1][0] : TOTAL_XP;
-  const prog = document.getElementById("cProg"), circ = 2 * Math.PI * PROG_R, frac = hi > lo ? Math.min(1, (x - lo) / (hi - lo)) : 1;
-  prog.style.strokeDasharray = `${frac * circ} ${circ}`;
-  const verts = LANES.map((_, i) => pol(radarR(competency(i)), laneMid[i])), L = LANES.length;
-  const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-  verts.forEach((v, i) => document.getElementById(`rp-${i}`).setAttribute("points",
-    [[0, 0], mid(verts[(i + L - 1) % L], v), v, mid(v, verts[(i + 1) % L])].map(p => p.join(",")).join(" ")));
+  // the rank star fills from the bottom as you near the next rank (star spans y -30 to 24)
+  const frac = hi > lo ? Math.min(1, (x - lo) / (hi - lo)) : 1, fr = document.getElementById("badgeFillRect");
+  fr.setAttribute("y", 24 - 54 * frac); fr.setAttribute("height", 54 * frac);
+  // each branch is a pointed spike with curved sides, so the chart reads as a star
+  const L = LANES.length, base = radarR(0), TAU2 = Math.PI * 2;
+  LANES.forEach((_, i) => {
+    const a = laneMid[i], tipR = radarR(competency(i));
+    let prev = laneMid[(i + L - 1) % L], next = laneMid[(i + 1) % L];
+    if (prev > a) prev -= TAU2; if (next < a) next += TAU2;
+    const aL = a - (a - prev) / 2, aR = a + (next - a) / 2, k = .3;
+    const P = (r, ang) => pol(r, ang).map(v => v.toFixed(1)).join(",");
+    const ctrlR = base + (tipR - base) * .35;
+    document.getElementById(`rp-${i}`).setAttribute("d",
+      `M${P(base, aL)} Q${P(ctrlR, a - (a - aL) * k)} ${P(tipR, a)} Q${P(ctrlR, a + (aR - a) * k)} ${P(base, aR)} Z`);
+  });
   LANES.forEach((_, i) => { const [px, py] = pol(radarR(competency(i)), laneMid[i]); const d = document.getElementById(`rv-${i}`); d.setAttribute("cx", px); d.setAttribute("cy", py); });
   document.getElementById("xpFill").style.width = (hi > lo ? Math.min(100, (x - lo) / (hi - lo) * 100) : 100) + "%";
   document.getElementById("xpNums").textContent = `${x} / ${TOTAL_XP} XP`;
