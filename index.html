@@ -264,6 +264,25 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .lightbox { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.82); display: grid; place-items: center; cursor: zoom-out;
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
 .lightbox img { max-width: 100%; max-height: 90vh; border-radius: 8px; background: #fff; }
+.achstack { position: fixed; z-index: 35; top: calc(16px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); width: min(380px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.ach-card { position: relative; overflow: hidden; display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 12px; background: var(--surface); border: 2px solid var(--gold);
+  box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 26px color-mix(in srgb, var(--gold) 35%, transparent); animation: achIn .55s cubic-bezier(.2,1.4,.4,1) both; }
+.ach-card.out { animation: achOut .4s ease-in forwards; }
+.ach-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.22) 50%, transparent 70%); transform: translateX(-110%); animation: achShine 1.3s .45s ease-out forwards; }
+.ach-icon { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--gold); color: #1d2420; font: 700 24px var(--display); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 25%, transparent); }
+.ach-k { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--gold); }
+.ach-t { font: 700 22px/1.05 var(--display); text-transform: uppercase; color: var(--fg); }
+.ach-d { font-size: 13px; color: var(--muted); }
+@keyframes achIn { from { opacity: 0; transform: translateY(-24px) scale(.85); } to { opacity: 1; transform: none; } }
+@keyframes achOut { to { opacity: 0; transform: translateY(-14px) scale(.95); } }
+@keyframes achShine { to { transform: translateX(110%); } }
+.achlist { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 13px; }
+.achlist summary { cursor: pointer; font-weight: 600; color: var(--fg); }
+.achlist ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; max-height: 260px; overflow-y: auto; }
+.achlist li { display: flex; flex-direction: column; padding: 6px 8px; border-radius: 6px; background: var(--bg); color: var(--muted); }
+.achlist li b { font-weight: 600; }
+.achlist li.done { color: var(--fg); box-shadow: inset 3px 0 0 var(--gold); }
+.achlist li span { font-size: 12px; color: var(--muted); }
 .toast { position: fixed; z-index: 30; left: 50%; top: calc(16px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg);
   font: 700 18px var(--display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 18px; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.25);
   display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 32px); }
@@ -286,7 +305,7 @@ button, .chip, .quest { touch-action: manipulation; }
   .pics img { height: 200px; }
   .pics figure:only-child img { height: 240px; }
 }
-@media (prefers-reduced-motion: reduce) { .nd.avail .halo, .badge-back.spin, .center-badge.pulse, .selring { animation: none; } .xpbar i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .nd.avail .halo, .badge-back.spin, .center-badge.pulse, .selring, .ach-card, .ach-card::after { animation: none; } .xpbar i { transition: none; } }
 </style>
 
 <div class="wrap">
@@ -306,6 +325,7 @@ button, .chip, .quest { touch-action: manipulation; }
           <div class="xpnums"><span id="xpNums"></span><span id="mastery"></span></div>
         </div>
       </div>
+      <details class="achlist" id="achList"><summary id="achSummary">Achievements</summary><ul id="achUl"></ul></details>
     </div>
     <div class="card next">
       <h2>Up next</h2>
@@ -347,6 +367,7 @@ button, .chip, .quest { touch-action: manipulation; }
 <div class="panel" id="panel" hidden></div>
 <div class="lightbox" id="lightbox" hidden><img id="lightimg" alt=""></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="achstack" id="achStack" aria-live="polite"></div>
 
 <script>
 const TIERS = [
@@ -1060,6 +1081,45 @@ function setFiltersOpen(open) {
 document.getElementById("fToggle").addEventListener("click", () => setFiltersOpen(document.getElementById("filters").classList.contains("collapsed")));
 document.getElementById("fReset").addEventListener("click", () => { filter.lanes.clear(); filter.show = "all"; clearPath(); applyFilter(); });
 
+/* ---------- Achievements ---------- */
+const ACH_KEY = "climb-achievements-v1";
+let achDone = load(ACH_KEY), achReady = false;
+const ACHS = [
+  { id: "first", name: "First Moves", desc: "Learn your first skill", test: c => c.learned >= 1 },
+  { id: "tier1", name: "Off the Ground", desc: "Learn every Tier I skill", test: () => skills.filter(s => s.tier === 1).every(learned) },
+  { id: "ten", name: "Ten Down", desc: "Learn 10 skills", test: c => c.learned >= 10 },
+  { id: "quarter", name: "Quarter Rack", desc: "Learn a quarter of all skills", test: c => c.learned >= Math.ceil(skills.length / 4) },
+  { id: "half", name: "Halfway Up the Wall", desc: "Learn half of all skills", test: c => c.learned >= Math.ceil(skills.length / 2) },
+  { id: "all", name: "Sent the Whole Map", desc: "Learn every skill", test: c => c.learned === skills.length },
+  { id: "crit", name: "Safety Third? Not Here", desc: "Learn every critical skill", test: () => skills.filter(s => s.crit).every(learned) },
+  { id: "drill1", name: "Muscle Memory", desc: "Drill your first skill", test: c => c.drilled >= 1 },
+  { id: "drill10", name: "Drill Sergeant", desc: "Drill 10 skills", test: c => c.drilled >= 10 },
+  { id: "rescue", name: "Self-Rescue Ready", desc: "Learn belay escape, ascending a rope and hauling", test: () => ["rescape", "rasc", "rhaul"].every(k => learned(byKey[k])) },
+  { id: "nodevice", name: "Who Needs a Belay Device?", desc: "Learn the Munter belay, Munter rappel and hip belay", test: () => ["imunter", "imrap", "ihip"].every(k => learned(byKey[k])) },
+  ...LANES.map(([lane, label, title], i) => ({ id: "branch-" + lane, name: title, desc: `Learn every ${label} skill`, test: () => skills.filter(s => s.ci === i).every(learned) })),
+  ...LANES.map(([lane, label, title], i) => ({ id: "gold-" + lane, name: "Golden " + title, desc: `Drill every ${label} skill`, test: () => skills.filter(s => s.ci === i).every(s => effective(s) === 2) })),
+];
+// achievements already earned when the page loads are recorded quietly; only new ones pop up
+function checkAchievements() {
+  const c = { learned: skills.filter(learned).length, drilled: skills.filter(s => effective(s) === 2).length };
+  const fresh = ACHS.filter(a => !achDone[a.id] && a.test(c));
+  fresh.forEach(a => achDone[a.id] = new Date().toISOString().slice(0, 10));
+  if (fresh.length) { try { localStorage.setItem(ACH_KEY, JSON.stringify(achDone)); } catch (e) {} }
+  if (achReady) fresh.forEach(a => popAchievement("★", "Achievement unlocked", a.name, a.desc));
+  achReady = true;
+  const n = ACHS.filter(a => achDone[a.id]).length;
+  document.getElementById("achSummary").textContent = `Achievements · ${n} of ${ACHS.length}`;
+  document.getElementById("achUl").innerHTML = [...ACHS].sort((a, b) => !!achDone[b.id] - !!achDone[a.id])
+    .map(a => `<li class="${achDone[a.id] ? "done" : ""}"><b>${achDone[a.id] ? "★" : "·"} ${esc(a.name)}</b><span>${esc(a.desc)}</span></li>`).join("");
+}
+function popAchievement(icon, kicker, title, desc) {
+  const stack = document.getElementById("achStack"), card = document.createElement("div");
+  card.className = "ach-card";
+  card.innerHTML = `<div class="ach-icon">${esc(String(icon))}</div><div><div class="ach-k">${esc(kicker)}</div><div class="ach-t">${esc(title)}</div>${desc ? `<div class="ach-d">${esc(desc)}</div>` : ""}</div>`;
+  stack.append(card);
+  setTimeout(() => { card.classList.add("out"); setTimeout(() => card.remove(), 450); }, 4200);
+}
+
 /* ---------- State painting ---------- */
 let selected = null;
 let lastRank = rankIndex(xp());
@@ -1147,8 +1207,9 @@ function paint() {
     b.addEventListener("click", () => select(s.key, true)); qe.append(b);
   });
 
-  if (ri > lastRank) { toast(`Rank up: ${RANKS[ri][1]}`); const b = document.querySelector(".center-badge"); b.classList.remove("pop"); void b.getBBox(); b.classList.add("pop"); }
+  if (ri > lastRank) { popAchievement(ri + 1, "Rank up!", RANKS[ri][1], `You are now rank ${ri + 1} of ${RANKS.length}`); const b = document.querySelector(".center-badge"); b.classList.remove("pop"); void b.getBBox(); b.classList.add("pop"); }
   lastRank = ri;
+  checkAchievements();
   highlight(selected);
 }
 
