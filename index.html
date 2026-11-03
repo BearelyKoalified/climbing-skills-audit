@@ -13,7 +13,7 @@
 </head>
 <body>
 <style>
-/* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch. Progress shows as green, silver and gold rings, with blue on skills ready to learn, around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
+/* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch. Progress shows as green, silver and gold rings around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
 /* Always dark, whatever the browser or system theme says */
 :root {
   --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
@@ -139,8 +139,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nd .lock path { fill: none; stroke: var(--surface); stroke-width: 1.3; }
 .nd .lbl { font: 600 12.5px var(--body); fill: var(--fg); text-anchor: middle; paint-order: stroke; stroke: var(--map); stroke-width: 4.5px; stroke-linejoin: round; pointer-events: none; }
 .nd.locked .lock { opacity: 1; }
-.nd.avail .ring { stroke: var(--next); stroke-dasharray: 3 3; }
-.nd.avail .halo { fill: var(--next); opacity: .25; animation: pulse 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 .nd.lv-gap .ring { stroke: var(--crit); stroke-dasharray: 4 3; }
 .nd.lv-1 .ring { stroke: var(--learned); }
 .nd.lv-15 .ring { stroke: var(--silver); }
@@ -277,7 +275,7 @@ button, .chip, .quest { touch-action: manipulation; }
 <div class="wrap">
   <header>
     <h1>Climbing Skills Audit</h1>
-    <p class="lede" id="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Skills ready to learn have a blue ring. Earn a green ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
+    <p class="lede" id="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Earn a green ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
   </header>
 
   <div class="hud">
@@ -752,7 +750,7 @@ function build() {
   });
   // center: a star chart of competency per branch (each spoke points at its branch), ringed by rank progress
   const c = el("g", {}, svg);
-  [.5, 1].forEach(f => el("circle", { class: "radar-grid", r: radarR(f) }, c));
+  [.25, 1].forEach(f => el("circle", { class: "radar-grid", r: radarR(f) }, c));
   LANES.forEach((_, i) => { const [x, y] = pol(RADAR_R, laneMid[i]); el("line", { class: "radar-spoke", x1: 0, y1: 0, x2: x, y2: y, style: `--c: var(--c${i})` }, c); });
   LANES.forEach((_, i) => { el("path", { class: "radar-petal", id: `rp-${i}`, style: `--c: var(--c${i})` }, c); el("path", { class: "radar-edge", id: `re-${i}`, style: `--c: var(--c${i})` }, c); });
   LANES.forEach((_, i) => el("circle", { class: "radar-dot", id: `rv-${i}`, r: 3.6, style: `--c: var(--c${i})` }, c));
@@ -760,7 +758,7 @@ function build() {
   fxT = el("g", { class: "fx" }, svg);
 }
 // star chart radius for a competency of 0 to 1; zero sits just outside the rank badge
-const radarR = f => 33 + (RADAR_R - 33) * f;
+const radarR = f => 6 + (RADAR_R - 6) * Math.sqrt(f);
 // the rank badge is a star that gains points and flourishes with every rank
 let badgeRank = -1;
 function starPath(n, ro, ri, rot = 0) {
@@ -906,7 +904,6 @@ const ringIcon = (stroke, dash = "", fill = "color-mix(in srgb, var(--c1) 30%, v
   `<svg width="24" height="24" viewBox="-12 -12 24 24"><circle r="10.5" fill="none" stroke="${stroke}" stroke-width="2.6" ${dash ? `stroke-dasharray="${dash}"` : ""}/><circle r="7.5" fill="${fill}" stroke="var(--c1)" stroke-width="1.6"/>${glyph ? `<text text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="${glyphFill}">${glyph}</text>` : ""}</svg>`;
 document.getElementById("legend").innerHTML = [
   [ringIcon("transparent"), "Not rated"],
-  [ringIcon("var(--next)", "3 2"), "Ready to learn"],
   [`<svg width="22" height="22" viewBox="-11 -11 22 22"><circle r="6" fill="color-mix(in srgb, var(--c1) 30%, var(--surface))" stroke="var(--c1)" stroke-width="1.6"/><g transform="translate(5,5)"><circle r="4.5" fill="var(--fg)"/></g></svg>`, "Locked (prerequisites not learned yet)"],
   [ringIcon("var(--crit)", "3 2"), "Gap"],
   [ringIcon("var(--learned)", "", "var(--c1)", "✓"), "Learned"],
