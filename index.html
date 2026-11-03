@@ -518,101 +518,107 @@ const N = [
  ["kgirth","knots",2,0,"","Girth hitch","Attaches a sling to your harness or around a tree or horn.","sling","Girth-hitching Dyneema slings into chains, which weakens them."],
  ["kobight","knots",3,0,"kbight","Overhand on a bight","A low-bulk fixed loop for cordelette master points and isolating strands.","none","Hard to untie after a big load."],
  ["kauto","knots",3,1,"kstop","Autoblock","A friction hitch below your rappel device that backs up your brake hand.","autoblock cord","Too many or too few wraps for the rope diameter."],
- ["keo","knots",4,1,"kobight","Flat overhand (rope join)","Joins two ropes for rappels. Tails at least 30 cm, pulled very tight.","none","Using a flat figure-8, which can roll off the rope end."],
+ ["keo","knots",4,1,"kobight","Flat overhand bend (EDK)","Joins two ropes for rappels. Tails at least 30 cm, pulled very tight.","none","Using a flat figure-8, which can roll off the rope end."],
  ["kfish","knots",4,0,"k8","Double fisherman's","Joins cord into a permanent loop for prusiks or a cordelette.","accessory cord","Tails too short."],
  ["kprus","knots",5,1,"kauto","Prusik and Klemheist","Friction hitches that grip under load and slide when unloaded.","prusik loops, sling","Cord too close to the rope diameter, so it slips."],
- ["kmmo","knots",5,1,"imunter","Munter-mule-overhand","Locks off a Munter so it can be released under load. The base of most rescue systems.","HMS locker","Leaving off the backup overhand."],
+ ["kmmo","knots",5,1,"imunter","Munter mule overhand (MMO)","Locks off a Munter so it can be released under load. The base of most rescue systems.","HMS locker","Leaving off the backup overhand."],
  ["kfly","knots",5,0,"kbight","Alpine butterfly","A mid-rope loop that takes load in any direction. For glacier travel and isolating rope damage.","none","Tying a look-alike that capsizes."],
  ["kgarda","knots",7,0,"kclove","Garda hitch / alpine clutch","A two-carabiner hitch that lets rope run one way only.","2 identical carabiners","It can't be released under load."],
- ["kbowl","knots",7,0,"k8","Bowline variations","A Yosemite or double bowline tie-in, easy to untie after falls.","none","Easy to tie wrong. Needs a solid finish."],
+ ["kbowl","knots",7,0,"k8","Yosemite bowline","A Yosemite or double bowline tie-in, easy to untie after falls.","none","Easy to tie wrong. Needs a solid finish."],
  ["kwater","knots",7,0,"kfish","Water knot","Joins the ends of flat webbing.","webbing","It slowly loosens. Check it every time."],
 
- ["btr","belay",1,1,"","Top-rope belay and lower","Brake-hand discipline, taking in slack and controlled lowering.","belay device, locker","Letting go of the brake strand to adjust anything."],
- ["bsoft","belay",2,1,"btr","Soft lead catch","Give a dynamic catch by moving with the fall, so the climber doesn't slam into the wall.","any device","Too much slack low on the route. Below the third clip, a soft catch can turn into a ground fall."],
- ["bweight","belay",3,0,"bsoft","Belaying with a big weight difference","Stand close to the wall, anchor yourself to the ground, or use an inline resistor when the climber is much heavier than you.","ground anchor sling, resistor","Standing far back, so the belayer gets yanked into the first bolt."],
- ["bguide","belay",4,1,"btr,kclove","Guide-mode belay from above","Belay followers directly off the anchor with an auto-locking device.","guide-mode device, locker","Treating it as hands-free. Keep a hand on the brake strand."],
- ["bmp","belay",5,1,"bsoft,bguide","Belaying a leader off a multipitch anchor","Clip a first piece right off the belay and position yourself so a fall never comes straight onto the anchor.","quickdraw on the anchor","Leader falls past the belay before the first piece: a factor-2 fall."],
+ ["btr","belay",1,1,"","Top-rope belaying","Brake-hand discipline, taking in slack and controlled lowering.","belay device, locker","Letting go of the brake strand to adjust anything."],
+ ["bsoft","belay",2,1,"btr","Giving a soft catch","Give a dynamic catch by moving with the fall, so the climber doesn't slam into the wall.","any device","Too much slack low on the route. Below the third clip, a soft catch can turn into a ground fall."],
+ ["bweight","belay",3,0,"bsoft","Belaying a heavier climber","Stand close to the wall, anchor yourself to the ground, or use an inline resistor when the climber is much heavier than you.","ground anchor sling, resistor","Standing far back, so the belayer gets yanked into the first bolt."],
+ ["bguide","belay",4,1,"btr,kclove","Belaying in guide mode","Belay followers directly off the anchor with an auto-locking device.","guide-mode device, locker","Treating it as hands-free. Keep a hand on the brake strand."],
+ ["bmp","belay",5,1,"bsoft,bguide","Belaying the leader on multipitch","Clip a first piece right off the belay and position yourself so a fall never comes straight onto the anchor.","quickdraw on the anchor","Leader falls past the belay before the first piece: a factor-2 fall."],
  ["bdirect","belay",5,0,"bguide","Direct, redirected and harness belays","Know when to belay off the anchor, through a redirect, or off your harness, and how much load each puts on the anchor.","none","Redirecting a lead belay through a single piece, which roughly doubles the load on it."],
- ["brelease","belay",6,1,"bguide,kprus","Releasing a loaded guide-mode device","Lower a weighted follower using a redirect and the release hole, with a backup hitch.","sling or cord, extra carabiner","Levering it open without a redirect and dropping the climber."],
+ ["brelease","belay",6,1,"bguide,kprus","Lowering from guide mode","Lower a weighted follower using a redirect and the release hole, with a backup hitch.","sling or cord, extra carabiner","Levering it open without a redirect and dropping the climber."],
  ["btwo","belay",7,0,"bguide","Belaying two followers","Bring up two followers at once, on one rope or two.","device that takes two ropes","Ropes crossing and jamming the device."],
 
- ["lclip","lead",2,0,"btr","Clean clipping","Avoid back-clips and Z-clips, keep the rope in front of your leg, clip from a stable stance.","quickdraws","Rope behind the leg flips you upside down in a fall."],
+ ["lclip","lead",2,0,"btr","Clipping technique","Avoid back-clips and Z-clips, keep the rope in front of your leg, clip from a stable stance.","quickdraws","Rope behind the leg flips you upside down in a fall."],
  ["lfall","lead",2,0,"btr","Falling well","Feet on the wall, hands off the draws, eyes on what's below. Know where a fall is not an option.","none","Grabbing a quickdraw on the way down."],
  ["lclean","lead",3,1,"lclip,kclove","Cleaning a sport anchor","Thread and lower, or rappel, with the plan agreed on the ground before the climber leaves.","personal tether, 2 lockers","Belayer takes the climber off belay after a miscommunication. A very common accident."],
- ["lbail","lead",4,1,"lclean","Bailing mid-route","Lower off a single good piece or bail carabiner, backed up until the last climber.","quick link, old carabiner, nut","Lowering with the rope running through a nylon sling. The friction melts it."],
+ ["lbail","lead",4,1,"lclean","Bailing off a route","Lower off a single good piece or bail carabiner, backed up until the last climber.","quick link, old carabiner, nut","Lowering with the rope running through a nylon sling. The friction melts it."],
  ["laid","lead",7,0,"tcams","Aid and French-free climbing","Pull on or stand in gear to get through a crux or out of trouble.","slings or aiders","Never practicing it until you need it on a route."],
 
  ["tmock","trad",3,0,"btr,lclip","Mock leading","Lead on gear while also on a top rope, so you practice placements with no risk.","rack, top rope","Treating mock-lead placements as proven. Nobody has fallen on them."],
- ["track","trad",3,0,"lclip","Racking and gear selection","Organize the rack and pick gear for the crack sizes on the topo, with enough slings.","rack, slings","Running out of the size you need at the crux."],
+ ["track","trad",3,0,"lclip","Racking","Organize the rack and pick gear for the crack sizes on the topo, with enough slings.","rack, slings","Running out of the size you need at the crux."],
  ["tclean","trad",3,0,"lclip","Cleaning trad gear","Remove nuts and cams with a nut tool without dropping them, and free stuck pieces.","nut tool","Yanking a stuck cam deeper into the crack."],
- ["tcrack","trad",4,0,"lfall","Crack climbing technique","Finger, hand and fist jams, and resting on jams while you place gear.","tape or crack gloves","Over-gripping. Good jams let you rest."],
- ["tnuts","trad",4,1,"track","Placing nuts and passive gear","Seat nuts in constrictions with full contact for the direction of pull, and set them with a tug.","nuts, hexes","Nuts that lift out when the rope pulls up or sideways."],
+ ["tcrack","trad",4,0,"lfall","Crack climbing (jamming)","Finger, hand and fist jams, and resting on jams while you place gear.","tape or crack gloves","Over-gripping. Good jams let you rest."],
+ ["tnuts","trad",4,1,"track","Placing nuts","Seat nuts in constrictions with full contact for the direction of pull, and set them with a tug.","nuts, hexes","Nuts that lift out when the rope pulls up or sideways."],
  ["tcams","trad",4,1,"track","Placing cams","Cams in parallel-sided cracks, lobes in their good range, stem pointing the way you'd fall.","cams","Overcammed, tipped-out or walking cams."],
- ["trock","trad",4,1,"jrock","Judging rock quality","Spot loose blocks, hollow flakes and weak rock before trusting gear or holds.","none","A cam behind a flake that expands when loaded."],
- ["textend","trad",5,0,"tnuts,tcams","Extending gear to manage drag","Use runners on wandering lines and make the first piece multidirectional so it doesn't zipper.","alpine draws","Rope drag lifting pieces out, or a crack zippering in a fall."],
- ["tsecond","trad",5,0,"tnuts,tcams","Protecting the follower","Place gear after traverses and cruxes so the second doesn't take a big swing.","slings","A long traverse with no gear right before the belay."],
+ ["trock","trad",4,1,"jrock","Assessing rock quality","Spot loose blocks, hollow flakes and weak rock before trusting gear or holds.","none","A cam behind a flake that expands when loaded."],
+ ["textend","trad",5,0,"tnuts,tcams","Extending placements","Use runners on wandering lines and make the first piece multidirectional so it doesn't zipper.","alpine draws","Rope drag lifting pieces out, or a crack zippering in a fall."],
+ ["tsecond","trad",5,0,"tnuts,tcams","Protecting the second","Place gear after traverses and cruxes so the second doesn't take a big swing.","slings","A long traverse with no gear right before the belay."],
 
  ["abolt","anchor",3,0,"kclove,kbight","Bolted anchors","Two-bolt setups using a master point, a quad, or clove hitches with the lead rope.","slings or quad, lockers","A single sling clipped across both bolts in a triangle, which multiplies the force on each."],
- ["atr","anchor",3,0,"kbight","Toprope setups over edges","Extend the master point over the lip and protect the rope from the edge.","static line or long slings, rope protector","Loaded rope sawing back and forth over a sharp edge."],
+ ["atr","anchor",3,0,"kbight","Top-rope anchors","Extend the master point over the lip and protect the rope from the edge.","static line or long slings, rope protector","Loaded rope sawing back and forth over a sharp edge."],
  ["afixed","anchor",4,1,"abolt","Assessing fixed gear","Check bolts, hangers, pitons and tat for spinning, rust, cracks and sun fading.","knife, spare cord, quick links","Rappelling off sun-bleached tat without replacing it or backing it up."],
  ["anat","anchor",4,0,"kgirth","Natural anchors","Judge trees, horns, threads, chockstones and boulders by size, roots and the direction of pull.","slings, cord","A sling rolling off a horn when the pull is upward or sideways."],
- ["agear","anchor",5,1,"tnuts,tcams,afixed","Gear anchor principles","Strong, redundant, load spread sensibly, little extension if a piece fails, built for the expected direction of pull.","rack, cordelette","Two pieces behind the same flake, so one failure takes both."],
- ["arope","anchor",5,0,"kclove,abolt","Anchor built with the climbing rope","Clove hitches to each piece and a master point made with the lead rope. No cordelette needed.","lead rope, lockers","Not planning the changeover, so swapping leads gets messy."],
- ["aup","anchor",6,0,"agear","Upward-pull protection","Add a piece that holds an upward pull, for leader falls onto the belay or traverses.","one nut or cam","Belayer lifted off the ledge, pulling a downward-only anchor apart."],
+ ["agear","anchor",5,1,"tnuts,tcams,afixed","Building gear anchors","Strong, redundant, load spread sensibly, little extension if a piece fails, built for the expected direction of pull.","rack, cordelette","Two pieces behind the same flake, so one failure takes both."],
+ ["arope","anchor",5,0,"kclove,abolt","Anchoring with the lead rope","Clove hitches to each piece and a master point made with the lead rope. No cordelette needed.","lead rope, lockers","Not planning the changeover, so swapping leads gets messy."],
+ ["aup","anchor",6,0,"agear","Multidirectional anchors","Add a piece that holds an upward pull, for leader falls onto the belay or traverses.","one nut or cam","Belayer lifted off the ledge, pulling a downward-only anchor apart."],
+ ["aedge","anchor",3,1,"kclove","Working safely at the edge","Tether in or clip a fixed line before you go near a cliff edge to build or check an anchor.","tether, static line","Walking to the edge unattached to look over."],
+ ["acord","anchor",4,0,"kobight","Cordelette anchor","Clip a cordelette to two or three pieces, pull it toward the load and tie an overhand master point.","cordelette, lockers","A master point tied off-angle, so one piece takes nearly everything."],
+ ["aquad","anchor",4,0,"abolt","Quad anchor","A doubled cord with limiter knots that shares load between two bolts and adjusts as the load shifts.","quad or 240 cm cord, lockers","Clipping it so that it's no longer redundant."],
+ ["areach","anchor",4,0,"abolt,kclove","In-reach anchors","Anchors where every piece is within arm's reach of the master point, so you can build and inspect it all from one spot.","slings, cordelette, lockers","Building where you can't see every piece and connection."],
+ ["aload","anchor",5,0,"acord","Anchor angles and forces","Keep the angle between anchor legs narrow, ideally under 60°, and know how angle and extension change the load on each piece.","none","Wide angles that load each piece more than the climber's weight."],
+ ["aoreach","anchor",5,1,"anat,aedge,kbight","Out-of-reach anchors (extended)","Run static rope from anchors set back from the edge, such as trees or boulders, to a master point that hangs over the lip.","static rope, edge protection, lockers","An unprotected edge, or a master point that sits back on top of the lip."],
 
  ["rclose","rap",2,1,"kstop","Closing the system","Stopper knots in both ends, every time, and confirm the rope reaches the ground or next station.","none","Lowering or rappelling off the end of the rope."],
  ["rfire","rap",3,0,"rclose","Fireman's belay","Pull down on the rope ends from below to stop a rappeller who loses control.","none","The person below not watching or not holding the ends."],
  ["rext","rap",4,1,"kauto,rclose","Extended rappel with autoblock","Device on an extension, autoblock backup below it on the belay loop or leg loop.","sling or tether, autoblock cord, locker","Autoblock long enough to touch the device, so it never grabs."],
- ["rwind","rap",4,0,"rclose","Rappelling in wind and tangles","Saddlebag the rope on your harness or feed it out as you go instead of throwing it.","slings or rope bags","Throwing the rope into a tree or flake where it snags."],
- ["rpre","rap",5,0,"rext","Pre-rigging and partner checks","Both climbers rig before the first one goes, so you can check each other.","an extension for each climber","The second rigging alone with nobody watching."],
- ["rstuck","rap",5,1,"rext","Stuck rope prevention and recovery","Test-pull before the last person leaves and watch where the knot sits. If it sticks, ascend both strands with backups.","prusiks","Climbing a single strand of a stuck rope that could suddenly come free."],
- ["rblock","rap",7,0,"rext","Single-strand and blocked rappels","Use a carabiner or clove-hitch block to rappel a full rope length and pull it with a light cord.","locker, pull cord","Rappelling on the strand that gets pulled."],
+ ["rwind","rap",4,0,"rclose","Saddlebagging the rope","Saddlebag the rope on your harness or feed it out as you go instead of throwing it.","slings or rope bags","Throwing the rope into a tree or flake where it snags."],
+ ["rpre","rap",5,0,"rext","Pre-rigging rappels","Both climbers rig before the first one goes, so you can check each other.","an extension for each climber","The second rigging alone with nobody watching."],
+ ["rstuck","rap",5,1,"rext","Stuck rappel ropes","Test-pull before the last person leaves and watch where the knot sits. If it sticks, ascend both strands with backups.","prusiks","Climbing a single strand of a stuck rope that could suddenly come free."],
+ ["rblock","rap",7,0,"rext","Blocked rappels","Use a carabiner or clove-hitch block to rappel a full rope length and pull it with a light cord.","locker, pull cord","Rappelling on the strand that gets pulled."],
  ["rknot","rap",7,0,"rext,kprus","Passing a knot on rappel","Get past a joining knot on a long rappel or during a rescue lower.","prusiks, sling, locker","Letting go of the brake to deal with the knot."],
 
- ["mcomm","mp",3,1,"jcheck","Communication without sight or sound","Agreed commands, a rope-tug system, or radios, and a plan for when you can't hear each other.","radios (optional)","Mistaking another party's \"off belay\" for your partner's."],
- ["mretreat","mp",5,1,"rext,keo","Retreat planning","Know the rappel line, rope lengths needed and bail options before leaving the ground, and carry bail gear.","quick links, cord, knife, headlamp","Committing to a route whose rappels need two ropes when you brought one."],
- ["mchange","mp",5,0,"abolt,bguide","Efficient changeovers","Run belay transitions in a fixed order so nobody is ever unattached and nothing gets dropped.","none","Unclipping from the anchor to get a better position."],
- ["mropes","mp",5,0,"kclove","Rope management at hanging belays","Stack the rope in lap coils or over your tether so it feeds cleanly for the next lead.","none","Rope hanging down into cracks and snagging."],
+ ["mcomm","mp",3,1,"jcheck","Rope commands and signals","Agreed commands, a rope-tug system, or radios, and a plan for when you can't hear each other.","radios (optional)","Mistaking another party's \"off belay\" for your partner's."],
+ ["mretreat","mp",5,1,"rext,keo","Retreating from a multipitch","Know the rappel line, rope lengths needed and bail options before leaving the ground, and carry bail gear.","quick links, cord, knife, headlamp","Committing to a route whose rappels need two ropes when you brought one."],
+ ["mchange","mp",5,0,"abolt,bguide","Belay changeovers","Run belay transitions in a fixed order so nobody is ever unattached and nothing gets dropped.","none","Unclipping from the anchor to get a better position."],
+ ["mropes","mp",5,0,"kclove","Stacking the rope at hanging belays","Stack the rope in lap coils or over your tether so it feeds cleanly for the next lead.","none","Rope hanging down into cracks and snagging."],
  ["msimul","mp",7,0,"mchange,kprus","Simul-climbing and short-fixing","Moving together with protection and progress capture, or the leader self-belaying while the follower ascends.","progress capture device","A follower fall pulling the leader off. Needs strong judgment."],
  ["mhaul","mp",7,0,"bguide","Hauling a pack","Simple hauls off the anchor with a guide-mode device or progress capture pulley.","progress capture device","Hauling off your harness instead of the anchor."],
 
- ["rshort","res",3,1,"rclose,btr","Recognizing a rope too short to lower","Spot it before the end reaches the device. Tie in the end and have the climber anchor or rappel instead.","stopper knot","The end running through the device. A common lowering accident."],
- ["rlower","res",6,0,"kmmo,bdirect","Lowering an injured climber","Lower off the anchor with a Munter or redirected device, including a knot pass if ropes are tied together.","locker","Lowering them into terrain you can't reach afterward."],
- ["rasc","res",6,1,"kprus","Ascending with friction hitches","Two friction hitches, one to your harness and one to a foot loop, with backup knots tied below as you go.","2 prusik loops, sling","No backup knot below the hitches, so a slip means a fall."],
+ ["rshort","res",3,1,"rclose,btr","Rope too short to lower","Spot it before the end reaches the device. Tie in the end and have the climber anchor or rappel instead.","stopper knot","The end running through the device. A common lowering accident."],
+ ["rlower","res",6,0,"kmmo,bdirect","Rescue lower (injured climber)","Lower off the anchor with a Munter or redirected device, including a knot pass if ropes are tied together.","locker","Lowering them into terrain you can't reach afterward."],
+ ["rasc","res",6,1,"kprus","Ascending a rope with prusiks","Two friction hitches, one to your harness and one to a foot loop, with backup knots tied below as you go.","2 prusik loops, sling","No backup knot below the hitches, so a slip means a fall."],
  ["rasc2","res",6,0,"kprus,bguide","Ascending with a guide-mode device","Faster and safer than two hitches: device in guide mode on your harness, one hitch to a foot loop.","guide-mode device, prusik, sling","Device rigged the wrong way so it doesn't lock."],
  ["rescape","res",6,1,"kmmo,kprus","Escaping the belay","Tie off the device, then move the load onto the anchor with a friction hitch and a Munter-mule so you're free to act.","prusik, cordelette, 2 lockers","Moving the load onto an anchor nobody has checked."],
- ["rdamage","res",6,0,"kfly","Isolating a damaged rope","Tie an alpine butterfly around a core shot so the rope can still be used to descend.","none","Rappelling over the damage."],
- ["rhaul","res",7,1,"rescape","Hauling systems (assisted, 3:1, 6:1)","Raise a climber who can't climb, using friction hitches and carabiners.","prusiks, spare carabiners, pulley (optional)","Overloading a weak anchor. Carabiners instead of pulleys lose much of the advantage."],
+ ["rdamage","res",6,0,"kfly","Isolating a core shot","Tie an alpine butterfly around a core shot so the rope can still be used to descend.","none","Rappelling over the damage."],
+ ["rhaul","res",7,1,"rescape","Hauling systems (3:1 Z-drag)","Raise a climber who can't climb, using friction hitches and carabiners.","prusiks, spare carabiners, pulley (optional)","Overloading a weak anchor. Carabiners instead of pulleys lose much of the advantage."],
  ["rcounter","res",7,0,"rasc,rext","Counterbalance rappel","Reach a hurt climber by rappelling the opposite strand with them as the counterweight, then descend together.","prusik, slings, lockers","Unweighting the rope so the injured climber drops."],
- ["rtandem","res",7,0,"rext,rescape","Tandem rappel with a patient","Rappel with an incapacitated partner clipped to your extension.","slings, autoblock, extra friction","Too little friction for the weight of two people."],
+ ["rtandem","res",7,0,"rext,rescape","Tandem rappel","Rappel with an incapacitated partner clipped to your extension.","slings, autoblock, extra friction","Too little friction for the weight of two people."],
 
  ["imunter","imp",3,1,"btr","Munter hitch belay","Belay or lower on a pear-shaped locker if you drop your device.","1 HMS locker","Loading the brake strand across the gate, which can unscrew it."],
- ["ibail","imp",3,0,"kgirth","Carrying bail gear on the harness","A knife, quick links, extra cord and a spare locker on you, not in the pack at the base.","knife, 2 quick links, 5 m cord","Leaving it all in the pack."],
+ ["ibail","imp",3,0,"kgirth","Carrying a bail kit","A knife, quick links, extra cord and a spare locker on you, not in the pack at the base.","knife, 2 quick links, 5 m cord","Leaving it all in the pack."],
  ["imrap","imp",4,0,"imunter","Munter hitch rappel","Rappel with a Munter on one or both strands.","HMS locker","Heavy twisting. Keep strands managed."],
- ["iharness","imp",4,0,"kgirth","Improvised harness","Diaper harness from a 120 cm sling or a Swiss seat tied with rope. Add a chest harness for an unconscious climber.","120 cm sling, locker","No backup if a single sling fails."],
- ["ifriction","imp",6,0,"kprus","Friction hitch substitutes","Klemheist with a sewn sling, or a Bachmann around a carabiner, when you have no prusik cord.","nylon sling, carabiner","Dyneema slings grip poorly and can melt under friction."],
- ["ipulley","imp",6,0,"kprus","Carabiner in place of a pulley","Redirect the rope through a carabiner. Expect a lot more friction.","carabiner","Planning a haul around ideal mechanical advantage."],
+ ["iharness","imp",4,0,"kgirth","Improvised harness (diaper sling)","Diaper harness from a 120 cm sling or a Swiss seat tied with rope. Add a chest harness for an unconscious climber.","120 cm sling, locker","No backup if a single sling fails."],
+ ["ifriction","imp",6,0,"kprus","Klemheist and Bachmann hitches","Klemheist with a sewn sling, or a Bachmann around a carabiner, when you have no prusik cord.","nylon sling, carabiner","Dyneema slings grip poorly and can melt under friction."],
+ ["ipulley","imp",6,0,"kprus","Improvised pulleys","Redirect the rope through a carabiner. Expect a lot more friction.","carabiner","Planning a haul around ideal mechanical advantage."],
  ["icbrake","imp",7,0,"imrap","Carabiner brake rappel","Stack several carabiners across each other to make a friction brake.","4 to 6 carabiners","The rope running over a gate."],
  ["ibody","imp",7,0,"imrap","Body rappel (Dülfersitz)","Wrap the rope around your body for friction on low-angle terrain only.","rope only","Using it on steep ground. Painful and hard to control."],
- ["ihip","imp",7,0,"imunter","Hip belay","Body belay with no device or carabiner, for low-angle terrain and followers.","rope only","Expecting it to hold a hard lead fall."],
+ ["ihip","imp",7,0,"imunter","Hip belay (body belay)","Body belay with no device or carabiner, for low-angle terrain and followers.","rope only","Expecting it to hold a hard lead fall."],
 
  ["jcheck","judg",1,1,"","Partner checks","Knots, harness buckles, lockers, device threading and rope end, every time.","none","Skipping it when tired or climbing with someone familiar."],
  ["jrock","judg",2,0,"","Rockfall awareness","Helmet on, belayer out of the fall line, call \"Rock!\", don't climb beneath other parties.","helmet","Belaying directly under the climber on loose terrain."],
  ["jgear","judg",2,0,"","Gear inspection and retirement","Check rope, slings, harness and cams, and know when to retire them.","none","Old soft goods kept long past their life."],
  ["jlength","judg",2,1,"jcheck","Rope length awareness","Know your rope length and pitch lengths, and watch the middle mark.","none","Assuming the guidebook pitch matches your rope."],
- ["jtopo","judg",4,0,"jrock","Topo reading and descent research","Know the route, belays and descent before you leave the ground.","topo, photos","Finding out about the descent on the summit."],
+ ["jtopo","judg",4,0,"jrock","Reading topos and planning descents","Know the route, belays and descent before you leave the ground.","topo, photos","Finding out about the descent on the summit."],
  ["jscramble","judg",4,0,"jrock","Scrambling and downclimbing","Move safely on 3rd and 4th class terrain and know when to rope up.","none","Approaches and descents cause a large share of accidents."],
  ["jweather","judg",5,1,"jlength","Weather and turnaround times","Read the forecast and the sky, and set a turnaround time you stick to.","none","Pushing on because the top feels close."],
- ["jfirst","judg",5,1,"jcheck","First aid and an emergency plan","A wilderness first aid course, a satellite messenger and a trip plan left with someone at home.","first aid kit, satellite messenger, headlamp","No way to call for help out of cell range."],
+ ["jfirst","judg",5,1,"jcheck","Wilderness first aid","A wilderness first aid course, a satellite messenger and a trip plan left with someone at home.","first aid kit, satellite messenger, headlamp","No way to call for help out of cell range."],
 
  ["aself","alp",6,0,"jscramble","Self-arrest","Stop a slide with an ice axe from any position, including head-first.","ice axe","Practicing only the easy feet-first case."],
  ["asnow","alp",7,0,"aself","Snow anchors","Pickets, buried deadman anchors and snow bollards.","pickets, shovel","Placing pickets in snow too soft to hold them."],
  ["aglacier","alp",7,0,"kfly,kprus","Glacier travel and crevasse rescue","Rope team spacing and knots, then the drop-loop and Z-drag rescues.","pickets, prusiks, pulleys","Too much slack in the rope between team members."],
- ["aice","alp",7,0,"aself","Ice protection and V-threads","Ice screw placement and V-thread (Abalakov) rappel anchors.","screws, threader, cord","Screws in rotten or aerated ice."],
+ ["aice","alp",7,0,"aself","Ice screws and V-threads","Ice screw placement and V-thread (Abalakov) rappel anchors.","screws, threader, cord","Screws in rotten or aerated ice."],
  ["ccons","cave",2,0,"","Cave conservation and etiquette","Stay on established paths, never touch formations, and pack out everything, including waste.","trash bag, gloves","Touching formations. Skin oils stop them growing."],
  ["clight","cave",2,1,"","Lighting and backups","Carry a primary headlamp plus two independent backup lights and spare batteries on every trip.","3 lights, spare batteries","Relying on one light. Darkness underground is total."],
  ["cplan","cave",2,1,"jcheck","Trip plans and callout times","Leave your route and a callout time with someone on the surface who knows who to call.","written trip plan","Nobody knowing you're overdue."],
- ["cmove","cave",3,0,"ccons","Horizontal caving movement","Crawls, squeezes, chimneys and traverses without a rope, moving efficiently and protecting the cave.","kneepads, helmet","Forcing a squeeze you can't reverse."],
+ ["cmove","cave",3,0,"ccons","Crawls and squeezes","Crawls, squeezes, chimneys and traverses without a rope, moving efficiently and protecting the cave.","kneepads, helmet","Forcing a squeeze you can't reverse."],
  ["chypo","cave",3,1,"cplan","Staying warm underground","Manage layers, food and pace so you don't get cold in a constant cool, often wet environment.","layers, emergency blanket, food","Standing around wet and getting cold fast."],
  ["csrtkit","cave",3,1,"kbight","SRT kit setup","Sit harness, chest harness, descender, chest ascender, hand ascender with foot loop and cows tails, all adjusted to fit you.","full SRT kit","Cows tails or foot loop the wrong length."],
  ["crope","cave",3,0,"jgear","Static rope and rope care","Use static rope underground, wash and inspect it, and never take a fall onto it.","static rope","Falling onto static rope. It barely stretches."],
@@ -1344,6 +1350,57 @@ SCENARIOS.push(
   {"id":"reach","title":"Will the rope reach?","setup":"You're about to lower off a long sport route with a rope you haven't used here before.","steps":["Check the route length on the topo","Compare it with half your rope length","Tie a stopper knot in the free end","Watch the middle mark as you lower","Stop and re-plan if the end gets close before the ground"],"skills":["jlength","rshort"]}
 );
 
+
+// anchor building: rope, gear, in-reach and out-of-reach
+Object.assign(YT, {
+  aquad: [["9liByriQRag", "Building a top-rope anchor with a quad", "REI"]],
+  acord: [["__MyrIfiy-I", "The cordelette anchor", "Obsession Climbing"]],
+  areach: [["FWDA2g1um9c", "Rope belays: in-reach and out-of-reach", "JB Mountain Skills"]],
+  aoreach: [["fwbeZfrfIXs", "Extending the master point over an edge with static rope", "VIDEORACLES"], ["4dcizY-rgfM", "Extended anchor system with an instructor tether", "Smile Mountain Guides"]],
+  aload: [["27lt1Pqa6ik", "Anchor angles explained", "Joel Self"]],
+  aedge: [["uskPB6m6ybU", "Staying safe while setting a top-rope anchor", "Bobby Hutton"]],
+});
+Object.assign(DRILL, {
+  aedge: "Set up a tether or fixed line before approaching the edge, every time, for your next 10 top-rope setups.",
+  acord: "Build a 3-piece cordelette anchor at ground level in under 4 minutes, mentor-checked.",
+  aquad: "Tie and rig a quad on two bolts in under 2 minutes, with limiter knots and redundant clipping.",
+  areach: "Build 5 in-reach anchors where you can touch every piece from the master point, mentor-checked.",
+  aload: "Build anchors with 30°, 60° and 120° angles and explain how the load on each piece changes.",
+  aoreach: "Rig an extended static-rope anchor from two trees with the master point over the edge, mentor-checked.",
+});
+Object.assign(DRILL2, {
+  aedge: "Build a complete top-rope anchor at an exposed edge while staying tethered the whole time.",
+  acord: "Build a cordelette anchor for a load that will shift direction, then re-tie it for the new direction.",
+  aquad: "Rig a quad and test how it adjusts when the load moves left and right.",
+  areach: "Build an in-reach anchor using only the climbing rope, then convert it to a cordelette anchor.",
+  aload: "Look at 5 real anchors at a crag and estimate their angles and loads.",
+  aoreach: "Rig an extended anchor from three natural points of different distances, keeping the angle narrow.",
+});
+Object.assign(DRILL_EXTRA, {
+  aoreach: ["Tie a big master point knot (a doubled figure-8 or overhand on a bight) in the static rope, sized for two lockers.", "Pad the lip so the static rope never touches a sharp edge.", "Rig a rappel line on the same static rope to reach the anchor and check it."],
+  acord: ["Build a cordelette anchor on two bolts, then on three gear pieces.", "Tie the cordelette so each loop between pieces is pulled tight toward the load before tying off."],
+  aquad: ["Re-tie a quad with your own cord and set the limiter knots at a sensible length.", "Clip a quad wrong on purpose, then explain why that version isn't redundant."],
+});
+SCENARIOS.push(
+  { id: "extended", title: "Extended top-rope anchor from trees", setup: "The bolts are missing, but two solid trees stand well back from the cliff edge.",
+    steps: ["Tether to a tree or fixed line before going near the edge", "Choose two solid trees set back from the edge", "Tie the static rope around each tree", "Run both strands to the edge and pad the lip", "Tie a big master point knot that hangs just over the edge", "Clip the climbing rope with opposed lockers and check it from below"],
+    skills: ["aoreach", "aedge", "anat"] },
+  { id: "cordelette", title: "Build a cordelette gear anchor", setup: "You're at a belay ledge with good cracks and a cordelette.",
+    steps: ["Place three solid, independent pieces", "Clip the cordelette through each piece's carabiner", "Pull loops down between the pieces", "Gather all the strands and pull them toward the direction of load", "Tie an overhand on a bight to make the master point", "Clip in with a locker and check every piece takes load"],
+    skills: ["acord", "agear", "kobight"] },
+  { id: "quad", title: "Rig a quad on two bolts", setup: "You're setting a top-rope on two good bolts and have a quad ready.",
+    steps: ["Double the cord and tie a limiter knot near each end", "Clip each end to a bolt with a locking carabiner", "Clip the master point lockers into the strands between the limiter knots, keeping it redundant", "Weight it and watch it adjust to the direction of pull", "Clip the rope through the opposed lockers and check it from below"],
+    skills: ["aquad", "abolt", "atr"] },
+);
+QUIZ.push(
+  ["What is an out-of-reach anchor?", ["An anchor extended from points well back from the edge, usually with static rope", "An anchor you can't build", "A single bolt anchor", "An anchor above your head"], "You extend from distant trees or boulders to a master point that hangs over the edge.", "aoreach"],
+  ["What's the ideal maximum angle between two anchor legs?", ["About 60° or less", "Around 120°", "180°", "The angle doesn't matter"], "Above 120° each piece holds more than the full load.", "aload"],
+  ["What should you do before walking to a cliff edge to build an anchor?", ["Tether in or clip a fixed line", "Look over to check the route", "Throw the rope down", "Take off your pack"], "Most top-rope setup accidents are falls from the edge while unattached.", "aedge"],
+  ["Why does a quad have limiter knots?", ["To limit extension if one bolt fails", "To make it look neat", "To shorten the rope", "They do nothing"], "Limiter knots stop a big drop onto the remaining bolt.", "aquad"],
+  ["Where should the master point of an extended top-rope anchor sit?", ["Hanging just over the edge so the rope doesn't run over rock", "Well back from the edge", "Resting on top of the lip", "At the base of the climb"], "Over the lip, the climbing rope runs freely without sawing on the edge.", "aoreach"],
+  ["What makes an anchor in-reach?", ["Every piece is within arm's reach of the master point", "It's within reach of the ground", "It uses only one piece", "It's built by the belayer"], "You can build and inspect all of it from one spot.", "areach"]
+);
+
 // embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
 const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
 const CREDITS = {
@@ -1419,20 +1476,21 @@ const HOW = {
     steps: ["Klemheist: wrap a nylon sling up around the rope 4 or 5 times.", "Pass the bottom end of the sling through the loop at the top.", "Load it downward. It grips under load and slides when you push it up."] },
 };
 
-const SHORT = { k8:"Figure-8 tie-in", kbight:"Fig-8 on a bight", keo:"Flat overhand", kprus:"Prusik & Klemheist", kmmo:"Munter-mule", kgarda:"Garda / clutch", kbowl:"Bowlines",
-  btr:"Top-rope belay", bweight:"Weight difference", bguide:"Guide mode", bmp:"Multipitch lead belay", bdirect:"Belay methods", brelease:"Guide-mode release", btwo:"Two followers",
+const SHORT = { k8:"Figure-8 tie-in", kbight:"Fig-8 on a bight", keo:"Flat overhand", kprus:"Prusik & Klemheist", kmmo:"Munter mule (MMO)", kgarda:"Garda / clutch", kbowl:"Yosemite bowline",
+  btr:"Top-rope belay", bweight:"Heavier climber", bguide:"Guide mode", bmp:"Multipitch lead belay", bdirect:"Direct & redirect belays", brelease:"Guide-mode lower", btwo:"Two followers",
   lclean:"Cleaning anchors", lbail:"Bailing", laid:"Aid & French-free",
-  tmock:"Mock leading", track:"Racking", tclean:"Cleaning gear", tcrack:"Crack technique", tnuts:"Placing nuts", tcams:"Placing cams", trock:"Rock quality", textend:"Extending gear", tsecond:"Protect the follower",
-  atr:"Toprope setups", afixed:"Fixed gear", agear:"Gear anchors", arope:"Rope anchor", aup:"Upward pull",
-  rext:"Extended rappel", rwind:"Wind & tangles", rpre:"Pre-rigging", rstuck:"Stuck ropes", rblock:"Blocked rappel", rknot:"Knot pass",
-  mcomm:"Communication", mchange:"Changeovers", mropes:"Rope stacking", msimul:"Simul & short-fix", mhaul:"Pack hauling",
-  rshort:"Rope too short", rlower:"Rescue lower", rasc:"Ascend: hitches", rasc2:"Ascend: device", rescape:"Belay escape", rdamage:"Damaged rope", rhaul:"Hauling 3:1 / 6:1", rcounter:"Counterbalance rap", rtandem:"Tandem rappel",
-  imunter:"Munter belay", ibail:"Bail kit", imrap:"Munter rappel", ifriction:"Hitch substitutes", ipulley:"Carabiner pulley", icbrake:"Carabiner brake", ibody:"Body rappel",
-  jrock:"Rockfall", jgear:"Gear inspection", jlength:"Rope length", jtopo:"Topos & descents", jscramble:"Scrambling", jweather:"Weather calls", jfirst:"First aid & plan",
-  aglacier:"Crevasse rescue", aice:"Ice & V-threads",
+  tmock:"Mock leading", track:"Racking", tclean:"Cleaning gear", tcrack:"Crack jamming", tnuts:"Placing nuts", tcams:"Placing cams", trock:"Rock quality", textend:"Extending placements", tsecond:"Protect the second",
+  atr:"Top-rope anchors", afixed:"Fixed gear", agear:"Gear anchors", arope:"Lead-rope anchor", aup:"Multidirectional",
+  rext:"Extended rappel", rwind:"Saddlebagging", rpre:"Pre-rigging", rstuck:"Stuck ropes", rblock:"Blocked rappel", rknot:"Knot pass",
+  mcomm:"Rope commands", mchange:"Changeovers", mropes:"Rope stacking", msimul:"Simul & short-fix", mhaul:"Pack hauling",
+  rshort:"Rope too short", rlower:"Rescue lower", rasc:"Ascend with prusiks", rasc2:"Ascend with device", rescape:"Belay escape", rdamage:"Core shot", rhaul:"3:1 Z-drag haul", rcounter:"Counterbalance rap", rtandem:"Tandem rappel",
+  imunter:"Munter belay", ibail:"Bail kit", imrap:"Munter rappel", ifriction:"Klemheist & Bachmann", ipulley:"Improvised pulleys", icbrake:"Carabiner brake", ibody:"Body rappel",
+  jrock:"Rockfall", jgear:"Gear inspection", jlength:"Rope length", jtopo:"Topos & descents", jscramble:"Scrambling", jweather:"Weather & turnaround", jfirst:"Wilderness first aid",
+  aglacier:"Glacier & crevasse", aice:"Ice & V-threads",
+  aedge:"Edge safety", acord:"Cordelette", aquad:"Quad anchor", areach:"In-reach anchors", aload:"Anchor angles", aoreach:"Out-of-reach anchors",
   ccons:"Cave conservation", clight:"Lighting", cplan:"Callout plans", cmove:"Crawls & squeezes", chypo:"Staying warm", csrtkit:"SRT kit", crope:"Static rope care",
   cdesc:"Rack & bobbin", cfrog:"Frog ascending", cprotect:"Rope protection", cnav:"Cave navigation", cchange:"SRT changeovers", crebelay:"Rebelays", cdev:"Deviations",
-  cyhang:"Y-hangs & traverses", cknot:"SRT knot pass", cnat:"Cave anchors", cflood:"Flood awareness", cair:"Bad air", cpick:"Pick-off rescue", chaul:"Cave hauling" };
+  cyhang:"Y-hangs & traverses", cknot:"SRT knot pass", cnat:"Natural cave anchors", cflood:"Flood awareness", cair:"Bad air", cpick:"Pick-off rescue", chaul:"Cave hauling" };
 
 const Q = { btr:"how to belay top rope", kgarda:"garda hitch", kbowl:"yosemite bowline", keo:"flat overhand bend rappel", kmmo:"munter mule overhand",
   bweight:"belaying a heavier climber", bdirect:"direct vs redirected belay", bmp:"belaying leader multipitch anchor",
@@ -1460,6 +1518,17 @@ const TOTAL_XP = skills.reduce((a, s) => a + s.tier * 20, 0);
 const KEY = "climb-audit-v1", DKEY = "climb-audit-dates-v1";
 const load = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
 let marks = load(KEY), dates = load(DKEY);
+// skills renamed to common climbing terms keep their saved progress
+const OLD_NAMES = {"cmove":"Horizontal caving movement","rlower":"Lowering an injured climber","keo":"Flat overhand (rope join)","kmmo":"Munter-mule-overhand","kbowl":"Bowline variations","btr":"Top-rope belay and lower","bsoft":"Soft lead catch","bweight":"Belaying with a big weight difference","bguide":"Guide-mode belay from above","bmp":"Belaying a leader off a multipitch anchor","brelease":"Releasing a loaded guide-mode device","lclip":"Clean clipping","lbail":"Bailing mid-route","track":"Racking and gear selection","tcrack":"Crack climbing technique","tnuts":"Placing nuts and passive gear","trock":"Judging rock quality","textend":"Extending gear to manage drag","tsecond":"Protecting the follower","atr":"Toprope setups over edges","agear":"Gear anchor principles","arope":"Anchor built with the climbing rope","aup":"Upward-pull protection","rwind":"Rappelling in wind and tangles","rpre":"Pre-rigging and partner checks","rstuck":"Stuck rope prevention and recovery","rblock":"Single-strand and blocked rappels","mcomm":"Communication without sight or sound","mretreat":"Retreat planning","mchange":"Efficient changeovers","mropes":"Rope management at hanging belays","rshort":"Recognizing a rope too short to lower","rasc":"Ascending with friction hitches","rdamage":"Isolating a damaged rope","rhaul":"Hauling systems (assisted, 3:1, 6:1)","rtandem":"Tandem rappel with a patient","ibail":"Carrying bail gear on the harness","iharness":"Improvised harness","ifriction":"Friction hitch substitutes","ipulley":"Carabiner in place of a pulley","ihip":"Hip belay","jtopo":"Topo reading and descent research","jfirst":"First aid and an emergency plan","aice":"Ice protection and V-threads"};
+{ let moved = false;
+  for (const [k, old] of Object.entries(OLD_NAMES)) {
+    const from = slug(old), to = byKey[k] && byKey[k].id;
+    if (!to || from === to) continue;
+    if (marks[from] !== undefined && marks[to] === undefined) { marks[to] = marks[from]; moved = true; }
+    if (dates[from] && !dates[to]) { dates[to] = dates[from]; moved = true; }
+    delete marks[from]; delete dates[from];
+  }
+  if (moved) { try { localStorage.setItem(KEY, JSON.stringify(marks)); localStorage.setItem(DKEY, JSON.stringify(dates)); } catch (e) {} } }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(marks)); localStorage.setItem(DKEY, JSON.stringify(dates)); } catch (e) {} };
 const level = s => marks[s.id];
 const learned = s => level(s) >= 1;
