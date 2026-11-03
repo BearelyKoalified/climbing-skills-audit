@@ -255,7 +255,7 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
     </div>
     <div class="card next">
       <h2>Up next</h2>
-      <p>Skills due for review, then unlocked skills you haven't learned, critical ones first.</p>
+      <p id="nextNote">Skills due for review, then unlocked skills you haven't learned, critical ones first.</p>
       <div class="quests" id="quests"></div>
     </div>
   </div>
@@ -923,11 +923,15 @@ function paint() {
     ? `Rank ${ri + 1} of ${RANKS.length} · ${Math.ceil(hi - x)} XP to ${RANKS[ri + 1][1]}`
     : `Top rank`) + ` · ${nL} of ${skills.length} learned` + (nR ? ` · ${nR} due for review` : "");
 
-  const review = skills.filter(needsReview);
-  const avail = skills.filter(s => status(s) === "avail").sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier));
+  // Up next follows the active filters, so picking one branch narrows it to that branch
+  const review = skills.filter(s => needsReview(s) && isVisible(s));
+  const avail = skills.filter(s => status(s) === "avail" && isVisible(s)).sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier));
   const q = [...review, ...avail].slice(0, 9);
   const qe = document.getElementById("quests"); qe.innerHTML = "";
-  if (!q.length) qe.textContent = "Nothing unlocked is left to learn. Move learned skills up to Practiced and Drilled.";
+  document.getElementById("nextNote").textContent = filtering()
+    ? `Matching your filters: skills due for review, then unlocked skills you haven't learned, critical ones first.`
+    : "Skills due for review, then unlocked skills you haven't learned, critical ones first.";
+  if (!q.length) qe.textContent = filtering() ? "Nothing in these filters is ready to learn or due for review." : "Nothing unlocked is left to learn. Move learned skills up to Practiced and Drilled.";
   q.forEach(s => {
     const b = document.createElement("button"); b.className = "quest" + (needsReview(s) ? " review" : s.crit ? " crit" : ""); b.style.setProperty("--c", `var(--c${s.ci})`);
     b.innerHTML = "<i></i><span></span>"; b.querySelector("span").textContent = needsReview(s) ? `Review · ${s.short}` : `${TIERS[s.tier - 1][0]} · ${s.short}`;
