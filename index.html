@@ -1272,6 +1272,12 @@ SCENARIOS.push(
   {"id":"yhang","title":"Rig a Y-hang","setup":"You're rigging a pitch head with two good bolts.","steps":["Check both bolts and hangers","Clip a maillon into each hanger","Tie a figure-8 on a bight with two loops","Clip one loop to each maillon, keeping the angle narrow","Pad any rub point below","Test-weight it before committing"],"skills":["cyhang","cprotect"]}
 );
 
+SCENARIOS.push(
+  {"id":"joinropes","title":"Join ropes for a long rappel","setup":"The rappel is longer than half your rope, so you'll join two ropes.","steps":["Lay the two rope ends side by side","Tie an overhand knot with both strands together","Dress the strands so they lie parallel and don't cross","Pull all four strands very tight","Check the tails are at least 30 cm long","Tie stopper knots in both far ends"],"skills":["keo","rclose"]},
+  {"id":"loose","title":"Loose block on lead","setup":"On lead, you reach a big block that shifts slightly when you touch it.","steps":["Test it gently with a thump and decide not to trust it","Warn your belayer and ask them to move out of the fall line","Avoid pulling on it or placing gear behind it","Climb around it if you can","Tell the next party about it"],"skills":["trock","jrock"]},
+  {"id":"reach","title":"Will the rope reach?","setup":"You're about to lower off a long sport route with a rope you haven't used here before.","steps":["Check the route length on the topo","Compare it with half your rope length","Tie a stopper knot in the free end","Watch the middle mark as you lower","Stop and re-plan if the end gets close before the ground"],"skills":["jlength","rshort"]}
+);
+
 // embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
 const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
 const CREDITS = {
