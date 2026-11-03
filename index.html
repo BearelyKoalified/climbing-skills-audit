@@ -7,47 +7,27 @@
 <style>[hidden]{display:none!important}body{margin:0}</style>
 <title>Climbing Skills Audit</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="color-scheme" content="dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 </head>
 <body>
 <style>
 /* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch. Progress shows as bronze, silver and gold rings around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
+/* Always dark, whatever the browser or system theme says */
 :root {
-  --bg: #eef1f3;
-  --map: #fbfcfc;
-  --map-center: #ffffff;
-  --wedge: transparent;
-  --surface: #ffffff;
-  --fg: #0e1316;
-  --muted: #4b565d;
-  --line: #cfd6db;
-  --contour: #a9b3ba;
-  --edge: #a8b2b8;
-  --accent: #1557c0;
-  --crit: #d00000;
-  --ok: #138a36;
-  --bronze: #b0602a;
-  --silver: #7d8a94;
-  --gold: #d49b00;
-  --c0: #7b2cbf; --c1: #e06c00; --c2: #1f4fe0; --c3: #138a36; --c4: #d00000; --c5: #0091ad;
-  --c6: #8a5a2b; --c7: #d6248f; --c8: #5f8a00; --c9: #b5543f; --c10: #5d7f95;
+  --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
+  --line: #242c31; --contour: #39444b; --edge: #333e45; --accent: #5ab0ff; --crit: #ff4d4d; --ok: #3ddc84;
+  --bronze: #e08a45; --silver: #d4dde3; --gold: #ffcc33;
+  --c0: #b388ff; --c1: #ff9f1c; --c2: #4d7cff; --c3: #2ee66b; --c4: #ff3d3d; --c5: #22d3ee;
+  --c6: #e0a96d; --c7: #ff4fd8; --c8: #c6f432; --c9: #ffb3a7; --c10: #a8e6ff;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
   --body: "IBM Plex Sans", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
-  --line: #242c31; --contour: #39444b; --edge: #333e45; --accent: #5ab0ff; --crit: #ff4d4d; --ok: #3ddc84;
-  --bronze: #e08a45; --silver: #d4dde3; --gold: #ffcc33;
-  --c0: #b388ff; --c1: #ff9f1c; --c2: #4d7cff; --c3: #2ee66b; --c4: #ff3d3d; --c5: #22d3ee;
-  --c6: #e0a96d; --c7: #ff4fd8; --c8: #c6f432; --c9: #ffb3a7; --c10: #a8e6ff; color-scheme: dark; } }
-:root[data-theme="dark"] {
-  --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
-  --line: #242c31; --contour: #39444b; --edge: #333e45; --accent: #5ab0ff; --crit: #ff4d4d; --ok: #3ddc84;
-  --bronze: #e08a45; --silver: #d4dde3; --gold: #ffcc33;
-  --c0: #b388ff; --c1: #ff9f1c; --c2: #4d7cff; --c3: #2ee66b; --c4: #ff3d3d; --c5: #22d3ee;
-  --c6: #e0a96d; --c7: #ff4fd8; --c8: #c6f432; --c9: #ffb3a7; --c10: #a8e6ff; color-scheme: dark; }
+:root, :root[data-theme="light"], :root[data-theme="dark"] { color-scheme: dark; }
+html { background: var(--bg); }
 
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
