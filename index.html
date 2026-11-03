@@ -150,7 +150,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .center-prog { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0 999; transition: stroke-dasharray .6s ease-out; filter: drop-shadow(0 0 4px var(--gold)); }
 .radar-grid { fill: none; stroke: var(--line); stroke-width: 1; }
 .radar-spoke { stroke: var(--c); stroke-width: 1; opacity: .35; }
-.radar-area { fill: color-mix(in srgb, var(--gold) 22%, transparent); stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; transition: all .5s ease-out; }
+.radar-area { fill: color-mix(in srgb, var(--gold) 30%, transparent); stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; transition: all .5s ease-out; }
 .radar-dot { fill: var(--c); stroke: var(--surface); stroke-width: 1.2; transition: cx .5s ease-out, cy .5s ease-out; }
 .center-badge circle { fill: var(--bg); stroke: var(--gold); stroke-width: 2; }
 .center-badge text { font: 700 24px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: central; }
@@ -714,7 +714,7 @@ function build() {
   el("circle", { class: "center-disc", r: PROG_R + 6 }, c);
   el("circle", { class: "center-track", r: PROG_R }, c);
   el("circle", { class: "center-prog", r: PROG_R, id: "cProg", transform: "rotate(-90)" }, c);
-  [.25, .5, .75, 1].forEach(f => el("polygon", { class: "radar-grid", points: LANES.map((_, i) => pol(RADAR_R * f, laneMid[i]).join(",")).join(" ") }, c));
+  [.25, .5, .75, 1].forEach(f => el("polygon", { class: "radar-grid", points: LANES.map((_, i) => pol(radarR(f), laneMid[i]).join(",")).join(" ") }, c));
   LANES.forEach((_, i) => { const [x, y] = pol(RADAR_R, laneMid[i]); el("line", { class: "radar-spoke", x1: 0, y1: 0, x2: x, y2: y, style: `--c: var(--c${i})` }, c); });
   el("polygon", { class: "radar-area", id: "radarArea" }, c);
   LANES.forEach((_, i) => el("circle", { class: "radar-dot", id: `rv-${i}`, r: 3.6, style: `--c: var(--c${i})` }, c));
@@ -724,6 +724,8 @@ function build() {
   el("title", { id: "cRankName" }, badge);
   fxT = el("g", { class: "fx" }, svg);
 }
+// star chart radius for a competency of 0 to 1; zero sits just outside the rank badge
+const radarR = f => 27 + (RADAR_R - 27) * f;
 const competency = i => {
   const list = skills.filter(s => s.ci === i);
   return list.reduce((a, s) => a + ({ 1: .4, 1.5: .7, 2: 1 })[effective(s)] || a, 0) / list.length;
@@ -961,8 +963,8 @@ function paint() {
   const lo = RANKS[ri][0], hi = ri < RANKS.length - 1 ? RANKS[ri + 1][0] : TOTAL_XP;
   const prog = document.getElementById("cProg"), circ = 2 * Math.PI * PROG_R, frac = hi > lo ? Math.min(1, (x - lo) / (hi - lo)) : 1;
   prog.style.strokeDasharray = `${frac * circ} ${circ}`;
-  document.getElementById("radarArea").setAttribute("points", LANES.map((_, i) => pol(Math.max(4, RADAR_R * competency(i)), laneMid[i]).join(",")).join(" "));
-  LANES.forEach((_, i) => { const [px, py] = pol(Math.max(4, RADAR_R * competency(i)), laneMid[i]); const d = document.getElementById(`rv-${i}`); d.setAttribute("cx", px); d.setAttribute("cy", py); });
+  document.getElementById("radarArea").setAttribute("points", LANES.map((_, i) => pol(radarR(competency(i)), laneMid[i]).join(",")).join(" "));
+  LANES.forEach((_, i) => { const [px, py] = pol(radarR(competency(i)), laneMid[i]); const d = document.getElementById(`rv-${i}`); d.setAttribute("cx", px); d.setAttribute("cy", py); });
   document.getElementById("xpFill").style.width = (hi > lo ? Math.min(100, (x - lo) / (hi - lo) * 100) : 100) + "%";
   document.getElementById("xpNums").textContent = `${x} / ${TOTAL_XP} XP`;
   const mastered = skills.filter(s => effective(s) >= 1.5).length;
