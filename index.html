@@ -287,6 +287,33 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
   font: 700 18px var(--display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 18px; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.25);
   display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 32px); }
 .toast button { font: 700 14px var(--display); letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--bg); border: 1.5px solid var(--bg); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
+.drill { border-radius: 8px; padding: 9px 11px; background: color-mix(in srgb, var(--gold) 12%, var(--bg)); box-shadow: inset 3px 0 0 var(--gold); }
+.drill h3 { font-size: 15px; margin-bottom: 3px; color: var(--gold); }
+.drill p { font-size: 13.5px; }
+.practice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 18px; }
+@media (max-width: 860px) { .practice { grid-template-columns: minmax(0, 1fr); } }
+.practice h2 { font-size: 22px; }
+.practice .sub { margin: 2px 0 10px; font-size: 13px; color: var(--muted); }
+.scen-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip.on { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.scen-body { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.setup { margin: 0; font-size: 14px; }
+.scen-done { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; color: var(--learned); }
+.scen-opts { display: flex; flex-direction: column; gap: 6px; }
+.scen-step, .q-opt { text-align: left; font: 500 13.5px var(--body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; cursor: pointer; }
+.scen-step:hover, .q-opt:hover:not(:disabled) { border-color: var(--fg); }
+.scen-step.wrong, .q-opt.wrong { border-color: var(--crit); animation: shake .35s; }
+.q-opt.right { border-color: var(--learned); background: color-mix(in srgb, var(--learned) 15%, var(--bg)); }
+.q-opt:disabled { cursor: default; }
+.scen-msg { margin: 0; min-height: 1.2em; font-size: 13px; color: var(--muted); }
+.q { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
+.q-opts { display: flex; flex-direction: column; gap: 6px; }
+.q-after { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.q-after p { margin: 0; font-size: 13.5px; }
+.q-after .ok { color: var(--learned); } .q-after .no { color: var(--crit); }
+.practice .rel { font-size: 13px; color: var(--muted); margin: 0; }
+.practice .rel a { color: var(--fg); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 .note { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 82ch; }
 /* phones */
 button, .chip, .quest { touch-action: manipulation; }
@@ -360,6 +387,20 @@ button, .chip, .quest { touch-action: manipulation; }
   </div>
 
   <div class="legend" id="legend"></div>
+
+  <section class="practice">
+    <div class="card scen" id="scen">
+      <h2>Scenario challenges</h2>
+      <p class="sub">Put the steps in the right order. Finishing one earns it a ✓.</p>
+      <div class="scen-list" id="scenList"></div>
+      <div class="scen-body" id="scenBody" hidden></div>
+    </div>
+    <div class="card quiz" id="quiz">
+      <h2>Quick quiz</h2>
+      <p class="sub" id="quizScore"></p>
+      <div id="quizBody"></div>
+    </div>
+  </section>
 
   <p class="note">Skill XP per tier: 10 for Learned, 15 for Practiced, 20 for Drilled. Mastery counts skills at Practiced or Drilled, the same way Khan Academy only counts Proficient and Mastered skills. Knot photos and diagrams come from Wikimedia Commons under free licenses, credited in each panel. Tying videos play from YouTube, credited to their creators. Tutorial links open searches on trusted instruction sources so you always get current material. Learn rescue, rappel and anchor systems in person from a qualified instructor or an experienced mentor, practice them close to the ground, and re-drill them every season.</p>
 </div>
@@ -529,6 +570,187 @@ const YT = {
   imrap: [["6HNCXTWojnI", "Munter hitch", "REI"]],
   ifriction: [["whFUyeo5jH4", "Klemheist", "REI"], ["04iWKJtQEWU", "Bachmann hitch", "Wooden Shoes Knots and Climbing"]],
 };
+
+// more tutorials for non-knot skills (titles checked against each skill; all embeddable)
+Object.assign(YT, {
+  btr: [["CFIz4cBFVro", "How to belay", "REI"]],
+  bsoft: [["S_F1MfVGOzk", "Lead belaying", "REI"]],
+  bweight: [["Tnk4Ky-D9Bg", "Heavy climber lead falls, measured", "HowNOT2"]],
+  bguide: [["wor_idcjAic", "Belaying from above", "Outdoor Research"]],
+  bmp: [["ZS-W-UIiQ-M", "Multipitch belay station management", "Chris Lawrence Guiding"]],
+  brelease: [["LUph-y55rdw", "Releasing a weighted self-braking device", "SIET"], ["EyxeUg7_4Kk", "Lowering from a loaded auto-locking device", "Outdoor Research"]],
+  lfall: [["RJZ8OxYP5T4", "Lead falls", "REI"]],
+  lclean: [["NMSTNq6SZV0", "Cleaning an anchor", "REI"]],
+  track: [["yHwhTsKWNBo", "Organizing your rack", "Outdoor Research"]],
+  tcrack: [["l4EzbCLfUkc", "Jamming hand cracks", "REI"]],
+  tnuts: [["45Iav3KFSOg", "Placing nuts", "EpicTV Climbing Daily"]],
+  tcams: [["08qJJ4RBZho", "Cam placement mistakes, break-tested", "HowNOT2"]],
+  trock: [["w_EDIUlEfGE", "Assessing rock quality", "Climbing Tech Tips"]],
+  abolt: [["oWvGC3fi4gA", "Bolted anchors", "HowNOT2"]],
+  atr: [["Y-pLP9dRWPc", "Top-rope anchor on two bolts", "Outdoor Research"]],
+  afixed: [["ui-TFEwMwKs", "Inspecting fixed gear", "Climbing Mastery"]],
+  anat: [["hHOQtlR1XJE", "Boulder anchor", "VIDEORACLES"]],
+  rext: [["7U6tdEevJgs", "How to rappel", "REI"]],
+  rknot: [["fAQynBvqnHU", "Passing a knot on a lower", "CMC"]],
+  mhaul: [["2avTCEfwHL0", "Hauling on a multipitch", "Petzl"]],
+  rlower: [["EyxeUg7_4Kk", "Lowering from a loaded auto-locking device", "Outdoor Research"]],
+  rasc2: [["pSkhzMDCKz8", "Ascending a rope with a guide-mode device", "Luke Holcomb"]],
+  rescape: [["R1_0HaH043k", "Escaping the belay, step by step", "Summit Seekers Experience"]],
+  rhaul: [["LMc6DzjnLw0", "3:1 haul system", "Summit Seekers Experience"]],
+  rcounter: [["cX1ynq2RDYI", "Counterbalance rappel pitfalls", "Short Guys Beta Works"]],
+  ibody: [["CLQ0IltdYd0", "Rappelling with only a rope", "Ascentionism"]],
+  jcheck: [["WV3nDfhOZJc", "Partner check", "Petzl"]],
+  jrock: [["Mbl4QsG7NcU", "Minimizing rockfall danger", "Outdoor Research"]],
+  jgear: [["0MD83ewJFMA", "When to retire a rope", "REI"]],
+  jscramble: [["H-gSNv24kv4", "Downclimbing: face in or face out", "Short Guys Beta Works"]],
+  jfirst: [["mYWmUsTHLKo", "First-aid kit must-haves", "REI"]],
+  aself: [["myKB9XUwUtc", "Self-arrest", "Climbing Tech Tips"]],
+  asnow: [["TOy6Gav__dU", "Snow pickets, break-tested", "HowNOT2"]],
+  aglacier: [["hwNxKQLZZrA", "Z-drag rescue system", "BMC TV"]],
+  aice: [["OXqPHcNLufQ", "Rappelling off a V-thread", "Petzl"]],
+});
+
+// a concrete practice target for each skill: hit it consistently and it counts as Drilled
+const DRILL = {
+  k8: "Tie in, dress and check it 10 times in a row in under 30 seconds each, then once with your eyes closed.",
+  kstop: "Tie a stopper in both ends of a rope in under 20 seconds, wearing gloves.",
+  kclove: "Tie it one-handed onto a locker clipped to an anchor, 10 times without a mistake.",
+  kbight: "Tie it in under 15 seconds and size the loop right for a locker on the first try, 5 times.",
+  kgirth: "Girth-hitch a sling to your harness and around a tree or post, dressed flat, 5 times.",
+  kobight: "Tie an overhand master point on a cordelette in under 30 seconds, 5 times.",
+  kauto: "Rig an autoblock and test it on a weighted rope until it grabs every time, 5 times in a row.",
+  keo: "Join two ropes with long tails, dressed and pulled tight, in under 45 seconds, 5 times.",
+  kfish: "Tie a prusik loop from cord with tails at least 3 cm, neat and flush, 3 times.",
+  kprus: "Tie a 3-wrap prusik and a klemheist on a vertical rope and step up on them, 5 times each.",
+  kmmo: "Tie off a loaded Munter with the mule and overhand, then release it smoothly, 5 times.",
+  kfly: "Tie an alpine butterfly in the middle of a rope in under 20 seconds, 5 times, and load-test it.",
+  kgarda: "Rig a garda on two identical carabiners and pull rope through it one-way, 5 times.",
+  kbowl: "Tie a Yosemite bowline around your waist and around a tree, checked by a partner, 5 times.",
+  kwater: "Tie a water knot in webbing with 7 cm tails, pull it hard, 5 times.",
+  btr: "Belay and lower a partner on top rope for a full session without the brake hand ever leaving the rope.",
+  bsoft: "Catch 10 practice falls in a gym, each one soft and controlled, without your partner swinging hard into the wall.",
+  bweight: "Belay a partner at least 30% heavier using a ground anchor or resistor, catching 5 falls.",
+  bguide: "Rig guide mode on an anchor and belay a follower up a full pitch, keeping a brake hand on.",
+  bmp: "At a practice anchor, set the first piece, position yourself and talk through the fall line before every lead.",
+  bdirect: "Set up a direct, a redirected and a harness belay on the same anchor and explain the load on each.",
+  brelease: "Lower a weighted partner from a guide-mode device with a redirect and backup hitch, 3 times near the ground.",
+  btwo: "Bring up two followers at once on a device that takes two ropes, keeping the strands untangled.",
+  lclip: "Clip 20 quickdraws on a steep wall with no back-clips or Z-clips, from good stances.",
+  lfall: "Take 10 planned lead falls in a gym with good form: feet on the wall, hands off the draws.",
+  lclean: "Clean a sport anchor at ground level using your checklist, then do it at height with a partner watching.",
+  lbail: "Set up a bail point from one solid piece with a quick link, backed up, at ground level.",
+  laid: "Aid up 10 meters of easy terrain using aiders on solid gear, top-roped.",
+  tmock: "Mock-lead 5 pitches, having a mentor check every placement.",
+  track: "Rack for a given topo in under 5 minutes and name what each piece is for.",
+  tclean: "Clean 20 placements, including 3 stuck pieces, without dropping any gear.",
+  tcrack: "Climb 3 hand cracks using only jams, resting on a jam to place gear.",
+  tnuts: "Place 20 nuts at ground level and have a mentor rate each one; aim for 18 good.",
+  tcams: "Place 20 cams at ground level, all in their good range and aligned with the fall, mentor-checked.",
+  trock: "On a crag walk, identify 5 loose or hollow features and explain why you'd avoid them.",
+  textend: "Lead a wandering pitch and finish with low rope drag, using runners where needed.",
+  tsecond: "Protect a traverse so a mentor following agrees the second never risks a big swing.",
+  abolt: "Build a bolted quad or master-point anchor in under 2 minutes, mentor-checked.",
+  atr: "Set a toprope anchor over an edge with edge protection, mentor-checked, 3 times.",
+  afixed: "Inspect 5 fixed anchors and replace or back up any tat you wouldn't trust.",
+  anat: "Build 3 natural anchors (tree, horn, boulder) and explain the direction of pull on each.",
+  agear: "Build 5 gear anchors at ground level that a mentor would trust, in under 5 minutes each.",
+  arope: "Build a rope anchor with clove hitches on 3 pieces in under 3 minutes.",
+  aup: "Add an upward-pull piece to 3 practice anchors and explain when it's needed.",
+  rclose: "Before every lower or rappel this season, say \"ends knotted, rope reaches\" out loud.",
+  rfire: "Give a fireman's belay to 5 rappels, stopping your partner once on command.",
+  rext: "Rig an extended rappel with autoblock and pass a partner check, 5 times.",
+  rwind: "Saddlebag and rappel with the rope in a windy spot without snagging it.",
+  rpre: "Pre-rig both partners at an anchor and check each other, 3 times.",
+  rstuck: "Practice recovering a stuck rope near the ground by ascending both strands with backups.",
+  rblock: "Rig a carabiner-block rappel with a pull cord at ground level and retrieve it.",
+  rknot: "Pass a knot on rappel at ground level with a backup, under 5 minutes.",
+  mcomm: "Agree on commands and rope-tug signals with your partner and run a full pitch without voice.",
+  mretreat: "For your next 3 multipitch routes, write the retreat plan before you leave the ground.",
+  mchange: "Run 5 belay changeovers at a ground anchor in under 3 minutes each, never unclipped.",
+  mropes: "Stack the rope over your tether at a hanging belay so it feeds cleanly, 3 times.",
+  msimul: "Simul-climb easy terrain with a mentor, placing gear and progress capture.",
+  mhaul: "Haul a pack 10 meters off an anchor using a guide-mode device.",
+  rshort: "Before every lower, check the rope is long enough using the middle mark.",
+  rlower: "Lower a partner off an anchor with a Munter at ground level, then with a redirected device.",
+  rasc: "Ascend 10 meters of rope with two friction hitches and backup knots, under 10 minutes.",
+  rasc2: "Ascend 10 meters with a guide-mode device and foot loop, under 6 minutes.",
+  rescape: "Escape the belay at ground level with a partner weighting the rope, under 5 minutes.",
+  rdamage: "Isolate a marked section of rope with a butterfly and rappel past it, near the ground.",
+  rhaul: "Rig an assisted haul and a 3:1 and raise a partner 2 meters, under 10 minutes.",
+  rcounter: "Practice a counterbalance rappel near the ground with an instructor present.",
+  rtandem: "Practice a tandem rappel with an instructor, using enough friction for two.",
+  imunter: "Belay a full top-rope session using only a Munter hitch.",
+  ibail: "Climb your next 5 routes carrying a knife, quick links and cord on your harness.",
+  imrap: "Rappel 10 meters on a Munter with an autoblock backup.",
+  iharness: "Tie a diaper harness from a 120 cm sling in under 2 minutes and hang in it.",
+  ifriction: "Tie a klemheist and a bachmann on a vertical rope and step up on each, 5 times.",
+  ipulley: "Rig a 3:1 with only carabiners and feel the extra friction compared with pulleys.",
+  icbrake: "Rig a carabiner brake rappel at ground level and have a mentor check it.",
+  ibody: "Practice a body rappel on a gentle slope, well protected.",
+  ihip: "Hip-belay a follower up an easy slab.",
+  jcheck: "Partner-check every climb for a month without skipping one.",
+  jrock: "Spend a day noting every spot where rockfall could reach you or your belayer.",
+  jgear: "Inspect all your soft goods and retire anything that fails your checklist.",
+  jlength: "Measure your rope against a topo before every pitch for a month.",
+  jtopo: "Plan 3 routes from topos, including descents, before you go.",
+  jscramble: "Scramble 3rd and 4th class terrain with a mentor, noting where you'd rope up.",
+  jweather: "Set and keep a turnaround time on your next 5 big days.",
+  jfirst: "Complete a wilderness first aid course and restock your kit.",
+  aself: "Practice self-arrest from 4 positions on a safe snow slope, 5 times each.",
+  asnow: "Place a picket, a deadman and a bollard, and test each.",
+  aglacier: "Practice a crevasse rescue Z-drag on flat ground with a team.",
+  aice: "Place 10 ice screws and build 3 V-threads on top rope.",
+};
+
+// short emergencies: put the steps in the right order
+const SCENARIOS = [
+  { id: "rap", title: "Set up a rappel", setup: "You're at a two-bolt rappel anchor with your partner. Get yourself safely on rappel.",
+    steps: ["Clip into the anchor with your tether", "Thread the rope through the rings with the middle mark at the rings", "Tie stopper knots in both rope ends and lower or saddlebag the ropes",
+      "Rig your device on an extension and add an autoblock below it", "Weight the device and check it, the locker and the autoblock", "Unclip your tether and start rappelling"],
+    skills: ["rclose", "rext", "kauto", "kstop"] },
+  { id: "clean", title: "Clean a sport anchor", setup: "You've led a sport route to a two-ring anchor. Thread the rope and get lowered, staying attached the whole time.",
+    steps: ["Clip into an anchor bolt with your tether and stay on belay", "Pull up slack, tie a figure-8 on a bight and clip it to your belay loop with a locker",
+      "Untie your tie-in knot and thread the end through both rings", "Retie with a figure-8 follow-through and check it", "Unclip and untie the bight backup", "Call \"take\", weight the rope, remove your tether and lower"],
+    skills: ["lclean", "k8", "kbight"] },
+  { id: "device", title: "Dropped belay device", setup: "Mid-multipitch, you drop your belay device. Your partner is still at the lower anchor and you need to keep going safely.",
+    steps: ["Stay clipped in and tell your partner what happened", "Find a pear-shaped locking carabiner", "Belay your partner up with a Munter hitch on the anchor",
+      "Plan the descent using a Munter hitch rappel", "Back up each rappel with an autoblock"],
+    skills: ["imunter", "imrap", "kauto"] },
+  { id: "escape", title: "Escape the belay", setup: "You're belaying from your harness at an anchor. Your partner is hanging on the rope, injured, and you need your hands free.",
+    steps: ["Tie off the belay device with a mule-overhand", "Put a friction hitch on the loaded rope in front of the device", "Connect the hitch to the anchor with cord and a Munter-mule-overhand",
+      "Slowly untie the device tie-off so the load moves onto the hitch and anchor", "Back it up by tying the loaded rope to the anchor behind the hitch", "Take yourself out of the system and decide on a lower, a haul or getting help"],
+    skills: ["rescape", "kmmo", "kprus"] },
+  { id: "haul", title: "Haul a stuck follower", setup: "You're belaying your follower in guide mode. They can't get past the crux and need a few meters of help.",
+    steps: ["Make sure the guide-mode device is locked and tie a backup knot in the brake strand", "Check the anchor can take the extra load of a haul",
+      "Put a friction hitch on the loaded strand below the device, as low as you can reach", "Clip a carabiner to the hitch and run the brake strand through it",
+      "Untie the backup knot and pull the brake strand; the device holds each gain", "When the hitch reaches the device, slide it back down and repeat"],
+    skills: ["rhaul", "bguide", "kprus", "agear"] },
+];
+
+// quick multiple-choice questions; the first option is the right one (options are shuffled when shown)
+const QUIZ = [
+  ["Which knot should join two ropes for a rappel?", ["Flat overhand", "Flat figure-8", "Square knot", "Clove hitch"], "A flat figure-8 can roll off the rope end under load. The flat overhand rides over edges and holds.", "keo"],
+  ["What should be in both rope ends before every rappel?", ["Stopper knots", "Clove hitches", "Nothing, if the rope reaches the ground", "A prusik"], "Stopper knots close the system so you can't rappel off the end of the rope.", "rclose"],
+  ["Where does the autoblock go on a rappel?", ["Below the device, on your belay loop or leg loop", "Above the device on the rope", "Clipped to the anchor", "Around your waist"], "Below the device it backs up your brake hand without interfering with the device.", "rext"],
+  ["Which carabiner works best for a Munter hitch?", ["A pear-shaped (HMS) locker", "Any non-locking carabiner", "A small D-shaped locker", "A wire-gate carabiner"], "The wide pear shape lets the Munter flip and run smoothly.", "imunter"],
+  ["What does a Munter-mule-overhand let you do?", ["Lock off a Munter and release it under load", "Join two ropes", "Ascend a rope", "Build a master point"], "It's the releasable tie-off at the heart of most rescue systems.", "kmmo"],
+  ["Your follower is weighting a guide-mode device. What do you do before levering it open to lower them?", ["Redirect the brake strand and add a backup hitch", "Unclip the device from the anchor", "Pull the lever as hard as possible", "Take them off belay"], "Without a redirect and backup the device can release suddenly and drop them.", "brelease"],
+  ["Why shouldn't you girth-hitch Dyneema slings together into a chain?", ["It weakens them a lot", "It makes them too heavy", "It makes them too long", "It's fine to do"], "Dyneema has a low melting point and loses a lot of strength when girth-hitched to itself.", "kgirth"],
+  ["Which friction hitch can you tie with a sewn sling instead of cord?", ["Klemheist", "Prusik with skinny cord only", "Water knot", "Clove hitch"], "A klemheist works with a nylon sling. Avoid Dyneema for friction hitches.", "ifriction"],
+  ["Which knot joins flat webbing?", ["Water knot", "Double fisherman's", "Bowline", "Figure-8 follow-through"], "The water knot is the standard webbing bend. Check it often; it creeps loose.", "kwater"],
+  ["You need a mid-rope loop that can be loaded in several directions. Which knot?", ["Alpine butterfly", "Overhand on a bight", "Clove hitch", "Stopper knot"], "The butterfly holds loads from any direction, which is why glacier teams use it.", "kfly"],
+  ["When does a factor-2 fall happen?", ["The leader falls onto the anchor with no gear in between", "The follower slips on top rope", "The rope is too stretchy", "The belayer is heavier than the climber"], "Clipping a piece right off the belay prevents it.", "bmp"],
+  ["Why test-pull the rappel rope before the last person rappels?", ["To make sure it will pull before anyone leaves the anchor", "To stretch the rope", "To check the rope is long enough", "It isn't necessary"], "A stuck rope is far easier to fix while someone is still at the anchor.", "rstuck"],
+  ["Ascending a rope with friction hitches, what backup should you add?", ["Backup knots tied below the hitches as you go", "Nothing; the hitches are enough", "A second rope", "A clove hitch above you"], "If the hitches slip, the backup knot catches you.", "rasc"],
+  ["In a 3:1 haul, what holds each gain when you stop pulling?", ["A progress capture at the anchor", "Your brake hand", "The friction of the rock", "The climber"], "A guide-mode device or a friction hitch at the anchor captures progress.", "rhaul"],
+  ["How long a tail should a figure-8 tie-in have?", ["About a fist's length", "Exactly 1 cm", "No tail at all", "As long as possible"], "A fist-length tail is enough to be safe and still easy to check.", "k8"],
+  ["You find sun-bleached tat at a rappel anchor. What do you do?", ["Back it up or replace it before rappelling", "Rappel; tat is always fine", "Climb back up", "Tie it into a bigger knot"], "Sun-faded nylon can be badly weakened. Carry spare cord and quick links.", "afixed"],
+  ["Is it OK to lower off with the rope running directly through a nylon sling?", ["No, the friction can melt it", "Yes, always", "Only on short routes", "Only with a dry rope"], "Rope-on-nylon friction melts slings. Use metal: rings, quick links or a carabiner.", "lbail"],
+  ["What does a partner check cover?", ["Knots, harness buckles, lockers, device threading and the rope end", "Only the knot", "Only the harness", "Just shoes and chalk"], "Check everything, every time. Familiarity is when mistakes slip through.", "jcheck"],
+  ["When can a soft catch be dangerous?", ["Low on the route, where extra slack could mean a ground fall", "High on a steep overhang", "Never", "Only in the gym"], "Below about the third clip, keep the catch tighter.", "bsoft"],
+  ["A clove hitch should go on what kind of carabiner?", ["A locking carabiner", "Any non-locking carabiner", "A wire gate", "No carabiner"], "A locker stops the rope from opening the gate and rolling out.", "kclove"],
+];
+
 // embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
 const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
 const CREDITS = {
@@ -1081,6 +1303,74 @@ function setFiltersOpen(open) {
 document.getElementById("fToggle").addEventListener("click", () => setFiltersOpen(document.getElementById("filters").classList.contains("collapsed")));
 document.getElementById("fReset").addEventListener("click", () => { filter.lanes.clear(); filter.show = "all"; clearPath(); applyFilter(); });
 
+/* ---------- Scenarios and quiz ---------- */
+const PKEY = "climb-practice-v1";
+let practice = Object.assign({ scen: {}, best: 0, streak: 0, answered: 0, correct: 0 }, load(PKEY));
+const savePractice = () => { try { localStorage.setItem(PKEY, JSON.stringify(practice)); } catch (e) {} };
+const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+const skillLinks = keys => keys.map(k => `<a data-k="${k}">${esc(byKey[k].name)}</a>`).join(", ");
+const wireLinks = root => root.querySelectorAll("a[data-k]").forEach(a => a.addEventListener("click", () => select(a.dataset.k, true)));
+
+let scenActive = null, scenPos = 0;
+function renderScenList() {
+  const list = document.getElementById("scenList");
+  list.innerHTML = SCENARIOS.map(sc => `<button class="chip${scenActive && scenActive.id === sc.id ? " on" : ""}" data-id="${sc.id}">${practice.scen[sc.id] ? "✓ " : ""}${esc(sc.title)}</button>`).join("");
+  list.querySelectorAll("button").forEach(b => b.addEventListener("click", () => startScenario(b.dataset.id)));
+}
+function startScenario(id) {
+  scenActive = SCENARIOS.find(s => s.id === id); scenPos = 0;
+  const body = document.getElementById("scenBody"); body.hidden = false;
+  body.innerHTML = `<p class="setup">${esc(scenActive.setup)}</p><ol class="scen-done" id="scenDone"></ol>
+    <div class="scen-opts" id="scenOpts"></div><p class="scen-msg" id="scenMsg"></p>
+    <p class="rel"><b>Skills used:</b> ${skillLinks(scenActive.skills)}</p>`;
+  wireLinks(body);
+  const opts = document.getElementById("scenOpts");
+  shuffle(scenActive.steps.map((t, i) => [t, i])).forEach(([t, i]) => {
+    const b = document.createElement("button"); b.className = "scen-step"; b.textContent = t;
+    b.addEventListener("click", () => pickStep(b, i)); opts.append(b);
+  });
+  renderScenList();
+}
+function pickStep(btn, i) {
+  const msg = document.getElementById("scenMsg");
+  if (i !== scenPos) { btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong"); msg.textContent = "Not yet. What has to happen before that?"; return; }
+  const li = document.createElement("li"); li.textContent = btn.textContent; document.getElementById("scenDone").append(li);
+  btn.remove(); scenPos++; msg.textContent = "";
+  if (scenPos === scenActive.steps.length) {
+    msg.textContent = "Done. That's the sequence.";
+    const first = !practice.scen[scenActive.id];
+    practice.scen[scenActive.id] = new Date().toISOString().slice(0, 10); savePractice();
+    if (first) popAchievement("✓", "Scenario complete", scenActive.title, "");
+    renderScenList(); checkAchievements();
+  }
+}
+
+let quizOrder = shuffle(QUIZ.map((_, i) => i)), quizIdx = 0;
+function renderQuiz() {
+  const [q, opts, why, key] = QUIZ[quizOrder[quizIdx % quizOrder.length]];
+  document.getElementById("quizScore").textContent = `Streak ${practice.streak} · best ${practice.best} · ${practice.correct} of ${practice.answered} correct`;
+  const body = document.getElementById("quizBody");
+  body.innerHTML = `<p class="q">${esc(q)}</p><div class="q-opts"></div><div class="q-after" hidden></div>`;
+  const box = body.querySelector(".q-opts");
+  shuffle(opts.map((t, i) => [t, i])).forEach(([t, i]) => {
+    const b = document.createElement("button"); b.className = "q-opt"; b.textContent = t;
+    b.addEventListener("click", () => answer(i === 0, b, why, key)); box.append(b);
+  });
+}
+function answer(right, btn, why, key) {
+  const body = document.getElementById("quizBody");
+  body.querySelectorAll(".q-opt").forEach(b => { b.disabled = true; if (QUIZ[quizOrder[quizIdx % quizOrder.length]][1][0] === b.textContent) b.classList.add("right"); });
+  if (!right) btn.classList.add("wrong");
+  practice.answered++; if (right) { practice.correct++; practice.streak++; practice.best = Math.max(practice.best, practice.streak); } else practice.streak = 0;
+  savePractice();
+  const after = body.querySelector(".q-after"); after.hidden = false;
+  after.innerHTML = `<p class="${right ? "ok" : "no"}">${right ? "Correct." : "Not quite."} ${esc(why)}</p><p class="rel"><b>Skill:</b> ${skillLinks([key])}</p><button class="chip on" id="qNext">Next question</button>`;
+  wireLinks(after);
+  after.querySelector("#qNext").addEventListener("click", () => { quizIdx++; if (quizIdx % quizOrder.length === 0) quizOrder = shuffle(quizOrder); renderQuiz(); });
+  document.getElementById("quizScore").textContent = `Streak ${practice.streak} · best ${practice.best} · ${practice.correct} of ${practice.answered} correct`;
+  checkAchievements();
+}
+
 /* ---------- Achievements ---------- */
 const ACH_KEY = "climb-achievements-v1";
 let achDone = load(ACH_KEY), achReady = false;
@@ -1095,6 +1385,10 @@ const ACHS = [
   { id: "drill1", name: "Muscle Memory", desc: "Drill your first skill", test: c => c.drilled >= 1 },
   { id: "drill10", name: "Drill Sergeant", desc: "Drill 10 skills", test: c => c.drilled >= 10 },
   { id: "rescue", name: "Self-Rescue Ready", desc: "Learn belay escape, ascending a rope and hauling", test: () => ["rescape", "rasc", "rhaul"].every(k => learned(byKey[k])) },
+  { id: "scen1", name: "Cool Head", desc: "Complete a scenario challenge", test: () => Object.keys(practice.scen).length >= 1 },
+  { id: "scenall", name: "Calm in a Crisis", desc: "Complete every scenario challenge", test: () => SCENARIOS.every(s => practice.scen[s.id]) },
+  { id: "quiz5", name: "Book Smart", desc: "Answer 5 quiz questions in a row correctly", test: () => practice.best >= 5 },
+  { id: "quiz15", name: "Walking Guidebook", desc: "Answer 15 quiz questions in a row correctly", test: () => practice.best >= 15 },
   { id: "nodevice", name: "Who Needs a Belay Device?", desc: "Learn the Munter belay, Munter rappel and hip belay", test: () => ["imunter", "imrap", "ihip"].every(k => learned(byKey[k])) },
   ...LANES.map(([lane, label, title], i) => ({ id: "branch-" + lane, name: title, desc: `Learn every ${label} skill`, test: () => skills.filter(s => s.ci === i).every(learned) })),
   ...LANES.map(([lane, label, title], i) => ({ id: "gold-" + lane, name: "Golden " + title, desc: `Drill every ${label} skill`, test: () => skills.filter(s => s.ci === i).every(s => effective(s) === 2) })),
@@ -1233,6 +1527,7 @@ function select(key, move) {
     <p>${esc(s.what)}</p>
     ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
       <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
+    ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p>${esc(DRILL[key])}</p></div>` : ""}
     <p class="gear"><b>Gear:</b> ${esc(s.gear)}</p>
     <p class="pit"><b>Watch for:</b> ${esc(s.pit)}</p>
     <p class="rel"><b>Requires:</b> ${s.pre.length ? s.pre.map(link).join(", ") : "nothing, start here"}</p>
@@ -1295,6 +1590,8 @@ function toast(msg, undo) {
 }
 
 build();
+renderScenList();
+renderQuiz();
 // redraw the rank once the display font has loaded so its measurements are right
 document.fonts && document.fonts.ready.then(() => { badgeRank = -1; paint(); });
 // phones start zoomed in on the inner rings, where most people begin
