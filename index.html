@@ -289,7 +289,9 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .toast button { font: 700 14px var(--display); letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--bg); border: 1.5px solid var(--bg); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
 .drill { border-radius: 8px; padding: 9px 11px; background: color-mix(in srgb, var(--gold) 12%, var(--bg)); box-shadow: inset 3px 0 0 var(--gold); }
 .drill h3 { font-size: 15px; margin-bottom: 3px; color: var(--gold); }
-.drill p { font-size: 13.5px; }
+.drill p { font-size: 13.5px; margin: 0; }
+.drill p + p { margin-top: 5px; }
+.drill b { color: var(--fg); }
 .practice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 18px; }
 @media (max-width: 860px) { .practice { grid-template-columns: minmax(0, 1fr); } }
 .practice h2 { font-size: 22px; }
@@ -750,6 +752,122 @@ const QUIZ = [
   ["When can a soft catch be dangerous?", ["Low on the route, where extra slack could mean a ground fall", "High on a steep overhang", "Never", "Only in the gym"], "Below about the third clip, keep the catch tighter.", "bsoft"],
   ["A clove hitch should go on what kind of carabiner?", ["A locking carabiner", "Any non-locking carabiner", "A wire gate", "No carabiner"], "A locker stops the rope from opening the gate and rolling out.", "kclove"],
 ];
+
+
+// a harder follow-up drill once the first target feels easy
+const DRILL2 = {
+  k8: "Tie in while a partner times you and talks to you the whole time; finish, dress and self-check without losing focus.",
+  kstop: "Tie stoppers in the dark by feel only, then have a partner check them with a headlamp.",
+  kclove: "Adjust a loaded clove hitch tether by 30 cm without unclipping, 5 times.",
+  kbight: "Tie it with a cold, stiff rope and gloves on in under 20 seconds.",
+  kgirth: "Sling 3 different natural features so each sling stays put when pulled sideways.",
+  kobight: "Tie a cordelette master point that equalizes 3 pieces, then predict which piece takes the most load.",
+  kauto: "Rappel 10 meters, stop hands-free on the autoblock twice, then continue.",
+  keo: "Join two ropes of different diameters, then pull the knot over an edge to see how it rides.",
+  kfish: "Tie a triple fisherman's for slippery cord and compare how it seats.",
+  kprus: "Ascend 5 meters on a prusik and klemheist, then convert to descending on them.",
+  kmmo: "Tie off and release an MMO with one hand while holding the brake strand with the other.",
+  kfly: "Isolate a marked damaged section with a butterfly, then load the rope across it.",
+  kgarda: "Use a garda as progress capture in a 3:1 haul at ground level.",
+  kbowl: "Tie a Yosemite bowline behind your back and around a tree trunk without looking.",
+  kwater: "Tie a water knot, load it 20 times, and check how far the tails crept.",
+  btr: "Belay two different partners back to back, giving a clean lower every time without a jolt.",
+  bsoft: "Catch falls from 3 different heights and adjust how soft each catch is to the clearance below.",
+  bweight: "As the lighter belayer, catch a heavy partner's fall on an overhang without being slammed into the wall.",
+  bguide: "Belay a follower in guide mode while managing the rope stack and staying fully tethered.",
+  bmp: "At a hanging belay, catch a simulated leader fall onto your first piece with an instructor present.",
+  bdirect: "Switch a follower from a harness belay to a direct belay mid-pitch without losing control.",
+  brelease: "Release a loaded device, lower 3 meters, re-lock it, and lower again, all with the backup in place.",
+  btwo: "Bring up two followers climbing at different speeds without either getting slack.",
+  lclip: "Clip from awkward stances on a steep wall, left and right hand, with no back-clips over 30 clips.",
+  lfall: "Take a fall at the crux of a steep gym route without grabbing anything, 5 times.",
+  lclean: "Clean an anchor at height while your partner times you; under 3 minutes with every step called out.",
+  lbail: "Bail from a single bolt at ground level, backed up, and retrieve everything but the bail biner.",
+  laid: "Aid a short roof on top rope using cams and aiders, cleaning as you go.",
+  tmock: "Mock-lead a full pitch and have your placements fall-tested on top rope by a mentor.",
+  track: "Rack for a multipitch route from the topo and have nothing left unused or missing at the top.",
+  tclean: "Clean a whole pitch as a follower in under 10 minutes without dropping a piece.",
+  tcrack: "Climb a finger crack and an off-size crack with good jams, placing 3 pieces each.",
+  tnuts: "Place nuts in 5 different rock types and mentor-rate them; aim for every one good.",
+  tcams: "Place cams in flaring and horizontal cracks and explain what makes each placement good or poor.",
+  trock: "On a new crag, identify where rockfall comes from and where to belay out of it.",
+  textend: "Lead a zigzag pitch and finish with rope drag your follower calls light.",
+  tsecond: "Lead a traverse pitch where your follower confirms they never faced a pendulum.",
+  abolt: "Build bolted anchors for 3 different load directions and explain each.",
+  atr: "Set a toprope over a sharp edge with a rope protector and an extended master point, mentor-checked.",
+  afixed: "Rebuild a rappel anchor with new cord and quick links at ground level, mentor-checked.",
+  anat: "Build an anchor on a tree, a horn and a chockstone and test each for upward and sideways pull.",
+  agear: "Build a gear anchor in under 5 minutes in a crack you've never seen, mentor-checked.",
+  arope: "Build a rope anchor, then transition it to a normal belay anchor for the next leader.",
+  aup: "Build an anchor that holds both a downward and an upward pull, mentor-checked.",
+  rclose: "Run a full rope-length lower where you stop with at least 2 meters of rope left using the middle mark.",
+  rfire: "Give a fireman's belay to a partner who lets go of the brake on purpose near the ground.",
+  rext: "Rappel past a ledge and restart without losing control, with the autoblock backing you up.",
+  rwind: "Rappel in wind with the rope saddlebagged and arrive with no tangles.",
+  rpre: "Rig a 3-person rappel where everyone is pre-rigged and checked before the first goes.",
+  rstuck: "Free a deliberately stuck rope near the ground by ascending both strands, then rappel back down.",
+  rblock: "Rappel on a single strand with a carabiner block, then pull the rope with a pull cord and catch it.",
+  rknot: "Pass a knot on rappel while a partner times you; under 3 minutes with backups in place.",
+  mcomm: "Climb a full multipitch route using only rope tugs, with a pre-agreed plan B.",
+  mretreat: "Retreat from mid-route at a practice crag using only the bail kit you carried.",
+  mchange: "Run a full block of 3 changeovers in under 2 minutes each with a partner.",
+  mropes: "Lap-coil and butterfly-stack the rope at a hanging belay and flip it for the next leader.",
+  msimul: "Simul-climb a long easy route with a mentor, placing progress capture at the right spots.",
+  mhaul: "Haul a heavy pack while belaying your follower, keeping both systems untangled.",
+  rshort: "Catch the warning signs on a long route and stop the lower before the end, with the climber anchoring.",
+  rlower: "Lower an injured partner past a ledge using a Munter, with a backup, near the ground.",
+  rasc: "Ascend 20 meters on friction hitches, then descend on them back to the ground.",
+  rasc2: "Ascend, pass a knot in the rope, and continue, all near the ground.",
+  rescape: "Escape the belay from a hanging stance with a heavy partner under 4 minutes.",
+  rdamage: "Isolate damage, then rappel and lower a partner past it, near the ground.",
+  rhaul: "Convert a 3:1 into a 6:1 when the 3:1 is too heavy, near the ground.",
+  rcounter: "Counterbalance rappel to a partner, attach them, and descend together with an instructor.",
+  rtandem: "Tandem rappel with a partner, adding extra friction, with an instructor present.",
+  imunter: "Lower a heavy partner on a Munter while managing rope twists.",
+  ibail: "Improvise a full rappel anchor from your bail kit at ground level.",
+  imrap: "Rappel 20 meters on a Munter with an autoblock, then switch to a device mid-rappel.",
+  iharness: "Tie a Swiss seat from rope and hang in it for a minute with a backup.",
+  ifriction: "Ascend 5 meters using a klemheist and bachmann instead of prusiks.",
+  ipulley: "Rig a 3:1 with only carabiners and raise a partner 1 meter.",
+  icbrake: "Rappel 10 meters on a carabiner brake with an autoblock backup, instructor present.",
+  ibody: "Body rappel a low-angle slope, then explain why it fails on steep ground.",
+  ihip: "Hip-belay a follower up a short low-angle pitch and hold a simulated slip.",
+  jcheck: "Teach a beginner your partner-check routine and have them run it on you.",
+  jrock: "Plan a crag day around rockfall: belay spots, helmet zones and when to move.",
+  jgear: "Do a full gear inspection with a partner and write down what you'd retire and why.",
+  jlength: "On a multipitch route, predict every rappel length from the topo and check it on the way down.",
+  jtopo: "Lead a route using only the topo, finding every belay and the descent without help.",
+  jscramble: "Solo easy 3rd class ground with good movement, and identify where you'd want a rope.",
+  jweather: "Turn around on a planned day because of weather or time, then debrief what told you to.",
+  jfirst: "Run a full mock accident scenario: scene safety, assessment, splint and calling for help.",
+  aself: "Self-arrest from a head-first slide on your back with a pack on, safe slope.",
+  asnow: "Build a snow anchor in poor snow and test it with body weight.",
+  aglacier: "Pull a partner out of a mock crevasse with a team-built Z-drag on flat ground.",
+  aice: "Rappel off a V-thread you built, on top rope, with an instructor present.",
+};
+
+QUIZ.push(
+  ["What does closing the system mean?", ["Tying stopper knots so the rope can't run through the device", "Locking every carabiner", "Clipping into the anchor", "Coiling the rope"], "A closed system means the end of the rope can't slip through your device.", "rclose"],
+  ["How many wraps do you usually want on a prusik on a standard climbing rope?", ["Two or three, depending on cord and rope", "One", "Six or more", "It doesn't matter"], "Start with three and add or remove wraps until it grips but still slides.", "kprus"],
+  ["What's the main danger of a back-clip?", ["The rope can unclip itself in a fall", "It's slower to clip", "It wears the rope", "It makes the draw twist"], "A back-clipped rope can run over the gate and pop out when you fall.", "lclip"],
+  ["Where should a cam's stem point?", ["In the direction of the expected fall", "Straight out from the rock", "Upward", "Wherever it fits"], "Aligning the stem with the load keeps the cam from walking and rotating.", "tcams"],
+  ["Why put a piece of gear right after leaving the belay on a multipitch?", ["So a leader fall doesn't come straight onto the anchor", "To make the rope run straighter", "Because the topo says so", "To save gear for later"], "That first piece prevents a factor-2 fall onto the belay.", "bmp"],
+  ["What is the main job of a fireman's belay?", ["Stopping a rappeller by pulling the ropes from below", "Belaying a leader from above", "Lowering a climber", "Hauling a pack"], "Pulling down on the strands adds friction and stops the rappeller.", "rfire"],
+  ["Your rappel rope just won't pull. What should you avoid?", ["Climbing up a single strand that could suddenly come free", "Flicking the rope", "Walking to a new angle", "Pulling the other strand"], "If the stuck strand frees while you're weighting it, you fall.", "rstuck"],
+  ["What's a turnaround time for?", ["Committing in advance to when you'll retreat, no matter how close you are", "Timing how long a pitch takes", "Knowing when the sun sets", "Planning lunch"], "Deciding before you start protects you from summit fever.", "jweather"],
+  ["In a 3:1 haul with carabiners instead of pulleys, what changes?", ["Much more friction, so it feels heavier", "It becomes a 6:1", "Nothing changes", "It no longer captures progress"], "Carabiners waste a lot of the theoretical advantage to friction.", "ipulley"],
+  ["Why extend a placement with a runner?", ["To reduce rope drag and stop the rope lifting the piece", "To make it stronger", "To use up extra slings", "To make it easier to clean"], "A straighter rope runs more smoothly and doesn't pull pieces out.", "textend"],
+  ["What should a top-rope anchor do at the edge?", ["Hang over the lip with the rope protected from the edge", "Sit well back from the edge", "Touch the rock edge", "Use a single sling only"], "An extended master point stops the loaded rope from sawing over the edge.", "atr"],
+  ["Before you lean back to rappel, what's the last check?", ["Weight the device and check device, locker and autoblock while still tethered", "Take off your helmet", "Untie your stopper knots", "Throw the rope again"], "Testing while still tethered means a mistake isn't a fall.", "rext"],
+  ["What's a sign a cam is overcammed?", ["The lobes are almost fully retracted", "The lobes are about halfway open", "The stem points at the fall", "All four lobes touch the rock"], "Overcammed units can get stuck and lose holding power.", "tcams"],
+  ["What's the safest belayer position for a lead climber's first clips?", ["Close to the wall, slightly to the side of the fall line", "Far back from the wall", "Directly under the climber", "Sitting down"], "Close in keeps slack low and you out of the way of falling rock or the climber.", "bsoft"],
+  ["When is a hip belay appropriate?", ["Low-angle terrain with a follower", "Catching hard lead falls", "Top-roping in the gym", "Never"], "It can't hold big forces, so keep it for easy ground.", "ihip"],
+  ["Which friction hitch grips in only one direction?", ["Klemheist", "Prusik", "Autoblock", "None of them"], "Load a klemheist downward; it won't hold an upward pull.", "ifriction"],
+  ["What should you carry on your harness for unplanned retreats?", ["A knife, quick links, spare cord and a locker", "A second rope", "A full rack of cams", "Nothing extra"], "A small bail kit on you lets you leave a safe anchor behind.", "ibail"],
+  ["A lower is taking the climber past the middle mark of the rope. What does that tell you?", ["The rope may be too short to reach the ground", "Everything is fine", "The rope is stretching", "The belay device is wrong"], "Past the middle mark on a single-pitch lower, the end is getting close.", "rshort"],
+  ["What should you look for on fixed bolts?", ["Spinning hangers, rust, cracks and loose nuts", "Only the color", "How shiny they are", "Nothing; bolts are permanent"], "Bad bolts can fail; back them up or avoid them.", "afixed"],
+  ["What's the first priority in any accident?", ["Make the scene safe for yourself and others", "Move the injured climber immediately", "Post about it", "Pack up the gear"], "You can't help anyone if you become a second casualty.", "jfirst"]
+);
 
 // embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
 const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
@@ -1527,7 +1645,7 @@ function select(key, move) {
     <p>${esc(s.what)}</p>
     ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
       <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
-    ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p>${esc(DRILL[key])}</p></div>` : ""}
+    ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p><b>Start:</b> ${esc(DRILL[key])}</p>${DRILL2[key] ? `<p><b>Level up:</b> ${esc(DRILL2[key])}</p>` : ""}</div>` : ""}
     <p class="gear"><b>Gear:</b> ${esc(s.gear)}</p>
     <p class="pit"><b>Watch for:</b> ${esc(s.pit)}</p>
     <p class="rel"><b>Requires:</b> ${s.pre.length ? s.pre.map(link).join(", ") : "nothing, start here"}</p>
