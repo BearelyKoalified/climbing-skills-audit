@@ -739,7 +739,6 @@ function build() {
     el("circle", { class: "ring", r: 17.5 }, g);
     el("circle", { class: "fill", r: 12 }, g);
     el("text", { class: "star" }, g).textContent = "★";
-    if (s.crit) el("circle", { class: "critmark", cx: 11, cy: -11, r: 4.4 }, g);
     const lock = el("g", { class: "lock", transform: "translate(11,11)" }, g);
     el("circle", { r: 6.5 }, lock);
     el("path", { d: "M-2,-0.5 v-1.6 a2,2 0 0 1 4,0 v1.6" }, lock);
@@ -914,7 +913,6 @@ document.getElementById("legend").innerHTML = [
   [ringIcon("var(--silver)", "", "var(--c1)", "★"), "Practiced"],
   [ringIcon("var(--gold)", "", "var(--c1)", "★", "var(--gold)"), "Drilled"],
   [ringIcon("var(--gold)", "4 3", "var(--c1)", "★", "var(--gold)"), "Due for review"],
-  [`<svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--crit)"/></svg>`, "Critical skill"],
 ].map(([i, t]) => `<span>${i}${t}</span>`).join("");
 
 /* ---------- Filters ---------- */
