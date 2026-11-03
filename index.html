@@ -13,12 +13,12 @@
 </head>
 <body>
 <style>
-/* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch. Progress shows as bronze, silver and gold rings around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
+/* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch. Progress shows as green, silver and gold rings, with blue on skills ready to learn, around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
 /* Always dark, whatever the browser or system theme says */
 :root {
   --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
   --line: #242c31; --contour: #39444b; --edge: #333e45; --accent: #5ab0ff; --crit: #ff4d4d; --ok: #3ddc84;
-  --bronze: #e08a45; --silver: #d4dde3; --gold: #ffcc33;
+  --learned: #3ddc84; --next: #4da3ff; --silver: #d4dde3; --gold: #ffcc33;
   --c0: #b388ff; --c1: #ff9f1c; --c2: #4d7cff; --c3: #2ee66b; --c4: #ff3d3d; --c5: #22d3ee;
   --c6: #e0a96d; --c7: #ff4fd8; --c8: #c6f432; --c9: #ffb3a7; --c10: #a8e6ff;
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
@@ -47,7 +47,7 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 .rank-name { font: 700 26px/1 var(--display); text-transform: uppercase; }
 .rank-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
 .xpbar { height: 8px; border-radius: 4px; background: var(--bg); margin-top: 10px; overflow: hidden; }
-.xpbar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--bronze), var(--silver), var(--gold)); transition: width .5s; }
+.xpbar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--learned), var(--silver), var(--gold)); transition: width .5s; }
 .xpnums { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
 .next h2 { font-size: 18px; }
 .next p { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
@@ -139,9 +139,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nd .lock path { fill: none; stroke: var(--surface); stroke-width: 1.3; }
 .nd .lbl { font: 600 12.5px var(--body); fill: var(--fg); text-anchor: middle; paint-order: stroke; stroke: var(--map); stroke-width: 4.5px; stroke-linejoin: round; pointer-events: none; }
 .nd.locked .lock { opacity: 1; }
-.nd.avail .halo { opacity: .25; animation: pulse 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.nd.avail .ring { stroke: var(--next); stroke-dasharray: 3 3; }
+.nd.avail .halo { fill: var(--next); opacity: .25; animation: pulse 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 .nd.lv-gap .ring { stroke: var(--crit); stroke-dasharray: 4 3; }
-.nd.lv-1 .ring { stroke: var(--bronze); }
+.nd.lv-1 .ring { stroke: var(--learned); }
 .nd.lv-15 .ring { stroke: var(--silver); }
 .nd.lv-2 .ring { stroke: var(--gold); stroke-width: 5.5; }
 .nd.lv-1 .fill, .nd.lv-15 .fill, .nd.lv-2 .fill, .nd.lv-review .fill { fill: var(--c); }
@@ -158,7 +159,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .center-prog { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0 999; transition: stroke-dasharray .6s ease-out; filter: drop-shadow(0 0 4px var(--gold)); }
 .radar-grid { fill: none; stroke: var(--line); stroke-width: 1; }
 .radar-spoke { stroke: var(--c); stroke-width: 1.2; opacity: .55; }
-.radar-petal { fill: color-mix(in srgb, var(--c) 45%, transparent); stroke: var(--c); stroke-width: 1.4; stroke-linejoin: round; }
+.radar-petal { fill: color-mix(in srgb, var(--c) 45%, var(--map-center)); stroke: color-mix(in srgb, var(--c) 45%, var(--map-center)); stroke-width: .8; }
+.radar-edge { fill: none; stroke: var(--c); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
 .radar-dot { fill: var(--c); stroke: var(--surface); stroke-width: 1.2; transition: cx .5s ease-out, cy .5s ease-out; }
 .badge-star { fill: var(--bg); }
 .badge-fill { fill: var(--gold); transition: none; }
@@ -172,7 +174,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .center-badge.pulse:not(.pop) { animation: badgepulse 2.8s ease-in-out infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes badgepulse { 50% { transform: scale(1.08); } }
-.center-badge text { paint-order: stroke; stroke: var(--bg); stroke-width: 3.5px; font: 700 20px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: central; }
+.center-badge text { paint-order: stroke; stroke: var(--bg); stroke-width: 5px; font: 700 30px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: central; }
 .center-badge { transform-box: fill-box; transform-origin: center; }
 .center-badge.pop { animation: badgepop .8s ease-out; }
 @keyframes badgepop { 0% { transform: scale(1); } 35% { transform: scale(1.8); } 100% { transform: scale(1); } }
@@ -223,11 +225,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
 .seg button { font: 600 12.5px var(--body); padding: 7px 2px; border: 2px solid var(--line); background: transparent; color: var(--fg); border-radius: 7px; cursor: pointer; }
 .seg button[data-v="0"] { border-color: color-mix(in srgb, var(--crit) 45%, var(--line)); }
-.seg button[data-v="1"] { border-color: color-mix(in srgb, var(--bronze) 55%, var(--line)); }
+.seg button[data-v="1"] { border-color: color-mix(in srgb, var(--learned) 55%, var(--line)); }
 .seg button[data-v="1.5"] { border-color: color-mix(in srgb, var(--silver) 60%, var(--line)); }
 .seg button[data-v="2"] { border-color: color-mix(in srgb, var(--gold) 60%, var(--line)); }
 .seg button[aria-pressed="true"][data-v="0"] { background: var(--crit); border-color: var(--crit); color: var(--surface); }
-.seg button[aria-pressed="true"][data-v="1"] { background: var(--bronze); border-color: var(--bronze); color: var(--surface); }
+.seg button[aria-pressed="true"][data-v="1"] { background: var(--learned); border-color: var(--learned); color: var(--surface); }
 .seg button[aria-pressed="true"][data-v="1.5"] { background: var(--silver); border-color: var(--silver); color: var(--surface); }
 .seg button[aria-pressed="true"][data-v="2"] { background: var(--gold); border-color: var(--gold); color: #1d2420; }
 .levels small { display: block; font-size: 12px; color: var(--muted); margin-top: 5px; }
@@ -271,7 +273,7 @@ button, .chip, .quest { touch-action: manipulation; }
 <div class="wrap">
   <header>
     <h1>Climbing Skills Audit</h1>
-    <p class="lede" id="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Earn a bronze ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
+    <p class="lede" id="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Skills ready to learn have a blue ring. Earn a green ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
   </header>
 
   <div class="hud">
@@ -749,7 +751,7 @@ function build() {
   const c = el("g", {}, svg);
   [.5, 1].forEach(f => el("circle", { class: "radar-grid", r: radarR(f) }, c));
   LANES.forEach((_, i) => { const [x, y] = pol(RADAR_R, laneMid[i]); el("line", { class: "radar-spoke", x1: 0, y1: 0, x2: x, y2: y, style: `--c: var(--c${i})` }, c); });
-  LANES.forEach((_, i) => el("path", { class: "radar-petal", id: `rp-${i}`, style: `--c: var(--c${i})` }, c));
+  LANES.forEach((_, i) => { el("path", { class: "radar-petal", id: `rp-${i}`, style: `--c: var(--c${i})` }, c); el("path", { class: "radar-edge", id: `re-${i}`, style: `--c: var(--c${i})` }, c); });
   LANES.forEach((_, i) => el("circle", { class: "radar-dot", id: `rv-${i}`, r: 3.6, style: `--c: var(--c${i})` }, c));
   el("g", { class: "center-badge", id: "badge" }, c);
   fxT = el("g", { class: "fx" }, svg);
@@ -762,14 +764,10 @@ function starPath(n, ro, ri, rot = 0) {
   return Array.from({ length: n * 2 }, (_, k) => pol(k % 2 ? ri : ro, -Math.PI / 2 + rot + k * Math.PI / n).map(v => v.toFixed(2)).join(",")).join(" ");
 }
 function drawBadge(ri) {
-  const g = document.getElementById("badge"), pts = starPath(5, 30, 13);
+  const g = document.getElementById("badge");
   g.replaceChildren();
   g.setAttribute("class", "center-badge" + (ri >= 5 ? " glow" : ""));
-  el("polygon", { class: "badge-star", points: pts }, g);
-  el("rect", { id: "badgeFillRect", x: -32, y: 25, width: 64, height: 0 }, el("clipPath", { id: "badgeClip" }, g));
-  el("polygon", { class: "badge-fill", points: pts, "clip-path": "url(#badgeClip)" }, g);
-  el("polygon", { class: "badge-outline", points: pts }, g);
-  el("text", { y: 3 }, g).textContent = ri + 1;
+  el("text", { y: 2 }, g).textContent = ri + 1;
   el("title", {}, g).textContent = `Rank ${ri + 1}: ${RANKS[ri][1]}`;
   badgeRank = ri;
 }
@@ -900,9 +898,10 @@ const ringIcon = (stroke, dash = "", fill = "color-mix(in srgb, var(--c1) 30%, v
   `<svg width="24" height="24" viewBox="-12 -12 24 24"><circle r="10.5" fill="none" stroke="${stroke}" stroke-width="2.6" ${dash ? `stroke-dasharray="${dash}"` : ""}/><circle r="7.5" fill="${fill}" stroke="var(--c1)" stroke-width="1.6"/>${glyph ? `<text text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="${glyphFill}">${glyph}</text>` : ""}</svg>`;
 document.getElementById("legend").innerHTML = [
   [ringIcon("transparent"), "Not rated"],
+  [ringIcon("var(--next)", "3 2"), "Ready to learn"],
   [`<svg width="22" height="22" viewBox="-11 -11 22 22"><circle r="6" fill="color-mix(in srgb, var(--c1) 30%, var(--surface))" stroke="var(--c1)" stroke-width="1.6"/><g transform="translate(5,5)"><circle r="4.5" fill="var(--fg)"/></g></svg>`, "Locked (prerequisites not learned yet)"],
   [ringIcon("var(--crit)", "3 2"), "Gap"],
-  [ringIcon("var(--bronze)", "", "var(--c1)", "✓"), "Learned"],
+  [ringIcon("var(--learned)", "", "var(--c1)", "✓"), "Learned"],
   [ringIcon("var(--silver)", "", "var(--c1)", "★"), "Practiced"],
   [ringIcon("var(--gold)", "", "var(--c1)", "★", "var(--gold)"), "Drilled"],
   [ringIcon("var(--gold)", "4 3", "var(--c1)", "★", "var(--gold)"), "Due for review"],
@@ -1029,14 +1028,14 @@ function paint() {
   document.getElementById("rankName").textContent = RANKS[ri][1];
   if (ri !== badgeRank) drawBadge(ri);
   const lo = RANKS[ri][0], hi = ri < RANKS.length - 1 ? RANKS[ri + 1][0] : TOTAL_XP;
-  // the rank star fills from the bottom as you near the next rank (star spans y -30 to 24)
-  const frac = hi > lo ? Math.min(1, (x - lo) / (hi - lo)) : 1, fr = document.getElementById("badgeFillRect");
-  fr.setAttribute("y", 24 - 54 * frac); fr.setAttribute("height", 54 * frac);
+
   // straight lines join the branch endpoints; each branch's slice of the shape takes its color
   const L = LANES.length, verts = LANES.map((_, i) => pol(radarR(competency(i)), laneMid[i]));
   const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], P = p => p.map(v => v.toFixed(1)).join(",");
   verts.forEach((v, i) => document.getElementById(`rp-${i}`).setAttribute("d",
     `M0,0 L${P(mid(verts[(i + L - 1) % L], v))} L${P(v)} L${P(mid(v, verts[(i + 1) % L]))} Z`));
+  verts.forEach((v, i) => document.getElementById(`re-${i}`).setAttribute("d",
+    `M${P(mid(verts[(i + L - 1) % L], v))} L${P(v)} L${P(mid(v, verts[(i + 1) % L]))}`));
   LANES.forEach((_, i) => { const [px, py] = pol(radarR(competency(i)), laneMid[i]); const d = document.getElementById(`rv-${i}`); d.setAttribute("cx", px); d.setAttribute("cy", py); });
   document.getElementById("xpFill").style.width = (hi > lo ? Math.min(100, (x - lo) / (hi - lo) * 100) : 100) + "%";
   document.getElementById("xpNums").textContent = `${x} / ${TOTAL_XP} XP`;
