@@ -134,9 +134,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nd .star { font-size: 13px; text-anchor: middle; dominant-baseline: central; fill: var(--surface); opacity: 0; pointer-events: none; }
 .nd .critmark { fill: var(--crit); stroke: var(--surface); stroke-width: 1.5; }
 .nd .lock { opacity: 0; }
-.nd .lock circle { fill: var(--fg); stroke: var(--surface); stroke-width: 1.2; }
-.nd .lock rect { fill: var(--surface); }
-.nd .lock path { fill: none; stroke: var(--surface); stroke-width: 1.3; }
+.nd .lock circle { fill: #e5383b; stroke: var(--bg); stroke-width: 1.4; }
+.nd .lock rect { fill: #fff; }
+.nd .lock path { fill: none; stroke: #fff; stroke-width: 1.3; }
+/* locked skills stay readable but are muted, so the red lock does the talking */
+.nd.locked .fill, .nd.locked .star { filter: saturate(.35) brightness(.8); }
+.nd.locked .lbl { fill: color-mix(in srgb, var(--fg) 72%, var(--map)); }
 .nd .lbl { font: 600 12.5px var(--body); fill: var(--fg); text-anchor: middle; paint-order: stroke; stroke: var(--map); stroke-width: 4.5px; stroke-linejoin: round; pointer-events: none; }
 .nd.locked .lock { opacity: 1; }
 .nd.lv-gap .ring { stroke: var(--crit); stroke-dasharray: 4 3; }
@@ -177,6 +180,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .center-badge.pop { animation: badgepop .8s ease-out; }
 @keyframes badgepop { 0% { transform: scale(1); } 35% { transform: scale(1.8); } 100% { transform: scale(1); } }
 .fx { pointer-events: none; }
+.selglow { fill: var(--c); opacity: .22; filter: blur(6px); }
+.selring { fill: none; stroke: var(--fg); stroke-width: 2.2; stroke-dasharray: 7 6; animation: spin 8s linear infinite; }
+.nd .ring { transform-box: fill-box; transform-origin: center; }
+.nd.sel .fill, .nd.sel .ring { transform: scale(1.22); }
+.nd.sel .lbl { font-size: 15px; font-weight: 700; }
 .shimmer { fill: none; stroke: var(--gold); stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 5px var(--gold)); }
 .shock { fill: none; stroke: var(--gold); stroke-width: 3; vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; }
 .spark { fill: var(--c); }
@@ -204,6 +212,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* panel sections keep their natural height and the panel scrolls, so photos are never squashed */
 .panel > * { flex-shrink: 0; }
 .pics img { display: block; width: 100%; height: 230px; object-fit: contain; }
+.pics figure.vid { flex-basis: 100%; }
+.pics video { display: block; width: 100%; height: 250px; object-fit: contain; background: #000; border-radius: 8px; }
 .pics figure:only-child img { height: 280px; }
 .pics figcaption { font-size: 12px; color: var(--muted); line-height: 1.35; }
 .panel p { margin: 0; font-size: 14px; }
@@ -269,7 +279,7 @@ button, .chip, .quest { touch-action: manipulation; }
   .pics img { height: 200px; }
   .pics figure:only-child img { height: 240px; }
 }
-@media (prefers-reduced-motion: reduce) { .nd.avail .halo, .badge-back.spin, .center-badge.pulse { animation: none; } .xpbar i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .nd.avail .halo, .badge-back.spin, .center-badge.pulse, .selring { animation: none; } .xpbar i { transition: none; } }
 </style>
 
 <div class="wrap">
@@ -450,10 +460,10 @@ const N = [
 
 // Images from Wikimedia Commons: [file, caption, credit key]
 const IMG = {
-  k8: [["img/k8.jpg", "A figure-8 tie-in loop. A follow-through finishes in this same shape, tied through both harness tie-in points.", "k8"]],
+  k8: [["img/kbight-tie.webm", "Tying a figure-8. The follow-through ties a loose eight first, then retraces it through your harness.", "kbighttie"], ["img/k8.jpg", "A figure-8 tie-in loop. A follow-through finishes in this same shape, tied through both harness tie-in points.", "k8"]],
   kstop: [["img/kstop.png", "Double overhand, step by step. For a climbing stopper, wrap it around the rope itself so it forms a barrel.", "kstop"]],
   kclove: [["img/kclove.jpg", "Clove hitch, finished and dressed.", "kclove"]],
-  kbight: [["img/kbight.jpg", "Figure-8 on a bight.", "kbight"]],
+  kbight: [["img/kbight-tie.webm", "Tying a figure-8 on a bight.", "kbighttie"], ["img/kbight.jpg", "Figure-8 on a bight, finished.", "kbight"]],
   kgirth: [["img/kgirth.png", "Girth hitch (also called a cow hitch).", "kgirth"]],
   kobight: [["img/kobight.jpg", "Overhand on a bight.", "kobight"]],
   kauto: [["img/kauto.png", "A prusik (left) and an autoblock (right) clipped to lockers.", "kauto"]],
@@ -463,7 +473,7 @@ const IMG = {
   kmmo: [["img/kmmo.jpg", "Munter-mule-overhand on a locker.", "kmmo"]],
   kfly: [["img/kfly.jpg", "Alpine butterfly, finished.", "kfly"], ["img/kflyhow.jpg", "Tying it around your hand: three wraps, move the middle one, pull it under.", "kflyhow"]],
   kgarda: [["img/kgarda.jpg", "Garda hitch on two identical carabiners.", "kgarda"]],
-  kbowl: [["img/kbowl.jpg", "Bowline with a Yosemite finish.", "kbowl"]],
+  kbowl: [["img/kbowl-tie.webm", "Tying a basic bowline. Add the Yosemite finish shown in the photo.", "kbowltie"], ["img/kbowl.jpg", "Bowline with a Yosemite finish.", "kbowl"]],
   kwater: [["img/kwater.jpg", "Water knot joining webbing.", "kwater"]],
   imunter: [["img/imunter.jpg", "Munter hitch (also called an Italian hitch).", "imunter"]],
   imrap: [["img/imunter.jpg", "Munter hitch (also called an Italian hitch).", "imunter"]],
@@ -479,6 +489,7 @@ const CREDITS = {
   klem: ["WikipedianYknOK", "CC BY-SA 3.0", "Klemheist_knot_WPK.jpg"], kmmo: ["Zaripov999", "CC BY-SA 4.0", "Munter_Mule_Hitch.jpg"],
   kfly: ["Mark A. Taff", "CC BY-SA 3.0 US", "Alpine_butterfly_loop.jpg"], kflyhow: ["Johan Andersson", "Public domain", "Alpine_butterfly_on_the_bight_howto.jpg"],
   kgarda: ["WikiTryHardDieHard", "CC0", "Garda_hitch.jpg"], kbowl: ["Nodurosul", "Public domain", "Yosemitebowline.jpg"],
+  kbighttie: ["PhilEOS", "CC BY-SA 3.0", "Achterknoten_(Schlaufe).webm"], kbowltie: ["PhilEOS", "CC BY-SA 3.0", "Palstek.webm"],
   kwater: ["WikipedianYknOK", "CC BY-SA 3.0", "Water_knot_WPK.jpg"], imunter: ["WikipedianYknOK", "CC BY-SA 3.0", "Italian_hitch_WPK.jpg"],
   bach: ["WikipedianYknOK", "CC BY-SA 3.0", "Bachmann_knot_WPK.jpg"],
 };
@@ -737,7 +748,7 @@ function build() {
     el("circle", { class: "ring", r: 17.5 }, g);
     el("circle", { class: "fill", r: 12 }, g);
     el("text", { class: "star" }, g).textContent = "★";
-    const lock = el("g", { class: "lock", transform: "translate(11,11)" }, g);
+    const lock = el("g", { class: "lock", transform: "translate(12,12) scale(1.3)" }, g);
     el("circle", { r: 6.5 }, lock);
     el("path", { d: "M-2,-0.5 v-1.6 a2,2 0 0 1 4,0 v1.6" }, lock);
     el("rect", { x: -3, y: -0.8, width: 6, height: 4.2, rx: .8 }, lock);
@@ -783,16 +794,21 @@ const competency = i => {
 };
 
 /* ---------- Celebration ---------- */
+// light up every line between the given skills, flowing outward ring by ring from tier "from"
+function shimmerPath(keys, from, color) {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  edgeEls.filter(e => keys.has(e.from) && keys.has(e.to)).forEach(e => {
+    const p = el("path", { class: "shimmer", d: e.path.getAttribute("d") }, fxE), len = p.getTotalLength();
+    if (color) p.style.stroke = color;
+    p.style.strokeDasharray = len;
+    p.animate([{ strokeDashoffset: len, opacity: 1 }, { strokeDashoffset: 0, opacity: 1, offset: .65 }, { strokeDashoffset: 0, opacity: 0 }],
+      { duration: reduce ? 500 : 1100, delay: reduce ? 0 : (byKey[e.from].tier - from) * 160, easing: "ease-out", fill: "both" }).onfinish = () => p.remove();
+  });
+}
 // sparks and a shockwave at the skill, then a shimmer running along every line from the center out to it
 function celebrate(k) {
   const s = byKey[k], reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const path = new Set([k, ...ancestors(k)]);
-  edgeEls.filter(e => path.has(e.from) && path.has(e.to)).forEach(e => {
-    const p = el("path", { class: "shimmer", d: e.path.getAttribute("d") }, fxE), len = p.getTotalLength();
-    p.style.strokeDasharray = len;
-    p.animate([{ strokeDashoffset: len, opacity: 1 }, { strokeDashoffset: 0, opacity: 1, offset: .65 }, { strokeDashoffset: 0, opacity: 0 }],
-      { duration: reduce ? 500 : 1100, delay: reduce ? 0 : (byKey[e.from].tier - 1) * 160, easing: "ease-out", fill: "both" }).onfinish = () => p.remove();
-  });
+  shimmerPath(new Set([k, ...ancestors(k)]), 1);
   if (reduce) return;
   const g = el("g", { transform: `translate(${s.x},${s.y})`, style: `--c: var(--c${s.ci})` }, fxT);
   el("circle", { class: "shock", r: 14 }, g).animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(4.2)", opacity: 0 }], { duration: 750, easing: "ease-out", fill: "forwards" });
@@ -903,7 +919,10 @@ const endPtr = e => {
         else { select(k); lastTap = { key: k, t: now }; }
       }
       else focusLane(+downTarget.dataset.lane);
-    } else if (moved <= 5 && selected) closePanel();
+    } else if (moved <= 5 && (selected || pathSet)) {
+      if (selected) closePanel();
+      if (pathSet) { clearPath(); applyFilter(); }
+    }
     downTarget = null;
   }
 };
@@ -920,7 +939,7 @@ const ringIcon = (stroke, dash = "", fill = "color-mix(in srgb, var(--c1) 30%, v
   `<svg width="24" height="24" viewBox="-12 -12 24 24"><circle r="10.5" fill="none" stroke="${stroke}" stroke-width="2.6" ${dash ? `stroke-dasharray="${dash}"` : ""}/><circle r="7.5" fill="${fill}" stroke="var(--c1)" stroke-width="1.6"/>${glyph ? `<text text-anchor="middle" dominant-baseline="central" font-size="10" font-weight="700" fill="${glyphFill}">${glyph}</text>` : ""}</svg>`;
 document.getElementById("legend").innerHTML = [
   [ringIcon("transparent"), "Not rated"],
-  [`<svg width="22" height="22" viewBox="-11 -11 22 22"><circle r="6" fill="color-mix(in srgb, var(--c1) 30%, var(--surface))" stroke="var(--c1)" stroke-width="1.6"/><g transform="translate(5,5)"><circle r="4.5" fill="var(--fg)"/></g></svg>`, "Locked (prerequisites not learned yet)"],
+  [`<svg width="22" height="22" viewBox="-11 -11 22 22"><circle r="6" fill="color-mix(in srgb, var(--c1) 30%, var(--surface))" stroke="var(--c1)" stroke-width="1.6"/><g transform="translate(5,5)"><circle r="5" fill="#e5383b"/></g></svg>`, "Locked (prerequisites not learned yet)"],
   [ringIcon("var(--crit)", "3 2"), "Gap"],
   [ringIcon("var(--learned)", "", "var(--c1)", "✓"), "Learned"],
   [ringIcon("var(--silver)", "", "var(--c1)", "★"), "Practiced"],
@@ -963,6 +982,8 @@ function setPath(k, mode) {
   const m = document.querySelector(".mapwrap").getBoundingClientRect(), bar = document.getElementById("filters").getBoundingClientRect().height;
   if (m.top < 0 || m.top > innerHeight * .4) scrollBy(0, m.top - bar - 24);
   applyFilter();
+  // path to: flows from the center in to the skill; leads to: flows out from the skill
+  shimmerPath(pathSet, mode === "up" ? 1 : byKey[k].tier, mode === "up" ? "var(--gold)" : "#7fd4ff");
 }
 function clearPath() { pathSet = null; filter.path = filter.mode = null; }
 function applyFilter() { renderFilters(); paint(); fitVisible(); }
@@ -980,9 +1001,9 @@ function chipBtn(label, pressed, onClick, color) {
 }
 function renderFilters() {
   const fl = document.getElementById("fLanes"), fs = document.getElementById("fShow"), fp = document.getElementById("fPath");
-  fl.replaceChildren(chipBtn("All branches", filter.lanes.size === 0, () => { filter.lanes.clear(); applyFilter(); }),
+  fl.replaceChildren(chipBtn("All branches", filter.lanes.size === 0 && !pathSet, () => { filter.lanes.clear(); clearPath(); applyFilter(); }),
     ...LANES.map(([, label], i) => chipBtn(label, filter.lanes.has(i), () => { filter.lanes.has(i) ? filter.lanes.delete(i) : filter.lanes.add(i); applyFilter(); }, i)));
-  fs.replaceChildren(...SHOWS.map(([k, label]) => chipBtn(label, filter.show === k, () => { filter.show = k; applyFilter(); })));
+  fs.replaceChildren(...SHOWS.map(([k, label]) => chipBtn(label, filter.show === k && !(k === "all" && pathSet), () => { filter.show = k; if (k === "all") clearPath(); applyFilter(); })));
   fp.hidden = !pathSet;
   if (pathSet) {
     fp.innerHTML = `<span>${filter.mode === "up" ? "Showing everything you need before" : "Showing everything that builds on"} <b>${esc(byKey[filter.path].name)}</b></span>`;
@@ -1110,7 +1131,7 @@ function select(key, move) {
   panel.innerHTML = `<button class="close" aria-label="Close details">×</button>
     <h2>${esc(s.name)}</h2>
     <div class="meta"><span class="pill lane">${LANES[s.ci][1]}</span><span class="pill">Tier ${TIERS[s.tier - 1][0]} · ${TIERS[s.tier - 1][1]}</span>${s.crit ? '<span class="pill crit">Critical</span>' : ""}<span class="pill">up to +${s.tier * 20} XP</span></div>
-    ${pics.length ? `<div class="pics">${pics.map(([src, cap]) => `<figure><button data-src="${src}" aria-label="Enlarge image"><img src="${src}" alt="${esc(cap)}" loading="lazy"></button><figcaption>${esc(cap)}</figcaption></figure>`).join("")}</div>` : ""}
+    ${pics.length ? `<div class="pics">${pics.map(([src, cap]) => src.endsWith(".webm") ? `<figure class="vid"><video src="${src}" muted autoplay loop playsinline controls preload="auto" aria-label="${esc(cap)}"></video><figcaption>${esc(cap)}</figcaption></figure>` : `<figure><button data-src="${src}" aria-label="Enlarge image"><img src="${src}" alt="${esc(cap)}" loading="lazy"></button><figcaption>${esc(cap)}</figcaption></figure>`).join("")}</div>` : ""}
     <p>${esc(s.what)}</p>
     ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
       <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
@@ -1139,9 +1160,17 @@ function select(key, move) {
   panel.querySelector(".close").addEventListener("click", closePanel);
   panel.hidden = false;
   paint();
+  markSelected();
   if (move) centerOn(s);
 }
-function closePanel() { selected = null; document.getElementById("panel").hidden = true; paint(); }
+function closePanel() { selected = null; document.getElementById("panel").hidden = true; markSelected(); paint(); }
+function markSelected() {
+  document.querySelectorAll(".selmark").forEach(m => m.remove());
+  if (!selected) return;
+  const s = byKey[selected], g = el("g", { class: "selmark", transform: `translate(${s.x},${s.y})`, style: `--c: var(--c${s.ci})` }, fxT);
+  el("circle", { class: "selglow", r: 30 }, g);
+  el("circle", { class: "selring", r: 27 }, g);
+}
 const lb = document.getElementById("lightbox");
 function openLight(src) { document.getElementById("lightimg").src = src; lb.hidden = false; }
 lb.addEventListener("click", () => { lb.hidden = true; });
