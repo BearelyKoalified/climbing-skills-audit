@@ -145,7 +145,24 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nd:focus { outline: none; }
 .nd:focus-visible .halo { opacity: .45; }
 @keyframes pulse { 0%, 100% { transform: scale(1); opacity: .28; } 50% { transform: scale(1.3); opacity: .08; } }
-.center-disc { fill: var(--surface); stroke: var(--fg); stroke-width: 2; }
+.center-disc { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.center-track { fill: none; stroke: var(--line); stroke-width: 5; }
+.center-prog { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0 999; transition: stroke-dasharray .6s ease-out; filter: drop-shadow(0 0 4px var(--gold)); }
+.radar-grid { fill: none; stroke: var(--line); stroke-width: 1; }
+.radar-spoke { stroke: var(--c); stroke-width: 1; opacity: .35; }
+.radar-area { fill: color-mix(in srgb, var(--gold) 22%, transparent); stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; transition: all .5s ease-out; }
+.radar-dot { fill: var(--c); stroke: var(--surface); stroke-width: 1.2; transition: cx .5s ease-out, cy .5s ease-out; }
+.center-badge circle { fill: var(--bg); stroke: var(--gold); stroke-width: 2; }
+.center-badge text { font: 700 24px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: central; }
+.center-badge { transform-box: fill-box; transform-origin: center; }
+.center-badge.pop { animation: badgepop .8s ease-out; }
+@keyframes badgepop { 0% { transform: scale(1); } 35% { transform: scale(1.8); } 100% { transform: scale(1); } }
+.fx { pointer-events: none; }
+.shimmer { fill: none; stroke: var(--gold); stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 5px var(--gold)); }
+.shock { fill: none; stroke: var(--gold); stroke-width: 3; vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; }
+.spark { fill: var(--c); }
+.spark.gold { fill: var(--gold); }
+.nd .fill { transform-box: fill-box; transform-origin: center; }
 .center-ring { fill: none; stroke: var(--gold); stroke-width: 2; stroke-dasharray: 3 4; }
 .center-k { font: 600 11px var(--display); letter-spacing: .2em; text-anchor: middle; fill: var(--muted); }
 .center-n { font: 700 40px var(--display); text-anchor: middle; fill: var(--fg); }
@@ -219,7 +236,7 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 <div class="wrap">
   <header>
     <h1>Climbing Skills Audit</h1>
-    <p class="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each colored wedge is a branch. Earn a bronze ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
+    <p class="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Earn a bronze ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
   </header>
 
   <div class="hud">
@@ -282,9 +299,10 @@ const LANES = [
   ["knots", "Knots", "Knot Master"], ["belay", "Belaying", "Iron Brake Hand"], ["lead", "Leading", "Sharp End"], ["trad", "Trad", "Gear Whisperer"],
   ["anchor", "Anchors", "Bomber Builder"], ["rap", "Rappelling", "Descent Pro"], ["mp", "Multipitch", "Wall Partner"],
   ["res", "Rescue", "Rescuer"], ["imp", "Improvising", "MacGyver"], ["judg", "Judgment", "Old Hand"], ["alp", "Alpine", "Mountaineer"]];
+// XP needed for each rank; early ranks come quickly, later ones take real depth
 const RANKS = [
-  [0, "Fresh Chalk"], [.05, "Top-Rope Regular"], [.14, "Crag Climber"], [.26, "Gear Placer"],
-  [.40, "Rope Gun"], [.56, "Wall Partner"], [.72, "Self-Rescuer"], [.88, "Alpine Veteran"]];
+  [0, "Fresh Chalk"], [30, "Top-Rope Regular"], [80, "Crag Curious"], [160, "Crag Climber"], [300, "Gear Placer"],
+  [500, "Rope Gun"], [800, "Wall Partner"], [1300, "Self-Rescuer"], [2000, "Big Wall Ready"], [3200, "Alpine Veteran"], [5000, "Mountain Sage"]];
 const LEVELS = [[0, "Gap"], [1, "Learned"], [1.5, "Practiced"], [2, "Drilled"]];
 const REVIEW_DAYS = 180;
 
@@ -525,7 +543,7 @@ const effective = s => needsReview(s) ? 1.5 : level(s);
 const status = s => level(s) !== undefined ? "rated" : s.pre.every(p => learned(byKey[p])) ? "avail" : "locked";
 const skillXP = s => ({ 1: 10, 1.5: 15, 2: 20 })[effective(s)] * s.tier || 0;
 const xp = () => skills.reduce((a, s) => a + skillXP(s), 0);
-const rankIndex = x => { let i = 0; RANKS.forEach(([f], j) => { if (x >= f * TOTAL_XP) i = j; }); return i; };
+const rankIndex = x => { let i = 0; RANKS.forEach(([need], j) => { if (x >= need) i = j; }); return i; };
 function setLevel(s, v) {
   if (v === undefined) { delete marks[s.id]; delete dates[s.id]; }
   else { marks[s.id] = v; if (v === 2) dates[s.id] = new Date().toISOString().slice(0, 10); else delete dates[s.id]; }
@@ -552,7 +570,7 @@ function tutorials(s) {
 // Each node plus its label is treated as a box. Every ring is sized to fit its own boxes side by side
 // with a gap, and nodes sit as close to their branch's direction as that spacing allows. Nothing overlaps,
 // and no ring is bigger than it needs to be.
-const GAP = 12, SLACK = 1.1, CENTER_DISC = 72, RING_PAD = 10, MARK = 16;
+const GAP = 12, SLACK = 1.1, CENTER_DISC = 118, RADAR_R = 90, PROG_R = 104, RING_PAD = 10, MARK = 16;
 const TOP = -Math.PI / 2, TAU = Math.PI * 2;
 const ringR = [0];
 const R = t => ringR[t];
@@ -634,6 +652,7 @@ const svg = document.getElementById("map");
 const NS = "http://www.w3.org/2000/svg";
 const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.append(e); return e; };
 const nodeEls = {}, edgeEls = [];
+let fxE, fxT;
 const pol = (r, a) => [r * Math.cos(a), r * Math.sin(a)];
 
 function wrapLabel(text, max = 13) {
@@ -645,7 +664,9 @@ function wrapLabel(text, max = 13) {
 }
 
 function build() {
-  const gC = el("g", {}, svg), gE = el("g", {}, svg), gN = el("g", {}, svg), gL = el("g", {}, svg);
+  const gC = el("g", {}, svg), gE = el("g", {}, svg);
+  fxE = el("g", { class: "fx" }, svg);
+  const gN = el("g", {}, svg), gL = el("g", {}, svg);
   for (let t = 1; t <= 7; t++) {
     el("circle", { class: "contour", r: R(t) }, gC);
     const tl = el("text", { class: "tierlbl", x: 0, y: -R(t) + 5 }, gC); tl.textContent = TIERS[t - 1][0];
@@ -688,12 +709,48 @@ function build() {
     g.addEventListener("mouseleave", () => highlight(selected));
     nodeEls[s.key] = g;
   });
+  // center: a star chart of competency per branch (each spoke points at its branch), ringed by rank progress
   const c = el("g", {}, svg);
-  el("circle", { class: "center-ring", r: 64 }, c);
-  el("circle", { class: "center-disc", r: 54 }, c);
-  el("text", { class: "center-k", y: -22 }, c).textContent = "START · RANK";
-  el("text", { class: "center-n", y: 14, id: "cRank" }, c);
-  el("text", { class: "center-r", y: 32, id: "cRankName" }, c);
+  el("circle", { class: "center-disc", r: PROG_R + 6 }, c);
+  el("circle", { class: "center-track", r: PROG_R }, c);
+  el("circle", { class: "center-prog", r: PROG_R, id: "cProg", transform: "rotate(-90)" }, c);
+  [.25, .5, .75, 1].forEach(f => el("polygon", { class: "radar-grid", points: LANES.map((_, i) => pol(RADAR_R * f, laneMid[i]).join(",")).join(" ") }, c));
+  LANES.forEach((_, i) => { const [x, y] = pol(RADAR_R, laneMid[i]); el("line", { class: "radar-spoke", x1: 0, y1: 0, x2: x, y2: y, style: `--c: var(--c${i})` }, c); });
+  el("polygon", { class: "radar-area", id: "radarArea" }, c);
+  LANES.forEach((_, i) => el("circle", { class: "radar-dot", id: `rv-${i}`, r: 3.6, style: `--c: var(--c${i})` }, c));
+  const badge = el("g", { class: "center-badge" }, c);
+  el("circle", { r: 21 }, badge);
+  el("text", { y: 1, id: "cRank" }, badge);
+  el("title", { id: "cRankName" }, badge);
+  fxT = el("g", { class: "fx" }, svg);
+}
+const competency = i => {
+  const list = skills.filter(s => s.ci === i);
+  return list.reduce((a, s) => a + ({ 1: .4, 1.5: .7, 2: 1 })[effective(s)] || a, 0) / list.length;
+};
+
+/* ---------- Celebration ---------- */
+// sparks and a shockwave at the skill, then a shimmer running along every line from the center out to it
+function celebrate(k) {
+  const s = byKey[k], reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const path = new Set([k, ...ancestors(k)]);
+  edgeEls.filter(e => path.has(e.from) && path.has(e.to)).forEach(e => {
+    const p = el("path", { class: "shimmer", d: e.path.getAttribute("d") }, fxE), len = p.getTotalLength();
+    p.style.strokeDasharray = len;
+    p.animate([{ strokeDashoffset: len, opacity: 1 }, { strokeDashoffset: 0, opacity: 1, offset: .65 }, { strokeDashoffset: 0, opacity: 0 }],
+      { duration: reduce ? 500 : 1100, delay: reduce ? 0 : (byKey[e.from].tier - 1) * 160, easing: "ease-out", fill: "both" }).onfinish = () => p.remove();
+  });
+  if (reduce) return;
+  const g = el("g", { transform: `translate(${s.x},${s.y})`, style: `--c: var(--c${s.ci})` }, fxT);
+  el("circle", { class: "shock", r: 14 }, g).animate([{ transform: "scale(1)", opacity: 1 }, { transform: "scale(4.2)", opacity: 0 }], { duration: 750, easing: "ease-out", fill: "forwards" });
+  for (let i = 0; i < 18; i++) {
+    const a = i / 18 * Math.PI * 2 + Math.random() * .3, d = 38 + Math.random() * 38;
+    el("circle", { class: "spark" + (i % 3 ? "" : " gold"), r: 2 + Math.random() * 2.5 }, g).animate(
+      [{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d}px) scale(.3)`, opacity: 0 }],
+      { duration: 650 + Math.random() * 400, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" });
+  }
+  nodeEls[k].querySelector(".fill").animate([{ transform: "scale(1)" }, { transform: "scale(1.6)" }, { transform: "scale(1)" }], { duration: 500, easing: "ease-out" });
+  setTimeout(() => g.remove(), 1200);
 }
 
 /* ---------- Pan and zoom ---------- */
@@ -721,6 +778,7 @@ function quickToggle(k) {
   const s = byKey[k], prev = level(s), prevDate = dates[s.id];
   setLevel(s, learned(s) ? undefined : 1);
   select(k);
+  if (learned(s)) celebrate(k);
   toast(learned(s) ? `${s.short}: Learned` : `${s.short}: cleared`, () => {
     if (prev === undefined) delete marks[s.id]; else marks[s.id] = prev;
     if (prevDate) dates[s.id] = prevDate; else delete dates[s.id];
@@ -899,8 +957,12 @@ function paint() {
   document.getElementById("rankNum").textContent = ri + 1;
   document.getElementById("rankName").textContent = RANKS[ri][1];
   document.getElementById("cRank").textContent = ri + 1;
-  document.getElementById("cRankName").textContent = RANKS[ri][1];
-  const lo = RANKS[ri][0] * TOTAL_XP, hi = ri < RANKS.length - 1 ? RANKS[ri + 1][0] * TOTAL_XP : TOTAL_XP;
+  document.getElementById("cRankName").textContent = `Rank ${ri + 1}: ${RANKS[ri][1]}`;
+  const lo = RANKS[ri][0], hi = ri < RANKS.length - 1 ? RANKS[ri + 1][0] : TOTAL_XP;
+  const prog = document.getElementById("cProg"), circ = 2 * Math.PI * PROG_R, frac = hi > lo ? Math.min(1, (x - lo) / (hi - lo)) : 1;
+  prog.style.strokeDasharray = `${frac * circ} ${circ}`;
+  document.getElementById("radarArea").setAttribute("points", LANES.map((_, i) => pol(Math.max(4, RADAR_R * competency(i)), laneMid[i]).join(",")).join(" "));
+  LANES.forEach((_, i) => { const [px, py] = pol(Math.max(4, RADAR_R * competency(i)), laneMid[i]); const d = document.getElementById(`rv-${i}`); d.setAttribute("cx", px); d.setAttribute("cy", py); });
   document.getElementById("xpFill").style.width = (hi > lo ? Math.min(100, (x - lo) / (hi - lo) * 100) : 100) + "%";
   document.getElementById("xpNums").textContent = `${x} / ${TOTAL_XP} XP`;
   const mastered = skills.filter(s => effective(s) >= 1.5).length;
@@ -933,7 +995,7 @@ function paint() {
     b.addEventListener("click", () => select(s.key, true)); qe.append(b);
   });
 
-  if (ri > lastRank) toast(`Rank up: ${RANKS[ri][1]}`);
+  if (ri > lastRank) { toast(`Rank up: ${RANKS[ri][1]}`); const b = document.querySelector(".center-badge"); b.classList.remove("pop"); void b.getBBox(); b.classList.add("pop"); }
   lastRank = ri;
   highlight(selected);
 }
@@ -971,9 +1033,9 @@ function select(key, move) {
     </div>
     ${credits.length ? `<p class="credits">Images via Wikimedia Commons: ${credits.join("; ")}.</p>` : ""}`;
   panel.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
-    const v = +b.dataset.v; setLevel(s, level(s) === v ? undefined : v); select(key);
+    const v = +b.dataset.v, before = level(s) ?? -1; setLevel(s, level(s) === v ? undefined : v); select(key); if (learned(s) && level(s) > before) celebrate(key);
   }));
-  const rd = panel.querySelector("#redrill"); if (rd) rd.addEventListener("click", () => { setLevel(s, 2); select(key); toast("Re-drilled. Nice work."); });
+  const rd = panel.querySelector("#redrill"); if (rd) rd.addEventListener("click", () => { setLevel(s, 2); select(key); celebrate(key); toast("Re-drilled. Nice work."); });
   panel.querySelectorAll(".rel a").forEach(a => a.addEventListener("click", () => select(a.dataset.k, true)));
   panel.querySelectorAll(".pathbtns button").forEach(b => b.addEventListener("click", () => setPath(key, b.dataset.path)));
   panel.querySelectorAll(".pics button").forEach(b => b.addEventListener("click", () => openLight(b.dataset.src)));
