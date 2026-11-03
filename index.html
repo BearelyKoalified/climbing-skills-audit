@@ -1261,7 +1261,13 @@ function select(key, move) {
   markSelected();
   if (move) centerOn(s);
 }
-function closePanel() { selected = null; document.getElementById("panel").hidden = true; markSelected(); paint(); }
+function closePanel() {
+  selected = null;
+  const panel = document.getElementById("panel");
+  panel.hidden = true;
+  panel.replaceChildren(); // removing the player stops the video and its sound
+  markSelected(); paint();
+}
 function markSelected() {
   document.querySelectorAll(".selmark").forEach(m => m.remove());
   if (!selected) return;
