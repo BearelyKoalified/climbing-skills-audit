@@ -222,7 +222,9 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
 .lightbox img { max-width: 100%; max-height: 90vh; border-radius: 8px; background: #fff; }
 .toast { position: fixed; z-index: 30; left: 50%; top: calc(16px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg);
-  font: 700 18px var(--display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 18px; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.25); }
+  font: 700 18px var(--display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 18px; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.25);
+  display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 32px); }
+.toast button { font: 700 14px var(--display); letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--bg); border: 1.5px solid var(--bg); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
 .note { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 82ch; }
 @media (prefers-reduced-motion: reduce) { .nd.avail .halo { animation: none; } .xpbar i { transition: none; } }
 </style>
@@ -272,7 +274,7 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
       <button id="zout" aria-label="Zoom out">−</button>
       <button id="zfit" aria-label="Fit whole map">⤢</button>
     </div>
-    <div class="hint">Drag to pan · scroll or pinch to zoom · tap a branch name to zoom in</div>
+    <div class="hint">Double-tap a skill to mark it learned · drag to pan · scroll or pinch to zoom</div>
     <button class="linkbtn" id="zlinks" aria-pressed="false">Show all connections</button>
   </div>
 
@@ -726,7 +728,18 @@ function focusLane(i) {
   vb = { x: (Math.max(...xs) + Math.min(...xs)) / 2 - w / 2, y: (Math.max(...ys) + Math.min(...ys)) / 2 - w / 2, w, h: w }; applyVB();
 }
 svg.addEventListener("wheel", e => { e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomAt(p.x, p.y, Math.exp(e.deltaY * .0015)); }, { passive: false });
-const ptrs = new Map(); let moved = 0, downTarget = null, pinch = null;
+const ptrs = new Map(); let moved = 0, downTarget = null, pinch = null, lastTap = { key: null, t: 0 };
+// double-tap toggles a skill between Learned and not rated, with an undo in the toast
+function quickToggle(k) {
+  const s = byKey[k], prev = level(s), prevDate = dates[s.id];
+  setLevel(s, learned(s) ? undefined : 1);
+  select(k);
+  toast(learned(s) ? `${s.short}: Learned` : `${s.short}: cleared`, () => {
+    if (prev === undefined) delete marks[s.id]; else marks[s.id] = prev;
+    if (prevDate) dates[s.id] = prevDate; else delete dates[s.id];
+    save(); select(k);
+  });
+}
 svg.addEventListener("pointerdown", e => {
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (ptrs.size === 1) { moved = 0; downTarget = e.target.closest(".nd, .lanehit"); }
@@ -753,7 +766,11 @@ const endPtr = e => {
   if (ptrs.size === 0) {
     svg.classList.remove("dragging");
     if (moved <= 5 && downTarget) {
-      if (downTarget.classList.contains("nd")) select(downTarget.dataset.k);
+      if (downTarget.classList.contains("nd")) {
+        const k = downTarget.dataset.k, now = performance.now();
+        if (lastTap.key === k && now - lastTap.t < 400) { quickToggle(k); lastTap = { key: null, t: 0 }; }
+        else { select(k); lastTap = { key: k, t: now }; }
+      }
       else focusLane(+downTarget.dataset.lane);
     } else if (moved <= 5 && selected) closePanel();
     downTarget = null;
@@ -976,9 +993,14 @@ document.addEventListener("keydown", e => {
 });
 
 let toastTimer;
-function toast(msg) {
+function toast(msg, undo) {
   const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+  if (undo) {
+    const b = document.createElement("button"); b.textContent = "Undo";
+    b.addEventListener("click", () => { t.hidden = true; undo(); });
+    t.append(b);
+  }
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, undo ? 5000 : 2600);
 }
 
 build();
