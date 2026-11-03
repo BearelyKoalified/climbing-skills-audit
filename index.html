@@ -850,14 +850,14 @@ const competency = i => {
 
 /* ---------- Celebration ---------- */
 // light up every line between the given skills, flowing outward ring by ring from tier "from"
-function shimmerPath(keys, from, color) {
+function shimmerPath(keys, from, color, times = 1) {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   edgeEls.filter(e => keys.has(e.from) && keys.has(e.to)).forEach(e => {
     const p = el("path", { class: "shimmer", d: e.path.getAttribute("d") }, fxE), len = p.getTotalLength();
     if (color) p.style.stroke = color;
     p.style.strokeDasharray = len;
     p.animate([{ strokeDashoffset: len, opacity: 1 }, { strokeDashoffset: 0, opacity: 1, offset: .65 }, { strokeDashoffset: 0, opacity: 0 }],
-      { duration: reduce ? 500 : 1100, delay: reduce ? 0 : (byKey[e.from].tier - from) * 160, easing: "ease-out", fill: "both" }).onfinish = () => p.remove();
+      { duration: reduce ? 500 : 1100, delay: reduce ? 0 : (byKey[e.from].tier - from) * 160, easing: "ease-out", fill: "both", iterations: reduce ? 1 : times }).onfinish = () => p.remove();
   });
 }
 // sparks and a shockwave at the skill, then a shimmer running along every line from the center out to it
@@ -1038,7 +1038,7 @@ function setPath(k, mode) {
   if (m.top < 0 || m.top > innerHeight * .4) scrollBy(0, m.top - bar - 24);
   applyFilter();
   // path to: flows from the center in to the skill; leads to: flows out from the skill
-  shimmerPath(pathSet, mode === "up" ? 1 : byKey[k].tier, mode === "up" ? "var(--gold)" : "#7fd4ff");
+  shimmerPath(pathSet, mode === "up" ? 1 : byKey[k].tier, mode === "up" ? "var(--gold)" : "#7fd4ff", 3);
 }
 function clearPath() { pathSet = null; filter.path = filter.mode = null; }
 function applyFilter() { renderFilters(); paint(); fitVisible(); }
