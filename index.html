@@ -65,6 +65,10 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 .controls { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; }
 .controls button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 600 18px var(--body); cursor: pointer; }
 .hint { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; max-width: calc(100% - 200px); }
+.inview { position: absolute; top: 12px; left: 12px; right: 64px; display: flex; flex-wrap: wrap; gap: 5px; pointer-events: none; }
+.ivchip { pointer-events: auto; display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--body); color: var(--fg); background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 60%, var(--line)); border-radius: 999px; padding: 3px 10px 3px 7px; cursor: pointer; backdrop-filter: blur(4px); }
+.ivchip i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
 .linkbtn { position: absolute; right: 12px; bottom: 10px; font: 500 12px var(--body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
 .linkbtn[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 12px; align-items: center; }
@@ -303,6 +307,7 @@ button, .chip, .quest { touch-action: manipulation; }
 
   <div class="mapwrap">
     <svg id="map" role="group" aria-label="Skill map"></svg>
+    <div class="inview" id="inview" aria-label="Branches in view"></div>
     <div class="controls">
       <button id="zin" aria-label="Zoom in">+</button>
       <button id="zout" aria-label="Zoom out">−</button>
@@ -798,7 +803,24 @@ function celebrate(k) {
 
 /* ---------- Pan and zoom ---------- */
 let vb = { x: -EXTENT, y: -EXTENT, w: EXTENT * 2, h: EXTENT * 2 };
-const applyVB = () => svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+let inviewQueued = false;
+const applyVB = () => {
+  svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  if (!inviewQueued) { inviewQueued = true; requestAnimationFrame(() => { inviewQueued = false; updateInView(); }); }
+};
+// a key of the branches whose skills are on screen, so colors stay readable when zoomed in
+function updateInView() {
+  const box = document.getElementById("inview"); if (!box || !nodeEls.k8) return;
+  const r = svg.getBoundingClientRect(), a = toSvg(r.left, r.top), b = toSvg(r.right, r.bottom);
+  const lanes = new Set(skills.filter(s => isVisible(s) && s.x > a.x && s.x < b.x && s.y > a.y && s.y < b.y).map(s => s.ci));
+  box.replaceChildren(...LANES.filter((_, i) => lanes.has(i)).map(([, label], _) => {
+    const i = LANES.findIndex(l => l[1] === label), btn = document.createElement("button");
+    btn.className = "ivchip"; btn.style.setProperty("--c", `var(--c${i})`);
+    btn.innerHTML = "<i></i>"; btn.append(label); btn.title = `Zoom to ${label}`;
+    btn.addEventListener("click", () => focusLane(i));
+    return btn;
+  }));
+}
 const toSvg = (cx, cy) => { const p = svg.createSVGPoint(); p.x = cx; p.y = cy; return p.matrixTransform(svg.getScreenCTM().inverse()); };
 function zoomAt(px, py, f) {
   const nw = Math.min(EXTENT * 2.4, Math.max(260, vb.w * f)), r = nw / vb.w;
@@ -992,6 +1014,7 @@ function paint() {
   });
   edgeEls.forEach(e => e.path.classList.toggle("met", learned(byKey[e.from])));
   svg.classList.toggle("filtered", filtering());
+  updateInView();
   document.getElementById("fCount").textContent = countText();
   document.querySelectorAll(".lanecount").forEach(t => {
     const list = skills.filter(s => s.lane === t.dataset.lane);
