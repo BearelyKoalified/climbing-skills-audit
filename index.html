@@ -832,7 +832,23 @@ function zoomAt(px, py, f) {
   vb.x = px - (px - vb.x) * r; vb.y = py - (py - vb.y) * r; vb.w *= r; vb.h *= r; applyVB();
 }
 function fit() { vb = { x: -EXTENT, y: -EXTENT, w: EXTENT * 2, h: EXTENT * 2 }; applyVB(); }
-function centerOn(s) { const w = Math.min(vb.w, 900); vb = { x: s.x - w / 2, y: s.y - w / 2, w, h: w }; applyVB(); }
+// fit a map region into the part of the map you can actually see: below the pinned filter bar and clear of the detail panel
+function fitBox(x0, y0, x1, y1, minW = 380) {
+  const r = svg.getBoundingClientRect(); if (!r.width || !r.height) return;
+  let L = r.left, T = r.top, Rt = r.right, B = r.bottom;
+  const bar = document.getElementById("filters").getBoundingClientRect(); if (bar.bottom > T && bar.top <= T + 4) T = bar.bottom;
+  const panel = document.getElementById("panel");
+  if (!panel.hidden) {
+    const p = panel.getBoundingClientRect();
+    if (p.width >= r.width * .9) B = Math.min(B, p.top); else if (p.left < Rt) Rt = Math.min(Rt, p.left);
+  }
+  T = Math.max(T, 0); B = Math.min(B, innerHeight);
+  const W = Math.max(Rt - L, 120), H = Math.max(B - T, 120), pad = 50;
+  const k = Math.max((Math.max(x1 - x0, minW) + pad * 2) / W, (y1 - y0 + pad * 2) / H);
+  vb = { w: r.width * k, h: r.height * k, x: (x0 + x1) / 2 - ((L + Rt) / 2 - r.left) * k, y: (y0 + y1) / 2 - ((T + B) / 2 - r.top) * k };
+  applyVB();
+}
+function centerOn(s) { const k = vb.w / svg.getBoundingClientRect().width, half = Math.min(450, 380 * k * 1.2); fitBox(s.x - half, s.y - half, s.x + half, s.y + half, 0); }
 function focusLane(i) {
   const list = skills.filter(s => s.ci === i);
   const am = laneMid[i];
@@ -942,7 +958,11 @@ function countText() {
 const filtering = () => !!pathSet || filter.lanes.size > 0 || filter.show !== "all";
 function setPath(k, mode) {
   pathSet = new Set([k, ...(mode === "up" ? ancestors(k) : descendants(k))]);
-  filter.path = k; filter.mode = mode; applyFilter();
+  filter.path = k; filter.mode = mode;
+  // bring the map into view first so the path lands in the middle of the screen
+  const m = document.querySelector(".mapwrap").getBoundingClientRect(), bar = document.getElementById("filters").getBoundingClientRect().height;
+  if (m.top < 0 || m.top > innerHeight * .4) scrollBy(0, m.top - bar - 24);
+  applyFilter();
 }
 function clearPath() { pathSet = null; filter.path = filter.mode = null; }
 function applyFilter() { renderFilters(); paint(); fitVisible(); }
@@ -950,8 +970,7 @@ function fitVisible() {
   if (!filtering()) { fit(); return; }
   const v = skills.filter(isVisible); if (!v.length) return;
   const xs = v.flatMap(s => [s.x - s.box.hw, s.x + s.box.hw]), ys = v.flatMap(s => [s.y + s.box.cy - s.box.hh, s.y + s.box.cy + s.box.hh]);
-  const pad = 60, w = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), 380) + pad * 2;
-  vb = { x: (Math.max(...xs) + Math.min(...xs)) / 2 - w / 2, y: (Math.max(...ys) + Math.min(...ys)) / 2 - w / 2, w, h: w }; applyVB();
+  fitBox(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys));
 }
 function chipBtn(label, pressed, onClick, color) {
   const b = document.createElement("button");
