@@ -111,7 +111,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .wedge { fill: var(--wedge); }
 .contour { fill: none; stroke: var(--contour); stroke-width: 1.5; opacity: .5; }
 .tierlbl { font: 700 15px var(--display); letter-spacing: .08em; text-transform: uppercase; fill: var(--contour); text-anchor: middle;
-  paint-order: stroke; stroke: var(--map); stroke-width: 5px; stroke-linejoin: round; }
+}
 .lanehit { cursor: pointer; }
 .lanelbl { font: 700 26px var(--display); letter-spacing: .1em; text-transform: uppercase; text-anchor: middle; fill: var(--c); }
 .lanehit:hover .lanelbl { text-decoration: underline; }
@@ -125,7 +125,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 #map.focus .nd:not(.related):not(.sel):not(.focal) { opacity: .4; }
 .nd.focal .halo { opacity: .45; animation: none; transform: scale(1.25); transform-box: fill-box; transform-origin: center; }
 .nd.focal .fill { stroke-width: 4.5; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
-.nd.focal .lbl { font-size: 14.5px; font-weight: 700; }
+.nd.focal .lbl, .nd.focal .lblbg { font-size: 14.5px; font-weight: 700; }
 .nd.related .fill { stroke-width: 3.5; }
 .nd { cursor: pointer; transition: opacity .2s; }
 .nd .halo { fill: var(--c); opacity: 0; }
@@ -139,8 +139,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nd .lock path { fill: none; stroke: #fff; stroke-width: 1.3; }
 /* locked skills stay readable but are muted, so the red lock does the talking */
 .nd.locked .fill, .nd.locked .star { filter: saturate(.7) brightness(.9); }
-.nd.locked .lbl { fill: color-mix(in srgb, var(--fg) 85%, var(--map)); }
-.nd .lbl { font: 600 12.5px var(--body); fill: var(--fg); text-anchor: middle; paint-order: stroke; stroke: var(--map); stroke-width: 4.5px; stroke-linejoin: round; pointer-events: none; }
+.nd.locked .lbl { fill: #d2d8db; }
+.nd .lbl, .nd .lblbg { font: 600 12.5px var(--body); text-anchor: middle; pointer-events: none; }
+.nd .lbl { fill: var(--fg); }
+.nd .lblbg { fill: var(--map); stroke: var(--map); stroke-width: 4.5px; stroke-linejoin: round; }
 .nd.locked .lock { opacity: 1; }
 .nd.lv-gap .ring { stroke: var(--crit); stroke-dasharray: 4 3; }
 .nd.lv-1 .ring { stroke: var(--learned); }
@@ -148,7 +150,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nd.lv-2 .ring { stroke: var(--gold); stroke-width: 5.5; }
 .nd.lv-1 .fill, .nd.lv-15 .fill, .nd.lv-2 .fill, .nd.lv-review .fill { fill: var(--c); }
 .nd.lv-1 .star, .nd.lv-15 .star, .nd.lv-2 .star, .nd.lv-review .star { opacity: 1; font-weight: 700; }
-.nd.lv-2 .star, .nd.lv-review .star { fill: var(--gold); font-size: 16px; paint-order: stroke; stroke: rgba(0,0,0,.35); stroke-width: 1px; }
+.nd.lv-2 .star, .nd.lv-review .star { fill: var(--gold); font-size: 16px; }
 .nd.lv-review .ring { stroke: var(--gold); stroke-dasharray: 5 4; }
 .nd.sel .halo { opacity: .35; animation: none; }
 .nd:hover .fill, .nd:focus-visible .fill { stroke-width: 4; }
@@ -175,7 +177,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .center-badge.pulse:not(.pop) { animation: badgepulse 2.8s ease-in-out infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes badgepulse { 50% { transform: scale(1.08); } }
-.center-badge text { paint-order: stroke; stroke: var(--bg); stroke-width: 5px; font: 700 30px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: alphabetic; }
+.center-badge text { font: 700 30px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: alphabetic; }
+.center-badge text.badge-bg { fill: var(--bg); stroke: var(--bg); stroke-width: 5px; stroke-linejoin: round; }
 .center-badge { transform-box: fill-box; transform-origin: center; }
 .center-badge.pop { animation: badgepop .8s ease-out; }
 @keyframes badgepop { 0% { transform: scale(1); } 35% { transform: scale(1.8); } 100% { transform: scale(1); } }
@@ -184,7 +187,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .selring { fill: none; stroke: var(--fg); stroke-width: 2.2; stroke-dasharray: 7 6; animation: spin 8s linear infinite; }
 .nd .ring { transform-box: fill-box; transform-origin: center; }
 .nd.sel .fill, .nd.sel .ring { transform: scale(1.22); }
-.nd.sel .lbl { font-size: 15px; font-weight: 700; }
+.nd.sel .lbl, .nd.sel .lblbg { font-size: 15px; font-weight: 700; }
 .shimmer { fill: none; stroke: var(--gold); stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 5px var(--gold)); }
 .shock { fill: none; stroke: var(--gold); stroke-width: 3; vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; }
 .spark { fill: var(--c); }
@@ -1513,8 +1516,10 @@ function build() {
     el("circle", { r: 6.5 }, lock);
     el("path", { d: "M-2,-0.5 v-1.6 a2,2 0 0 1 4,0 v1.6" }, lock);
     el("rect", { x: -3, y: -0.8, width: 6, height: 4.2, rx: .8 }, lock);
-    const tx = el("text", { class: "lbl", y: 33 }, g);
-    wrapLabel(s.short).forEach((ln, i) => { el("tspan", { x: 0, dy: i ? 14 : 0 }, tx).textContent = ln; });
+    for (const cls of ["lblbg", "lbl"]) {
+      const tx = el("text", { class: cls, y: 33 }, g);
+      wrapLabel(s.short).forEach((ln, i) => { el("tspan", { x: 0, dy: i ? 14 : 0 }, tx).textContent = ln; });
+    }
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(s.key); } });
     g.addEventListener("mouseenter", () => highlight(s.key));
     g.addEventListener("mouseleave", () => highlight(selected));
@@ -1544,8 +1549,9 @@ function drawBadge(ri) {
   const ctx = document.createElement("canvas").getContext("2d"), label = String(ri + 1);
   ctx.font = '700 30px "Barlow Condensed", "Arial Narrow", sans-serif';
   const m = ctx.measureText(label);
-  const t = el("text", { y: ((m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2).toFixed(2), x: ((m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2 + m.width / 2).toFixed(2) }, g);
-  t.textContent = label;
+  const pos = { y: ((m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2).toFixed(2), x: ((m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2 + m.width / 2).toFixed(2) };
+  el("text", { ...pos, class: "badge-bg" }, g).textContent = label;
+  el("text", pos, g).textContent = label;
   el("title", {}, g).textContent = `Rank ${ri + 1}: ${RANKS[ri][1]}`;
   badgeRank = ri;
 }
