@@ -295,6 +295,8 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .drill p { font-size: 13.5px; margin: 0; }
 .drill p + p { margin-top: 5px; }
 .drill b { color: var(--fg); }
+.scenlinks { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.scenlinks b { color: var(--fg); font-weight: 600; margin-right: 2px; }
 .drill ul { margin: 4px 0 0; padding-left: 18px; font-size: 13.5px; display: flex; flex-direction: column; gap: 3px; }
 .drill .drill-more { margin-top: 8px; }
 .practice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 18px; }
@@ -305,7 +307,7 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 @media (max-width: 860px) { .practice { grid-template-columns: minmax(0, 1fr); } }
 .practice h2 { font-size: 22px; }
 .practice .sub { margin: 2px 0 10px; font-size: 13px; color: var(--muted); }
-.scen-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.scen-list { display: flex; flex-wrap: wrap; gap: 6px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
 .chip.on { background: var(--fg); color: var(--surface); border-color: var(--fg); }
 .scen-body { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .setup { margin: 0; font-size: 14px; }
@@ -407,7 +409,7 @@ button, .chip, .quest { touch-action: manipulation; }
     </div>
     <div class="card scen" id="scen">
       <h2>Scenario challenges</h2>
-      <p class="sub">Put the steps in the right order. Finishing one earns it a ✓.</p>
+      <p class="sub" id="scenSub">Put the steps in the right order. Finishing one earns it a ✓.</p>
       <div class="scen-list" id="scenList"></div>
       <div class="scen-body" id="scenBody" hidden></div>
     </div>
@@ -1233,6 +1235,43 @@ QUIZ.push(
   ["What can signal bad air underground?", ["Headaches, fast breathing and lighters struggling to stay lit", "Cold feet", "Feeling hungry", "Loud echoes"], "Turn back if you notice these signs.", "cair"]
 );
 
+
+// more scenarios: safety-critical skills first, then anywhere a sequence matters
+SCENARIOS.push(
+  {"id":"tiein","title":"Tie in and check","setup":"You're about to climb. Tie in and get ready to leave the ground.","steps":["Tie a figure-8 about an arm's length from the rope end","Thread the tail through both harness tie-in points","Retrace the figure-8 exactly","Dress it and leave a fist-length tail","Swap partner checks: knot, harness, belay device and rope end"],"skills":["k8","jcheck"]},
+  {"id":"lowertr","title":"Lower a top-roper","setup":"Your partner reaches the top of a top-rope climb and is ready to come down.","steps":["Climber calls \"take\"","Take in slack until the rope is tight","Confirm the climber is sitting back and weighting the rope","Feed rope smoothly through the device with your brake hand low","Lower at a steady pace, watching for ledges below"],"skills":["btr"]},
+  {"id":"firstclips","title":"Belay the first clips","setup":"Your partner is starting a lead climb. The first few clips are the riskiest part.","steps":["Stand close to the wall, slightly to the side","Spot the climber until the first clip","Feed slack quickly as they pull up rope to clip","Take in the extra slack right after each clip","Keep the belay fairly tight until about the third clip"],"skills":["bsoft","lclip"]},
+  {"id":"fall","title":"Take a lead fall well","setup":"You're above your last bolt and might fall at the next move.","steps":["Check the fall zone below for ledges","Tell your belayer you might fall","Make sure the rope runs in front of your leg","Let go cleanly and push slightly away from the wall","Keep your feet out to meet the wall"],"skills":["lfall"]},
+  {"id":"short","title":"Rope too short while lowering","setup":"You're lowering a climber and the middle mark has passed, but there's a lot of route left.","steps":["Notice the middle mark has passed with plenty of route left","Stop lowering and hold the climber with your brake hand","Tell the climber to stop and clip into protection","Make sure the rope end has a stopper knot or is tied to you","Plan the descent: the climber builds an anchor and rappels, or you lower in stages"],"skills":["rshort","rclose"]},
+  {"id":"bail","title":"Bail from a sport route","setup":"Halfway up a sport route, it's too hard and you want to come down.","steps":["Stop at a solid bolt and clip a quickdraw to it","Rest on the rope while your belayer holds you","Add a quick link or old locker to the bolt as the lower-off point","Clip the rope into the quick link","Remove the quickdraw and get lowered on the quick link"],"skills":["lbail"]},
+  {"id":"tat","title":"Rappel off an old tat anchor","setup":"You reach a rappel anchor made of old slings and a worn ring.","steps":["Inspect the slings, rings and knots for fading, cuts and stiffness","Add new cord or a sling and a quick link if anything looks old","Back up the anchor while the first, heavier person rappels","First person rappels with the backup in place","Last person checks the anchor held, removes the backup and rappels"],"skills":["afixed","ibail"]},
+  {"id":"stuck","title":"Rope stuck after a rappel","setup":"You've reached the ground, but the rope won't pull down.","steps":["Try flicking the rope and walking to a different angle","Check you're pulling the correct strand","If it still won't move, consider leading back up the free end with protection","If you must ascend, ascend both strands together with backups","Free the snag, re-rig and test-pull before descending again"],"skills":["rstuck","rasc"]},
+  {"id":"gmlower","title":"Lower a follower in guide mode","setup":"Your follower is hanging on your guide-mode device and needs to be lowered a few meters.","steps":["Keep a hand on the brake strand","Redirect the brake strand up through a carabiner on the anchor","Back up the brake strand with a friction hitch or Munter","Use a sling or the release hole to open the device gently","Lower smoothly, controlling speed with your brake hand","Lock the device again once the follower is safe"],"skills":["brelease","bguide"]},
+  {"id":"retreat","title":"Retreat from a multipitch","setup":"Weather is turning two pitches up. Time to go down.","steps":["Decide to retreat and tell your partner","Both of you clip into the anchor","Check or build a solid rappel anchor, leaving gear if needed","Thread the rope, tie stopper knots and pre-rig both rappels","Rappel one at a time, checking each other's setups","Find the next anchor before you run out of rope"],"skills":["mretreat","rext","rpre"]},
+  {"id":"changeover","title":"Swap leads at a belay","setup":"Your follower arrives at the anchor and it's their turn to lead.","steps":["Follower clips into the anchor with a clove hitch","Take them off belay only once they're secured","Swap gear and rack up the new leader","Put the leader on belay off your harness","Leader clips a first piece off the anchor and climbs"],"skills":["mchange","bmp"]},
+  {"id":"comms","title":"Can't hear each other","setup":"Wind is too loud to hear your partner on a multipitch route.","steps":["Leader builds the anchor and clips in","Leader pulls up all the slack until the rope comes tight","Follower feels the rope pulled tight","Leader puts the follower on belay and gives the agreed tug signal","Follower climbs only after the agreed signal"],"skills":["mcomm"]},
+  {"id":"gearanchor","title":"Build a gear anchor","setup":"You're at a belay ledge with a crack system and a full rack.","steps":["Find solid rock with good placements","Place at least two independent, bombproof pieces","Add a third piece if the rock or gear isn't perfect","Connect the pieces with a cordelette or the rope toward the direction of load","Tie a master point with little extension","Clip in and check every piece takes load"],"skills":["agear","tcams","tnuts"]},
+  {"id":"toprope","title":"Set a top-rope on bolts","setup":"You've walked to the top of a crag with two good bolts near the edge.","steps":["Clip into a bolt with your tether","Build the anchor so the master point hangs over the edge","Pad any sharp edges the rope will touch","Clip the rope through two opposite and opposed lockers at the master point","Get lowered and check the rope runs freely"],"skills":["atr","abolt"]},
+  {"id":"cam","title":"Place a cam","setup":"You need protection in a straight crack on lead.","steps":["Choose a parallel-sided section of the crack","Pick the size that sits in the middle of its range","Retract the trigger, insert it and let the lobes expand evenly","Point the stem in the direction of a fall","Extend it with a runner if the rope would pull it sideways"],"skills":["tcams","textend"]},
+  {"id":"nut","title":"Place a nut","setup":"There's a constriction in the crack in front of you.","steps":["Find a spot where the crack narrows below","Choose a nut that fits with the most contact","Slot it in above the narrowing and pull it down into place","Set it with a firm tug","Extend it so the rope doesn't lift it out"],"skills":["tnuts","textend"]},
+  {"id":"storm","title":"Storm on the route","setup":"Clouds are building and you hear thunder while climbing.","steps":["Notice the building clouds and thunder","Decide right away to retreat","Get off ridges and summits first","Descend or rappel the fastest safe way","If caught out, stay away from lone trees and crouch low on something insulating"],"skills":["jweather","mretreat"]},
+  {"id":"rock","title":"Rockfall from above","setup":"You hear a crack and see rocks falling toward you.","steps":["Shout \"Rock!\" loudly","Get under an overhang or tight against the wall","Protect your head and don't look up","Once it stops, check yourself and your partner for injuries","Move the belay out of the fall line before continuing"],"skills":["jrock"]},
+  {"id":"firstaid","title":"Fall at the crag","setup":"A climber at the next route takes a ground fall and isn't moving much.","steps":["Make sure the scene is safe for you","Check the climber for a response and breathing","Stop any major bleeding","Protect the neck and spine if a head or neck injury is possible","Keep them warm","Call for help with clear location details"],"skills":["jfirst"]},
+  {"id":"ascend","title":"Ascend a rope with prusiks","setup":"You need to climb a fixed rope with only prusik loops and a sling.","steps":["Tie a prusik on the rope and clip it to your belay loop","Tie a second hitch below it with a foot loop","Tie a backup knot below the hitches into your harness","Stand in the foot loop and slide the top hitch up","Sit on the top hitch and slide the foot loop up","Tie a new backup knot every few meters"],"skills":["rasc","kprus"]},
+  {"id":"munterrap","title":"Rappel with a Munter","setup":"You dropped your belay device and need to rappel.","steps":["Clip a pear-shaped locker to your extension","Tie a Munter hitch on the rappel strands","Add an autoblock below the Munter on your leg loop","Check the strands and stopper knots","Rappel slowly, managing the rope twists"],"skills":["imrap","kauto"]},
+  {"id":"harness","title":"Improvise a harness","setup":"Your partner's harness buckle is damaged and you need a temporary seat.","steps":["Take a 120 cm sling behind the back at waist height","Bring the middle of the sling up between the legs","Clip the three loops together at the front with a locker","Back it up and test-weight it before trusting it"],"skills":["iharness"]},
+  {"id":"knotrap","title":"Pass a knot on rappel","setup":"You're rappelling on two ropes tied together and the joining knot is coming up below you.","steps":["Stop a short way above the knot and tie off your device","Put a friction hitch on the rope above the device and connect it to your harness","Untie the tie-off and lower your weight onto the hitch","Move the device and autoblock to the rope below the knot","Release the hitch so the device takes your weight","Remove the hitch and continue"],"skills":["rknot","kprus"]},
+  {"id":"crevasse","title":"Crevasse fall on a glacier","setup":"Your rope partner breaks through into a crevasse.","steps":["Drop and self-arrest to hold the fall","Build a snow anchor beside you","Transfer the load to the anchor with a friction hitch","Back up the anchor","Approach the lip carefully, protecting yourself","Communicate with your partner and set up a haul"],"skills":["aglacier","asnow","aself"]},
+  {"id":"arrest","title":"Self-arrest on snow","setup":"You slip on a steep snow slope and start sliding.","steps":["Roll toward the head of your axe","Drive the pick into the snow near your shoulder","Get your chest over the shaft","Dig in your toes, or lift your feet if wearing crampons","Hold the position until you stop"],"skills":["aself"]},
+  {"id":"squeeze","title":"Stuck in a squeeze","setup":"Partway through a tight squeeze, you can't move forward.","steps":["Stop and stay calm","Breathe out to make your chest smaller","Back out the way you came","Ask a teammate to guide your feet","Find another route or remove gear before trying again"],"skills":["cmove"]},
+  {"id":"light","title":"Your light dies underground","setup":"Deep in a cave, your main headlamp suddenly goes out.","steps":["Stop moving immediately","Tell your team","Switch to your backup light by feel","Check the cause and save battery","Head out if you're down to your last light"],"skills":["clight"]},
+  {"id":"flood","title":"Rising water in a cave","setup":"You notice the stream getting louder and the water turning muddy.","steps":["Notice the rising, muddy water","Alert the team and stop going deeper","Head for the exit if you can reach it quickly","Otherwise move to known high ground","Wait for the water to drop while your callout contact raises the alarm"],"skills":["cflood","cplan"]},
+  {"id":"badair","title":"Bad air in a passage","setup":"A teammate has a headache and is breathing fast, and your lighter keeps going out.","steps":["Notice the headaches, fast breathing and failing flame","Stop and tell the team","Turn back the way you came","Move slowly toward fresher air","Report the bad air so others know"],"skills":["cair"]},
+  {"id":"cold","title":"Teammate getting hypothermic","setup":"Hours into a wet cave trip, a teammate is shivering hard and getting clumsy.","steps":["Notice the shivering, slowing and clumsiness","Stop and get them out of water and wind","Add dry layers and an emergency blanket","Give food and a warm drink if you have one","Huddle to share warmth and decide whether to head out or send for help"],"skills":["chypo"]},
+  {"id":"deviation","title":"Pass a deviation going down","setup":"Descending an SRT pitch, you reach a deviation pulling the rope away from the wall.","steps":["Descend to just above the deviation","Lock off your descender","Clip your cows tail into the deviation's carabiner","Unclip the rope from the deviation and reclip it above you","Unclip your cows tail and keep descending"],"skills":["cdev","cdesc"]},
+  {"id":"yhang","title":"Rig a Y-hang","setup":"You're rigging a pitch head with two good bolts.","steps":["Check both bolts and hangers","Clip a maillon into each hanger","Tie a figure-8 on a bight with two loops","Clip one loop to each maillon, keeping the angle narrow","Pad any rub point below","Test-weight it before committing"],"skills":["cyhang","cprotect"]}
+);
+
 // embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
 const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
 const CREDITS = {
@@ -1804,6 +1843,7 @@ const wireLinks = root => root.querySelectorAll("a[data-k]").forEach(a => a.addE
 let scenActive = null, scenPos = 0;
 function renderScenList() {
   const list = document.getElementById("scenList");
+  document.getElementById("scenSub").textContent = `Put the steps in the right order. ${Object.keys(practice.scen).filter(id => SCENARIOS.some(s => s.id === id)).length} of ${SCENARIOS.length} complete.`;
   list.innerHTML = SCENARIOS.map(sc => `<button class="chip${scenActive && scenActive.id === sc.id ? " on" : ""}" data-id="${sc.id}">${practice.scen[sc.id] ? "✓ " : ""}${esc(sc.title)}</button>`).join("");
   list.querySelectorAll("button").forEach(b => b.addEventListener("click", () => startScenario(b.dataset.id)));
 }
@@ -2032,6 +2072,7 @@ function select(key, move) {
     ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p><b>Start:</b> ${esc(DRILL[key])}</p>${DRILL2[key] ? `<p><b>Level up:</b> ${esc(DRILL2[key])}</p>` : ""}${(DRILL_EXTRA[key] || []).length ? `<p class="drill-more"><b>More drills</b></p><ul>${DRILL_EXTRA[key].map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}</div>` : ""}
     ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
       <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
+    ${SCENARIOS.some(x => x.skills.includes(key)) ? `<div class="scenlinks"><b>Practice scenarios:</b> ${SCENARIOS.filter(x => x.skills.includes(key)).map(x => `<button class="chip" data-scen="${x.id}">${practice.scen[x.id] ? "✓ " : ""}${esc(x.title)}</button>`).join("")}</div>` : ""}
     <p class="gear"><b>Gear:</b> ${esc(s.gear)}</p>
     <p class="pit"><b>Watch for:</b> ${esc(s.pit)}</p>
     <p class="rel"><b>Requires:</b> ${s.pre.length ? s.pre.map(link).join(", ") : "nothing, start here"}</p>
@@ -2059,6 +2100,7 @@ function select(key, move) {
   updateLevelUI(s);
   panel.querySelector("#redrill").addEventListener("click", () => { setLevel(s, 2); updateLevelUI(s); paint(); celebrate(key); toast("Re-drilled. Nice work."); });
   panel.querySelectorAll(".rel a").forEach(a => a.addEventListener("click", () => select(a.dataset.k, true)));
+  panel.querySelectorAll(".scenlinks button").forEach(b => b.addEventListener("click", () => { startScenario(b.dataset.scen); document.getElementById("scen").scrollIntoView({ behavior: "smooth", block: "start" }); }));
   panel.querySelectorAll(".pathbtns button").forEach(b => b.addEventListener("click", () => setPath(key, b.dataset.path)));
   panel.querySelectorAll(".pics button").forEach(b => b.addEventListener("click", () => openLight(b.dataset.src)));
   panel.querySelector(".close").addEventListener("click", closePanel);
