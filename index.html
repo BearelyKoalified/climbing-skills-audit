@@ -292,6 +292,8 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .drill p { font-size: 13.5px; margin: 0; }
 .drill p + p { margin-top: 5px; }
 .drill b { color: var(--fg); }
+.drill ul { margin: 4px 0 0; padding-left: 18px; font-size: 13.5px; display: flex; flex-direction: column; gap: 3px; }
+.drill .drill-more { margin-top: 8px; }
 .practice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 18px; }
 .practice .drills { grid-column: 1 / -1; }
 .drill-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
@@ -877,6 +879,80 @@ QUIZ.push(
   ["What should you look for on fixed bolts?", ["Spinning hangers, rust, cracks and loose nuts", "Only the color", "How shiny they are", "Nothing; bolts are permanent"], "Bad bolts can fail; back them up or avoid them.", "afixed"],
   ["What's the first priority in any accident?", ["Make the scene safe for yourself and others", "Move the injured climber immediately", "Post about it", "Pack up the gear"], "You can't help anyone if you become a second casualty.", "jfirst"]
 );
+
+
+// extra drills for trad and gear skills, beyond Start and Level up
+const DRILL_EXTRA = {
+  tmock: [
+    "After each mock-lead pitch, rate every placement yourself before your mentor does, and compare scores.",
+    "Mock-lead a pitch using only nuts and hexes, no cams.",
+    "Mock-lead at a new crag where you don't know the rock or the routes.",
+  ],
+  track: [
+    "Rack the same set of gear on your harness and on a gear sling, climb a pitch with each, and decide which you prefer.",
+    "Pull the right cam size for a crack by eye on the first try, 10 cracks in a row.",
+    "Pack a light rack for a long route from the topo and finish without wishing for anything you left behind.",
+  ],
+  tclean: [
+    "Free a stuck nut with a nut tool using taps in the direction it went in, without damaging it.",
+    "Clean a pitch one-handed for every piece except the stuck ones, keeping the other hand on the rock.",
+    "Re-rack gear as you clean so it's ready for the next lead the moment you reach the belay.",
+  ],
+  tcrack: [
+    "Climb a hand crack placing gear only from good jams, never from a pump.",
+    "Tape your hands for cracks in under 3 minutes, and climb a session without the tape slipping.",
+    "Climb a fist crack and a finger crack back to back, noting how your jams change with size.",
+    "Rest on jams long enough to place two pieces back to back mid-crack.",
+  ],
+  tnuts: [
+    "Place a nut sideways in a horizontal constriction and explain the direction it holds.",
+    "Place 10 nuts using only one hand while hanging on the other at a ground-level crack.",
+    "Find 5 placements where a nut works but a cam wouldn't, and explain why.",
+    "Set nuts with the right tug: firm enough to seat, not so hard you can't clean them.",
+  ],
+  tcams: [
+    "Place a cam in a flaring crack and decide whether you'd trust it, then have a mentor check.",
+    "Place cams in horizontal cracks with the stem over the edge, and extend them correctly.",
+    "Identify a walking cam on a practice pitch and fix it with a longer runner.",
+    "Place a cam blind by feel only, then look and rate it.",
+  ],
+  trock: [
+    "Thump-test 10 blocks and flakes and sort them into solid, questionable and loose.",
+    "Find the fall line under 3 loose features on a crag and say where you'd belay instead.",
+    "On a new route, call out every placement you'd skip because of rock quality before you climb it.",
+  ],
+  textend: [
+    "Lead a pitch with 4 direction changes and extend each piece just enough, not more.",
+    "Use a sling to extend a piece under a roof so the rope runs cleanly over the lip.",
+    "Explain how extending changes your fall distance, then pick runner lengths on a real pitch.",
+  ],
+  tsecond: [
+    "Lead a traverse and place gear just after each hard move, so the follower is protected the whole way.",
+    "Follow a traverse pitch someone else led and note every spot where you'd have wanted another piece.",
+    "Build a belay that protects your follower from a swing as they leave it.",
+  ],
+  agear: [
+    "Build a gear anchor with only nuts, then one with only cams, both mentor-checked.",
+    "Build an anchor where the pieces sit in different crack systems, so one rock failure can't take them all.",
+    "Equalize a 3-piece anchor with the rope only, then with a cordelette, and compare.",
+  ],
+  anat: [
+    "Assess 5 trees for size, roots, soil and dead limbs before you'd sling them.",
+    "Thread a natural hourglass in the rock with a sling and test it.",
+  ],
+  aup: [
+    "Place an oppositional nut pair to make a multidirectional piece.",
+    "Rig an upward piece that stops a belayer being lifted on a traverse pitch.",
+  ],
+  laid: [
+    "Clean an aid pitch as a follower using ascenders or friction hitches.",
+    "French-free through a hard move by grabbing a placed draw, then keep climbing.",
+  ],
+  lbail: [
+    "Bail from a gear placement you'd only leave behind if you had to: nut, quick link and backup.",
+    "Lower off a two-piece bail anchor and retrieve the backup piece last.",
+  ],
+};
 
 // embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
 const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
@@ -1666,7 +1742,7 @@ function select(key, move) {
     ${yt.length && !CAN_EMBED ? `<div class="ytlinks">${yt.map(([id, cap, src]) => `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">▶ Watch: ${esc(cap)}<span>${esc(src)} ↗</span></a>`).join("")}</div>` : ""}
     ${pics.length ? `<div class="pics">${pics.map(([src, cap]) => src.endsWith(".webm") ? `<figure class="vid"><video src="${src}" muted autoplay loop playsinline controls preload="auto" aria-label="${esc(cap)}"></video><figcaption>${esc(cap)}</figcaption></figure>` : `<figure><button data-src="${src}" aria-label="Enlarge image"><img src="${src}" alt="${esc(cap)}" loading="lazy"></button><figcaption>${esc(cap)}</figcaption></figure>`).join("")}</div>` : ""}
     <p>${esc(s.what)}</p>
-    ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p><b>Start:</b> ${esc(DRILL[key])}</p>${DRILL2[key] ? `<p><b>Level up:</b> ${esc(DRILL2[key])}</p>` : ""}</div>` : ""}
+    ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p><b>Start:</b> ${esc(DRILL[key])}</p>${DRILL2[key] ? `<p><b>Level up:</b> ${esc(DRILL2[key])}</p>` : ""}${(DRILL_EXTRA[key] || []).length ? `<p class="drill-more"><b>More drills</b></p><ul>${DRILL_EXTRA[key].map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}</div>` : ""}
     ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
       <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
     <p class="gear"><b>Gear:</b> ${esc(s.gear)}</p>
