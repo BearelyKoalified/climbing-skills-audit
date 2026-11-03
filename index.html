@@ -49,10 +49,6 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 .xpbar { height: 8px; border-radius: 4px; background: var(--bg); margin-top: 10px; overflow: hidden; }
 .xpbar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--bronze), var(--silver), var(--gold)); transition: width .5s; }
 .xpnums { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
-.skip { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
-.skip select, .skip button { font: 500 13px var(--body); border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 6px; padding: 3px 8px; }
-.skip button { cursor: pointer; }
-.skip button.go { background: var(--fg); color: var(--surface); border-color: var(--fg); }
 .next h2 { font-size: 18px; }
 .next p { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
 .quests { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -276,17 +272,11 @@ button, .chip, .quest { touch-action: manipulation; }
       <div class="rank">
         <div class="badge" id="rankNum">1</div>
         <div class="rank-body">
-          <div class="rank-name" id="rankName">Fresh Chalk</div>
+          <div class="rank-name" id="rankName">Rental Shoe Gumby</div>
           <div class="rank-sub" id="rankSub"></div>
           <div class="xpbar"><i id="xpFill" style="width:0"></i></div>
           <div class="xpnums"><span id="xpNums"></span><span id="mastery"></span></div>
         </div>
-      </div>
-      <div class="skip" id="skip">
-        <span>Already experienced? Mark every unrated skill through</span>
-        <select id="skipTier" aria-label="Tier"></select>
-        <span>as Learned.</span>
-        <button id="skipBtn">Mark them</button>
       </div>
     </div>
     <div class="card next">
@@ -339,8 +329,8 @@ const LANES = [
   ["res", "Rescue", "Rescuer"], ["imp", "Improvising", "MacGyver"], ["judg", "Judgment", "Old Hand"], ["alp", "Alpine", "Mountaineer"]];
 // XP needed for each rank; early ranks come quickly, later ones take real depth
 const RANKS = [
-  [0, "Fresh Chalk"], [30, "Top-Rope Regular"], [80, "Crag Curious"], [160, "Crag Climber"], [300, "Gear Placer"],
-  [500, "Rope Gun"], [800, "Wall Partner"], [1300, "Self-Rescuer"], [2000, "Big Wall Ready"], [3200, "Alpine Veteran"], [5000, "Mountain Sage"]];
+  [0, "Rental Shoe Gumby"], [30, "Top-Rope Tourist"], [80, "Chalk Bag Fashionista"], [160, "Unsolicited Beta Sprayer"], [300, "Crag Dog Whisperer"],
+  [500, "Gumby With a Rack"], [800, "Certified Choss Survivor"], [1300, "Van Life Aspirant"], [2000, "Dirtbag Apprentice"], [3200, "Sends in Approach Shoes"], [5000, "Legendary Dirtbag"]];
 const LEVELS = [[0, "Gap"], [1, "Learned"], [1.5, "Practiced"], [2, "Drilled"]];
 const REVIEW_DAYS = 180;
 
@@ -897,22 +887,6 @@ document.getElementById("legend").innerHTML = [
   [ringIcon("var(--gold)", "4 3", "var(--c1)", "★", "var(--gold)"), "Due for review"],
   [`<svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="var(--crit)"/></svg>`, "Critical skill"],
 ].map(([i, t]) => `<span>${i}${t}</span>`).join("");
-
-/* ---------- Skip ahead ---------- */
-const skipSel = document.getElementById("skipTier"), skipBtn = document.getElementById("skipBtn");
-TIERS.forEach(([r, n], i) => { const o = document.createElement("option"); o.value = i + 1; o.textContent = `Tier ${r} · ${n}`; skipSel.append(o); });
-skipSel.value = 2;
-let skipArmed = false;
-const skipTargets = () => skills.filter(s => s.tier <= +skipSel.value && level(s) === undefined);
-function resetSkip() { skipArmed = false; skipBtn.classList.remove("go"); skipBtn.textContent = "Mark them"; }
-skipSel.addEventListener("change", resetSkip);
-skipBtn.addEventListener("click", () => {
-  const list = skipTargets();
-  if (!list.length) { skipBtn.textContent = "Nothing left to mark"; return; }
-  if (!skipArmed) { skipArmed = true; skipBtn.classList.add("go"); skipBtn.textContent = `Confirm: mark ${list.length} skills`; return; }
-  list.forEach(s => setLevel(s, 1)); resetSkip(); paint();
-  toast(`${list.length} skills marked Learned`);
-});
 
 /* ---------- Filters ---------- */
 const filter = { lanes: new Set(), show: "all", path: null, mode: null };
