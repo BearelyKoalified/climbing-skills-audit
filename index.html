@@ -293,6 +293,10 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .drill p + p { margin-top: 5px; }
 .drill b { color: var(--fg); }
 .practice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 18px; }
+.practice .drills { grid-column: 1 / -1; }
+.drill-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.drill-list li { display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border-radius: 8px; background: var(--bg); box-shadow: inset 3px 0 0 var(--c, var(--gold)); font-size: 13px; color: var(--muted); }
+.drill-list a { color: var(--fg); font-weight: 600; cursor: pointer; text-decoration: underline; text-decoration-color: var(--c); text-underline-offset: 2px; }
 @media (max-width: 860px) { .practice { grid-template-columns: minmax(0, 1fr); } }
 .practice h2 { font-size: 22px; }
 .practice .sub { margin: 2px 0 10px; font-size: 13px; color: var(--muted); }
@@ -391,6 +395,11 @@ button, .chip, .quest { touch-action: manipulation; }
   <div class="legend" id="legend"></div>
 
   <section class="practice">
+    <div class="card drills" id="drills">
+      <h2>Practice drills</h2>
+      <p class="sub" id="drillSub"></p>
+      <ul class="drill-list" id="drillList"></ul>
+    </div>
     <div class="card scen" id="scen">
       <h2>Scenario challenges</h2>
       <p class="sub">Put the steps in the right order. Finishing one earns it a ✓.</p>
@@ -1489,6 +1498,19 @@ function answer(right, btn, why, key) {
   checkAchievements();
 }
 
+// drills to work on next: skills you've learned or practiced but not drilled yet, then skills ready to learn
+function renderDrills() {
+  const levelUp = skills.filter(s => learned(s) && effective(s) < 2).sort((a, b) => (b.crit - a.crit) || (effective(b) - effective(a)) || (a.tier - b.tier));
+  const fresh = skills.filter(s => status(s) === "avail").sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier));
+  const list = (levelUp.length ? levelUp : fresh).filter(isVisible).slice(0, 8);
+  document.getElementById("drillSub").textContent = levelUp.length
+    ? "Skills you've learned but not drilled yet. Hit the target to mark them Drilled."
+    : "Start with these. Learn a skill, then come back to drill it.";
+  const ul = document.getElementById("drillList");
+  ul.innerHTML = list.map(s => `<li style="--c: var(--c${s.ci})"><a data-k="${s.key}">${esc(s.name)}</a><span>${esc(effective(s) >= 1.5 && DRILL2[s.key] ? DRILL2[s.key] : DRILL[s.key])}</span></li>`).join("") || "<li>Everything here is drilled. Nice work.</li>";
+  wireLinks(ul);
+}
+
 /* ---------- Achievements ---------- */
 const ACH_KEY = "climb-achievements-v1";
 let achDone = load(ACH_KEY), achReady = false;
@@ -1622,6 +1644,7 @@ function paint() {
   if (ri > lastRank) { popAchievement(ri + 1, "Rank up!", RANKS[ri][1], `You are now rank ${ri + 1} of ${RANKS.length}`); const b = document.querySelector(".center-badge"); b.classList.remove("pop"); void b.getBBox(); b.classList.add("pop"); }
   lastRank = ri;
   checkAchievements();
+  renderDrills();
   highlight(selected);
 }
 
@@ -1643,9 +1666,9 @@ function select(key, move) {
     ${yt.length && !CAN_EMBED ? `<div class="ytlinks">${yt.map(([id, cap, src]) => `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">▶ Watch: ${esc(cap)}<span>${esc(src)} ↗</span></a>`).join("")}</div>` : ""}
     ${pics.length ? `<div class="pics">${pics.map(([src, cap]) => src.endsWith(".webm") ? `<figure class="vid"><video src="${src}" muted autoplay loop playsinline controls preload="auto" aria-label="${esc(cap)}"></video><figcaption>${esc(cap)}</figcaption></figure>` : `<figure><button data-src="${src}" aria-label="Enlarge image"><img src="${src}" alt="${esc(cap)}" loading="lazy"></button><figcaption>${esc(cap)}</figcaption></figure>`).join("")}</div>` : ""}
     <p>${esc(s.what)}</p>
+    ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p><b>Start:</b> ${esc(DRILL[key])}</p>${DRILL2[key] ? `<p><b>Level up:</b> ${esc(DRILL2[key])}</p>` : ""}</div>` : ""}
     ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
       <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
-    ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p><b>Start:</b> ${esc(DRILL[key])}</p>${DRILL2[key] ? `<p><b>Level up:</b> ${esc(DRILL2[key])}</p>` : ""}</div>` : ""}
     <p class="gear"><b>Gear:</b> ${esc(s.gear)}</p>
     <p class="pit"><b>Watch for:</b> ${esc(s.pit)}</p>
     <p class="rel"><b>Requires:</b> ${s.pre.length ? s.pre.map(link).join(", ") : "nothing, start here"}</p>
