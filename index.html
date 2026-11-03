@@ -926,11 +926,19 @@ function paint() {
   // Up next follows the active filters, so picking one branch narrows it to that branch
   const review = skills.filter(s => needsReview(s) && isVisible(s));
   const avail = skills.filter(s => status(s) === "avail" && isVisible(s)).sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier));
-  const q = [...review, ...avail].slice(0, 9);
+  let q = [...review, ...avail].slice(0, 9), leadIn = false;
+  if (!q.length && filtering()) {
+    // nothing in the filter is unlocked yet: suggest the unlocked skills that lead into it
+    const feeders = new Set();
+    skills.filter(s => isVisible(s) && !learned(s)).forEach(s => ancestors(s.key).forEach(k => { if (status(byKey[k]) === "avail") feeders.add(k); }));
+    q = [...feeders].map(k => byKey[k]).sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier)).slice(0, 9);
+    leadIn = q.length > 0;
+  }
   const qe = document.getElementById("quests"); qe.innerHTML = "";
   document.getElementById("nextNote").textContent = filtering()
     ? `Matching your filters: skills due for review, then unlocked skills you haven't learned, critical ones first.`
     : "Skills due for review, then unlocked skills you haven't learned, critical ones first.";
+  if (leadIn) document.getElementById("nextNote").textContent = "Nothing in your filters is unlocked yet. Learn these first to open them up:";
   if (!q.length) qe.textContent = filtering() ? "Nothing in these filters is ready to learn or due for review." : "Nothing unlocked is left to learn. Move learned skills up to Practiced and Drilled.";
   q.forEach(s => {
     const b = document.createElement("button"); b.className = "quest" + (needsReview(s) ? " review" : s.crit ? " crit" : ""); b.style.setProperty("--c", `var(--c${s.ci})`);
