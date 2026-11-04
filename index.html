@@ -1912,7 +1912,7 @@ function layout() {
   for (let t = 1; t <= 7; t++) {
     // grow the ring until none of its boxes touch an inner ring's boxes or the center disc
     let minR = t === 1 ? CENTER_DISC + 40 : ringR[t - 1] + 40;
-    while (placeRing(t, minR)) minR = ringR[t] + 4;
+    for (let n = 0; placeRing(t, minR) && n < 300; n++) minR = ringR[t] + 4;
   }
 }
 const boxOf = s => ({ x0: s.x - s.box.hw, x1: s.x + s.box.hw, y0: s.y + s.box.cy - s.box.hh - RING_PAD / 2, y1: s.y + s.box.cy + s.box.hh + RING_PAD / 2 });
@@ -1953,11 +1953,11 @@ function placeRing(t, minR) {
     ringR[t] = r;
     items.forEach(s => { s.a = TOP + s.u; s.x = r * Math.cos(s.a); s.y = r * Math.sin(s.a); });
   }
-  // true if this ring collides with the center disc or any inner ring
+  // true if this ring collides with the center disc, an inner ring, or itself (on tight rings the straight-line gap is shorter than the arc)
   return skills.filter(s => s.tier === t).some(s => {
     const a = boxOf(s);
     if (Math.hypot(Math.max(a.x0, Math.min(0, a.x1)), Math.max(a.y0, Math.min(0, a.y1))) < CENTER_DISC) return true;
-    return skills.some(o => o.tier < t && (() => { const c = boxOf(o); return a.x0 < c.x1 && c.x0 < a.x1 && a.y0 < c.y1 && c.y0 < a.y1; })());
+    return skills.some(o => o !== s && o.tier <= t && (() => { const c = boxOf(o); return a.x0 < c.x1 && c.x0 < a.x1 && a.y0 < c.y1 && c.y0 < a.y1; })());
   });
 }
 /* LAYOUT END */
