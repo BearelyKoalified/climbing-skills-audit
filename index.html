@@ -24,7 +24,7 @@
 /* Layout: rank header, then a radial topo-style map. You start at the center; each contour ring is a tier and each color is a branch, from climbing to caving. Progress shows as green, silver and gold rings around each node. A detail panel with photos, use cases and tutorials opens on the selected skill. */
 /* Always dark, whatever the browser or system theme says */
 :root {
-  --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --wedge: transparent; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
+  --bg: #07090a; --map: #0b0e10; --map-center: #141a1e; --surface: #12171a; --fg: #f4f7f8; --muted: #a3afb6;
   --line: #242c31; --contour: #39444b; --edge: #333e45; --accent: #5ab0ff; --crit: #ff4d4d; --ok: #3ddc84;
   --learned: #3ddc84; --next: #4da3ff; --silver: #d4dde3; --gold: #ffcc33;
   --c0: #b388ff; --c1: #ff9f1c; --c2: #4d7cff; --c3: #2ee66b; --c4: #ff3d3d; --c5: #22d3ee;
@@ -158,7 +158,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 #map.filtered .edge.cross:not(.hidden) { opacity: .55; }
 
 /* SVG map */
-.wedge { fill: var(--wedge); }
 .contour { fill: none; stroke: var(--contour); stroke-width: 1.5; opacity: .5; }
 .tierlbl { font: 700 15px var(--display); letter-spacing: .08em; text-transform: uppercase; fill: var(--contour); text-anchor: middle;
 }
@@ -182,7 +181,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nd .ring { fill: none; stroke: transparent; stroke-width: 4.5; }
 .nd .fill { fill: color-mix(in srgb, var(--c) 38%, var(--surface)); stroke: var(--c); stroke-width: 2.6; }
 .nd .star { font-size: 13px; text-anchor: middle; dominant-baseline: central; fill: var(--surface); opacity: 0; pointer-events: none; }
-.nd .critmark { fill: var(--crit); stroke: var(--surface); stroke-width: 1.5; }
 .nd .lock { opacity: 0; }
 .nd .lock circle { fill: #e5383b; stroke: var(--bg); stroke-width: 1.4; }
 .nd .lock rect { fill: #fff; }
@@ -206,27 +204,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nd:hover .fill, .nd:focus-visible .fill { stroke-width: 4; }
 .nd:focus { outline: none; }
 .nd:focus-visible .halo { opacity: .45; }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: .28; } 50% { transform: scale(1.3); opacity: .08; } }
-.center-disc { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
-.center-track { fill: none; stroke: var(--line); stroke-width: 5; }
-.center-prog { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0 999; transition: stroke-dasharray .6s ease-out; filter: drop-shadow(0 0 4px var(--gold)); }
 .radar-grid { fill: none; stroke: var(--line); stroke-width: 1; }
 .radar-spoke { stroke: var(--c); stroke-width: 1.2; opacity: .55; }
 .radar-petal { fill: color-mix(in srgb, var(--c) 45%, var(--map-center)); stroke: color-mix(in srgb, var(--c) 45%, var(--map-center)); stroke-width: .8; }
 .radar-edge { fill: none; stroke: var(--c); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
 .radar-dot { fill: var(--c); stroke: var(--surface); stroke-width: 1.2; transition: cx .5s ease-out, cy .5s ease-out; }
-.badge-star { fill: var(--bg); }
-.badge-fill { fill: var(--gold); transition: none; }
-.badge-outline { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; }
-.badge-back { fill: color-mix(in srgb, var(--gold) 18%, transparent); stroke: var(--gold); stroke-width: 1.2; stroke-linejoin: round; opacity: .7; }
-.badge-back.spin { animation: spin 30s linear infinite; }
-.badge-core { fill: var(--bg); stroke: var(--gold); stroke-width: 1.5; }
-.badge-tip { fill: var(--c); stroke: var(--bg); stroke-width: 1; }
-.badge-ring { fill: none; stroke: var(--gold); stroke-width: 1.5; stroke-dasharray: 2 4; }
 .center-badge.glow { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gold) 70%, transparent)); }
-.center-badge.pulse:not(.pop) { animation: badgepulse 2.8s ease-in-out infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes badgepulse { 50% { transform: scale(1.08); } }
 .center-badge text { font: 700 30px var(--display); fill: var(--fg); text-anchor: middle; dominant-baseline: alphabetic; }
 .center-badge text.badge-bg { fill: var(--bg); stroke: var(--bg); stroke-width: 5px; stroke-linejoin: round; }
 .center-badge { transform-box: fill-box; transform-origin: center; }
@@ -243,10 +227,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .spark { fill: var(--c); }
 .spark.gold { fill: var(--gold); }
 .nd .fill { transform-box: fill-box; transform-origin: center; }
-.center-ring { fill: none; stroke: var(--gold); stroke-width: 2; stroke-dasharray: 3 4; }
-.center-k { font: 600 11px var(--display); letter-spacing: .2em; text-anchor: middle; fill: var(--muted); }
-.center-n { font: 700 40px var(--display); text-anchor: middle; fill: var(--fg); }
-.center-r { font: 600 13px var(--display); letter-spacing: .06em; text-transform: uppercase; text-anchor: middle; fill: var(--fg); }
 
 /* Panel */
 .panel { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100vw - 32px));
@@ -435,7 +415,8 @@ button, .chip, .quest { touch-action: manipulation; }
   .panel { left: 0; right: 0; bottom: 0; width: 100%; max-height: 55vh; border-radius: 16px 16px 0 0; transition: max-height .25s ease, transform .2s ease; border-left: 0; border-right: 0; border-bottom: 0;
     padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
   .panel.full { max-height: 92vh; }
-  .grab { display: block; position: sticky; top: -18px; z-index: 2; margin: -18px -18px 0; height: 26px; touch-action: none; cursor: grab; background: var(--surface); }
+  .panel .close { z-index: 3; }
+  .grab { display: block; position: sticky; top: -18px; z-index: 2; margin: -18px calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); height: 26px; touch-action: none; cursor: grab; background: var(--surface); }
   .grab::before { content: ""; position: absolute; left: 50%; top: 10px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: var(--muted); }
   .inview { flex-wrap: nowrap; overflow-x: auto; pointer-events: auto; scrollbar-width: none; }
   .ivchip { flex: none; }
@@ -445,7 +426,7 @@ button, .chip, .quest { touch-action: manipulation; }
   .pics img { height: 200px; }
   .pics figure:only-child img { height: 240px; }
 }
-@media (prefers-reduced-motion: reduce) { .nd.avail .halo, .badge-back.spin, .center-badge.pulse, .selring, .ach-card, .ach-card::after { animation: none; } .xpbar i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .selring, .ach-card, .ach-card::after { animation: none; } .xpbar i { transition: none; } }
 /* skill panel: swipe left or right for the next skill, down to close */
 .panel.swiping { transition: none !important; }
 .panel.slide-next { animation: slideNext .22s ease-out; }
@@ -531,7 +512,7 @@ button, .chip, .quest { touch-action: manipulation; }
     </div>
     <div class="card next">
       <h2>Up next</h2>
-      <p id="nextNote">Rusty skills, then unlocked skills you haven't learned, critical ones first.</p>
+      <p id="nextNote"></p>
       <div class="quests" id="quests"></div>
     </div>
   </div>
@@ -1668,7 +1649,7 @@ skills.forEach(s => s.unlocks = skills.filter(o => o.pre.includes(s.key)).map(o 
 const TOTAL_XP = skills.reduce((a, s) => a + s.tier * 20, 0);
 
 const KEY = "climb-audit-v1", DKEY = "climb-audit-dates-v1";
-const load = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
+const load = k => { try { const v = JSON.parse(localStorage.getItem(k)); return v && typeof v === "object" && !Array.isArray(v) ? v : {}; } catch (e) { return {}; } };
 let marks = load(KEY), dates = load(DKEY);
 // skills renamed to common climbing terms keep their saved progress
 const OLD_NAMES = {"cmove":"Horizontal caving movement","rlower":"Lowering an injured climber","keo":"Flat overhand (rope join)","kmmo":"Munter-mule-overhand","kbowl":"Bowline variations","btr":"Top-rope belay and lower","bsoft":"Soft lead catch","bweight":"Belaying with a big weight difference","bguide":"Guide-mode belay from above","bmp":"Belaying a leader off a multipitch anchor","brelease":"Releasing a loaded guide-mode device","lclip":"Clean clipping","lbail":"Bailing mid-route","track":"Racking and gear selection","tcrack":"Crack climbing technique","tnuts":"Placing nuts and passive gear","trock":"Judging rock quality","textend":"Extending gear to manage drag","tsecond":"Protecting the follower","atr":"Toprope setups over edges","agear":"Gear anchor principles","arope":"Anchor built with the climbing rope","aup":"Upward-pull protection","rwind":"Rappelling in wind and tangles","rpre":"Pre-rigging and partner checks","rstuck":"Stuck rope prevention and recovery","rblock":"Single-strand and blocked rappels","mcomm":"Communication without sight or sound","mretreat":"Retreat planning","mchange":"Efficient changeovers","mropes":"Rope management at hanging belays","rshort":"Recognizing a rope too short to lower","rasc":"Ascending with friction hitches","rdamage":"Isolating a damaged rope","rhaul":"Hauling systems (assisted, 3:1, 6:1)","rtandem":"Tandem rappel with a patient","ibail":"Carrying bail gear on the harness","iharness":"Improvised harness","ifriction":"Friction hitch substitutes","ipulley":"Carabiner in place of a pulley","ihip":"Hip belay","jtopo":"Topo reading and descent research","jfirst":"First aid and an emergency plan","aice":"Ice protection and V-threads"};
@@ -1874,11 +1855,8 @@ function build() {
 }
 // star chart radius for a competency of 0 to 1; zero sits just outside the rank badge
 const radarR = f => 6 + (RADAR_R - 6) * Math.sqrt(f);
-// the rank badge is a star that gains points and flourishes with every rank
+// the rank number in the middle of the map
 let badgeRank = -1;
-function starPath(n, ro, ri, rot = 0) {
-  return Array.from({ length: n * 2 }, (_, k) => pol(k % 2 ? ri : ro, -Math.PI / 2 + rot + k * Math.PI / n).map(v => v.toFixed(2)).join(",")).join(" ");
-}
 function drawBadge(ri) {
   const g = document.getElementById("badge");
   g.replaceChildren();
@@ -2117,7 +2095,6 @@ function renderFilters() {
     fp.append(chipBtn(filter.mode === "up" ? "Show what it leads to" : "Show the path to it", false, () => setPath(filter.path, filter.mode === "up" ? "down" : "up")));
     fp.append(chipBtn("Clear path", false, () => { clearPath(); applyFilter(); }));
   }
-  const n = skills.filter(isVisible).length;
   document.getElementById("fCount").textContent = countText();
   document.getElementById("fReset").hidden = !filtering();
 }
@@ -2361,7 +2338,7 @@ function renderCards() {
   const flip = () => {
     if (card.classList.contains("flipped")) return;
     card.classList.add("flipped"); card.querySelector(".fc-back").hidden = false; rate.hidden = false;
-    card.querySelector(".fc-hint").textContent = matchMedia("(pointer: coarse)").matches ? "Swipe right if you knew it, left if you missed it" : "";
+    card.querySelector(".fc-hint").textContent = matchMedia("(pointer: coarse)").matches ? "Swipe right if you knew it, left if you missed it" : "Keys: → knew it, ← missed it";
     buzz(10);
   };
   card.addEventListener("click", e => { if (!e.target.closest("a")) flip(); });
@@ -2600,9 +2577,8 @@ function paint() {
     leadIn = q.length > 0;
   }
   const qe = document.getElementById("quests"); qe.innerHTML = "";
-  document.getElementById("nextNote").textContent = filtering()
-    ? `Matching your filters: rusty skills, then unlocked skills you haven't learned, critical ones first.`
-    : "Rusty skills, then unlocked skills you haven't learned, critical ones first.";
+  const order = (review.length ? "Rusty skills first, then unlocked" : "Unlocked") + " skills you haven't learned, critical ones first.";
+  document.getElementById("nextNote").textContent = filtering() ? "Matching your filters. " + order : order;
   if (leadIn) document.getElementById("nextNote").textContent = "Nothing in your filters is unlocked yet. Learn these first to open them up:";
   if (!q.length) qe.textContent = filtering() ? "Nothing in these filters is ready to learn or due for review." : "Nothing unlocked is left to learn. Move learned skills up to Practiced and Drilled.";
   q.forEach(s => {
@@ -2717,6 +2693,10 @@ function openLight(src) { document.getElementById("lightimg").src = src; lb.hidd
 const closeLight = () => { lb.hidden = true; dropLayer("photo"); };
 lb.addEventListener("click", closeLight);
 document.addEventListener("keydown", e => {
+  if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && selected && lb.hidden && !e.target.closest("input, textarea, select")) { e.preventDefault(); stepSkill(e.key === "ArrowRight" ? 1 : -1); return; }
+  // a flipped flashcard on screen takes the arrow keys when no skill is open
+  const fc = document.getElementById("fcCard");
+  if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && !selected && fc && fc.classList.contains("flipped") && fc.getBoundingClientRect().bottom > 0 && fc.getBoundingClientRect().top < innerHeight && !e.target.closest("input, textarea, select")) { e.preventDefault(); rateCard(e.key === "ArrowRight"); return; }
   if (e.key !== "Escape") return;
   if (!lb.hidden) closeLight(); else if (selected) closePanel();
 });
@@ -2733,7 +2713,7 @@ function toast(msg, undo) {
 }
 
 /* ---------- Phone helpers ---------- */
-const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const buzz = p => { try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(p); } catch (e) {} };
 const barAtBottom = () => getComputedStyle(document.getElementById("filters")).position === "fixed";
 
 // the phone's back button closes the top layer (photo, skill panel) instead of leaving the page
@@ -2957,6 +2937,7 @@ if (innerWidth < 640) { const e = R(3) + 90; vb = { x: -e, y: -e, w: e * 2, h: e
 renderFilters();
 paint();
 // phones open on the list; a view you pick yourself is remembered
+try { localStorage.removeItem("climb-view"); } catch (e) {}
 { let v = null; try { v = localStorage.getItem("climb-view2"); } catch (e) {} if (!v && matchMedia("(max-width: 700px)").matches) v = "list"; if (v === "list") setView("list"); }
 </script>
 </body>
