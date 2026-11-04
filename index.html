@@ -123,7 +123,7 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
   .ptabs { display: flex; gap: 6px; grid-column: 1 / -1; }
   .ptabs button { flex: 1; font: 600 14px var(--body); padding: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 8px; cursor: pointer; }
   .ptabs button[aria-selected="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
-  .practice[data-tab="drills"] > .card:not(.drills), .practice[data-tab="scen"] > .card:not(.scen), .practice[data-tab="quiz"] > .card:not(.quiz) { display: none; }
+  .practice[data-tab="drills"] > .card:not(.drills), .practice[data-tab="scen"] > .card:not(.scen), .practice[data-tab="quiz"] > .card:not(.quiz), .practice[data-tab="cards"] > .card:not(.cards) { display: none; }
 }
 .ftoggle { flex: none; font: 700 16px var(--display); letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 7px; padding: 4px 10px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
 .ftoggle .caret { transition: transform .2s; }
@@ -350,7 +350,32 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .drill ul { margin: 4px 0 0; padding-left: 18px; font-size: 13.5px; display: flex; flex-direction: column; gap: 3px; }
 .drill .drill-more { margin-top: 8px; }
 .practice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 18px; }
-.practice .drills { grid-column: 1 / -1; }
+.practice .drills, .practice .cards { grid-column: 1 / -1; }
+.fc-decks { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; }
+.fc-decks .chip { flex: none; }
+.fc-wrap { display: flex; flex-direction: column; gap: 10px; max-width: 720px; }
+.fc { position: relative; text-align: left; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 34px; min-height: 190px;
+  cursor: pointer; display: flex; flex-direction: column; gap: 8px; touch-action: pan-y; user-select: none; -webkit-user-select: none; transition: transform .25s, opacity .25s, border-color .2s; }
+.fc:hover { border-color: var(--muted); }
+.fc.flipped { border-color: color-mix(in srgb, var(--learned) 45%, var(--line)); cursor: default; }
+.fc.drag { transition: none; }
+.fc.away-r { transform: translateX(120%) rotate(8deg); opacity: 0; }
+.fc.away-l { transform: translateX(-120%) rotate(-8deg); opacity: 0; }
+.fc .fc-k { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.fc .fc-front { margin: 0; font-size: 14px; color: var(--muted); }
+.fc .fc-q { margin: 0; font-size: 15.5px; font-weight: 600; }
+.fc ul, .fc ol { margin: 0; padding-left: 20px; font-size: 13.5px; display: flex; flex-direction: column; gap: 3px; }
+.fc .fc-back { border-top: 1px dashed var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.fc .fc-a { margin: 0; font-weight: 600; color: var(--learned); font-size: 14.5px; }
+.fc .fc-why { margin: 0; font-size: 13.5px; }
+.fc .fc-hint { position: absolute; left: 16px; right: 16px; bottom: 10px; font-size: 12px; color: var(--muted); }
+.fc-rate { display: flex; gap: 8px; }
+.fc-rate button { flex: 1; font: 600 15px var(--body); padding: 11px; border-radius: 10px; cursor: pointer; background: var(--bg); color: var(--fg); border: 1px solid var(--line); }
+.fc-rate .again { border-color: var(--crit); color: #ff9b9b; }
+.fc-rate .good { border-color: var(--learned); color: var(--learned); }
+.fc-rate button small { display: block; font: 500 11px var(--mono); color: var(--muted); margin-top: 2px; }
+.fc-done { margin: 0; padding: 18px 16px; border-radius: 12px; background: var(--bg); font-size: 14px; }
+.fc-stats { font: 500 12px var(--mono); color: var(--muted); }
 .drill-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
 .drill-list li { display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border-radius: 8px; background: var(--bg); box-shadow: inset 3px 0 0 var(--c, var(--gold)); font-size: 13px; color: var(--muted); }
 .drill-list a { color: var(--fg); font-weight: 600; cursor: pointer; text-decoration: underline; text-decoration-color: var(--c); text-underline-offset: 2px; }
@@ -401,7 +426,7 @@ button, .chip, .quest { touch-action: manipulation; }
 @media (max-width: 640px) {
   .wrap { padding-block: 16px 40px; }
   h1 { font-size: 32px; }
-  .lede { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+  .lede { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
   .lede.open { display: block; }
   .flabel { min-width: 0; width: 100%; }
   #map { height: calc(100vh - 200px); height: calc(100svh - 200px); min-height: 380px; }
@@ -551,6 +576,7 @@ button, .chip, .quest { touch-action: manipulation; }
   <section class="practice" id="practice" data-tab="drills">
     <div class="ptabs" role="tablist">
       <button data-tab="drills" aria-selected="true">Drills</button>
+      <button data-tab="cards" aria-selected="false">Cards</button>
       <button data-tab="scen" aria-selected="false">Scenarios</button>
       <button data-tab="quiz" aria-selected="false">Quiz</button>
     </div>
@@ -558,6 +584,12 @@ button, .chip, .quest { touch-action: manipulation; }
       <h2>Practice drills</h2>
       <p class="sub" id="drillSub"></p>
       <ul class="drill-list" id="drillList"></ul>
+    </div>
+    <div class="card cards" id="cards">
+      <h2>Flashcards</h2>
+      <p class="sub" id="fcSub"></p>
+      <div class="fc-decks" id="fcDecks"></div>
+      <div class="fc-wrap" id="fcBox"></div>
     </div>
     <div class="card scen" id="scen">
       <h2>Scenario challenges</h2>
@@ -2091,6 +2123,11 @@ function renderFilters() {
 }
 // collapsible filter bar, open by default on wide screens and remembered per browser
 const FOPEN = "climb-filters-open";
+let foldTimer;
+document.getElementById("filters").addEventListener("click", e => {
+  if (!e.target.closest(".fbody .chip") || !matchMedia("(pointer: coarse)").matches) return;
+  clearTimeout(foldTimer); foldTimer = setTimeout(() => setFiltersOpen(false), 1100);
+});
 function setFiltersOpen(open) {
   document.getElementById("filters").classList.toggle("collapsed", !open);
   document.getElementById("fToggle").setAttribute("aria-expanded", open);
@@ -2258,6 +2295,104 @@ function answer(right, btn, why, key) {
   checkAchievements();
 }
 
+// flashcards: every scenario stage and quiz question as a quick card; misses come back sooner, known cards space out
+const FKEY = "climb-cards-v1", FC_DAYS = [0, 1, 3, 7, 16, 35];
+let cards = load(FKEY); // id -> [box, due date]; box 0 means missed and due again now
+const saveCards = () => { try { localStorage.setItem(FKEY, JSON.stringify(cards)); } catch (e) {} };
+const dayStr = (add = 0) => new Date(Date.now() + add * 864e5).toISOString().slice(0, 10);
+const FC_DECKS = [["all", "All"], ["choose", "Decisions"], ["spot", "Spot the mistake"], ["talk", "Talk it through"], ["order", "Sequences"], ["quiz", "Quiz"]];
+const DECK = (() => {
+  const out = [];
+  SCENARIOS.forEach(sc => {
+    const t = scenType(sc), base = { deck: t, title: sc.title, skills: sc.skills };
+    if (t === "choose") sc.stages.forEach((st, i) => out.push({ ...base, id: "s:" + sc.id + ":" + i, kind: "Decision" + (sc.stages.length > 1 ? ` ${i + 1}/${sc.stages.length}` : ""),
+      front: i ? "" : sc.setup, q: st.q, a: st.opts[0][0], why: st.opts[0][1] }));
+    if (t === "spot") out.push({ ...base, id: "s:" + sc.id, kind: "Spot the mistake", front: sc.setup, q: "What's wrong here?", list: sc.items, a: sc.items[sc.bad], why: sc.why });
+    if (t === "talk") out.push({ ...base, id: "s:" + sc.id, kind: "Talk it through", front: sc.setup, q: sc.q, steps: sc.answer });
+    if (t === "order") out.push({ ...base, id: "s:" + sc.id, kind: "Sequence", front: sc.setup, q: "What are the steps, in order?", steps: sc.steps });
+  });
+  QUIZ.forEach(([q, opts, why, key]) => out.push({ id: "q:" + slug(q).slice(0, 48), deck: "quiz", kind: "Quiz", title: "", skills: key ? [key] : [], front: "", q, a: opts[0], why }));
+  return out;
+})();
+let fcDeck = "all", fcQueue = [], fcCard = null, fcExtra = false;
+const fcPool = () => DECK.filter(c => fcDeck === "all" || c.deck === fcDeck);
+const isDue = c => cards[c.id] && cards[c.id][1] <= dayStr();
+function buildQueue() {
+  const pool = fcPool();
+  const due = pool.filter(isDue).sort((a, b) => cards[a.id][0] - cards[b.id][0]);
+  fcQueue = [...due, ...shuffle(pool.filter(c => !cards[c.id]))];
+  if (fcExtra && !fcQueue.length) fcQueue = shuffle(pool);
+}
+function fcStats() {
+  const pool = fcPool(), seen = pool.filter(c => cards[c.id]);
+  return { due: pool.filter(isDue).length, fresh: pool.length - seen.length, known: seen.filter(c => cards[c.id][0] >= 3).length, total: pool.length };
+}
+const fcNext = c => FC_DAYS[Math.min((cards[c.id] ? cards[c.id][0] : 0) + 1, 5)];
+function renderCards() {
+  const st = fcStats();
+  document.getElementById("fcSub").textContent = "Tap a card to flip it, then say whether you knew it. Misses come back in a few cards; ones you know space out over days.";
+  document.getElementById("fcDecks").innerHTML = FC_DECKS.map(([k, l]) => `<button class="chip${fcDeck === k ? " on" : ""}" data-d="${k}">${l} <span class="tg">${DECK.filter(c => k === "all" || c.deck === k).length}</span></button>`).join("");
+  document.querySelectorAll("#fcDecks button").forEach(b => b.addEventListener("click", () => { fcDeck = b.dataset.d; fcExtra = false; buildQueue(); fcCard = null; renderCards(); }));
+  const box = document.getElementById("fcBox");
+  if (!fcCard) fcCard = fcQueue.shift() || null;
+  const stats = `<p class="fc-stats">${st.due} due · ${st.fresh} new · ${st.known} of ${st.total} known</p>`;
+  if (!fcCard) {
+    const next = fcPool().map(c => cards[c.id] && cards[c.id][1]).filter(Boolean).sort()[0];
+    box.innerHTML = `<p class="fc-done"><b>All caught up.</b> ${next ? `Next card is due ${next}.` : ""} Come back then, or keep going with cards that aren't due yet.</p>
+      <div><button class="chip on" id="fcMore">Keep going anyway</button></div>${stats}`;
+    box.querySelector("#fcMore").addEventListener("click", () => { fcExtra = true; buildQueue(); fcCard = null; renderCards(); });
+    return;
+  }
+  const c = fcCard, n = fcNext(c);
+  box.innerHTML = `<div class="fc" id="fcCard" role="button" tabindex="0" aria-label="Flip card">
+      <span class="fc-k">${esc(c.kind)}${c.title ? " · " + esc(c.title) : ""}${cards[c.id] ? "" : " · new"}</span>
+      ${c.front ? `<p class="fc-front">${esc(c.front)}</p>` : ""}<p class="fc-q">${esc(c.q)}</p>
+      ${c.list ? `<ul>${c.list.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+      <div class="fc-back" hidden>
+        ${c.a ? `<p class="fc-a">${esc(c.a)}</p>` : ""}${c.why ? `<p class="fc-why">${esc(c.why)}</p>` : ""}
+        ${c.steps ? `<ol>${c.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol>` : ""}
+        ${c.skills.length ? `<p class="rel"><b>Skills:</b> ${skillLinks(c.skills)}</p>` : ""}
+      </div>
+      <span class="fc-hint">Tap to flip</span>
+    </div>
+    <div class="fc-rate" hidden><button class="again">Missed it<small>see it again soon</small></button><button class="good">Knew it<small>next in ${n} day${n === 1 ? "" : "s"}</small></button></div>${stats}`;
+  const card = box.querySelector("#fcCard"), rate = box.querySelector(".fc-rate");
+  wireLinks(card);
+  const flip = () => {
+    if (card.classList.contains("flipped")) return;
+    card.classList.add("flipped"); card.querySelector(".fc-back").hidden = false; rate.hidden = false;
+    card.querySelector(".fc-hint").textContent = matchMedia("(pointer: coarse)").matches ? "Swipe right if you knew it, left if you missed it" : "";
+    buzz(10);
+  };
+  card.addEventListener("click", e => { if (!e.target.closest("a")) flip(); });
+  card.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); } });
+  rate.querySelector(".again").addEventListener("click", () => rateCard(false));
+  rate.querySelector(".good").addEventListener("click", () => rateCard(true));
+  // swipe a flipped card: right if you knew it, left if you missed it
+  let x0 = null, y0 = 0, dx = 0;
+  card.addEventListener("touchstart", e => { if (!card.classList.contains("flipped")) return; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = 0; card.classList.add("drag"); }, { passive: true });
+  card.addEventListener("touchmove", e => {
+    if (x0 === null) return; dx = e.touches[0].clientX - x0;
+    if (Math.abs(e.touches[0].clientY - y0) > Math.abs(dx) + 10) { x0 = null; dx = 0; card.classList.remove("drag"); card.style.transform = ""; return; }
+    card.style.transform = `translateX(${dx}px) rotate(${dx / 30}deg)`;
+  }, { passive: true });
+  card.addEventListener("touchend", () => {
+    if (x0 === null) return; x0 = null; card.classList.remove("drag"); card.style.transform = "";
+    if (Math.abs(dx) > 80) rateCard(dx > 0);
+  });
+}
+function rateCard(knew) {
+  const c = fcCard, card = document.getElementById("fcCard"); if (!c) return;
+  const box = knew ? Math.min((cards[c.id] ? cards[c.id][0] : 0) + 1, 5) : 0;
+  cards[c.id] = [box, dayStr(FC_DAYS[box])]; saveCards();
+  // a miss comes back a few cards later in this same session
+  if (!knew) fcQueue.splice(Math.min(3, fcQueue.length), 0, c);
+  buzz(knew ? 15 : 40);
+  fcCard = null;
+  const go = () => { renderCards(); checkAchievements(); };
+  if (card) { card.classList.add(knew ? "away-r" : "away-l"); setTimeout(go, 200); } else go();
+}
+
 // drills to work on next: skills you've learned or practiced but not drilled yet, then skills ready to learn
 function renderDrills() {
   const rusty = skills.filter(needsReview).sort((a, b) => (b.crit - a.crit) || (daysSince(b) - daysSince(a)));
@@ -2359,6 +2494,7 @@ const ACHS = [
   { id: "scenall", name: "Calm in a Crisis", desc: "Complete every scenario challenge", test: () => SCENARIOS.every(s => practice.scen[s.id]) },
   { id: "quiz5", name: "Book Smart", desc: "Answer 5 quiz questions in a row correctly", test: () => practice.best >= 5 },
   { id: "quiz15", name: "Walking Guidebook", desc: "Answer 15 quiz questions in a row correctly", test: () => practice.best >= 15 },
+  { id: "cards25", name: "Card Shark", desc: "Know 25 flashcards well enough that they're spaced a week apart", test: () => Object.values(cards).filter(c => c[0] >= 3).length >= 25 },
   { id: "timer1", name: "Against the Clock", desc: "Finish a knot time trial", test: () => Object.keys(times).length >= 1 },
   { id: "fast8", name: "Speed Tier", desc: "Tie a figure-8 follow-through in under 15 seconds", test: () => (times.k8 || {}).open < 15000 },
   { id: "blind5", name: "Tied It in the Dark", desc: "Set eyes-closed times on 5 knots", test: () => Object.values(times).filter(t => t.blind).length >= 5 },
@@ -2714,7 +2850,7 @@ const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")
 const pipe = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
 function snapshot() {
   const by = obj => Object.fromEntries(skills.filter(s => obj[s.id] !== undefined).map(s => [s.key, obj[s.id]]));
-  return { v: 1, m: by(marks), d: by(dates), a: achDone, s: practice.scen, q: [practice.best, practice.answered, practice.correct], t: times };
+  return { v: 1, m: by(marks), d: by(dates), a: achDone, s: practice.scen, q: [practice.best, practice.answered, practice.correct], t: times, f: cards };
 }
 async function packCode() {
   const raw = new TextEncoder().encode(JSON.stringify(snapshot()));
@@ -2748,6 +2884,8 @@ function mergeSnapshot(o) {
     c.n = Math.max(c.n || 0, t.n || 0);
   });
   try { localStorage.setItem(TKEY, JSON.stringify(times)); } catch (e) {}
+  Object.entries(o.f || {}).forEach(([id, c]) => { const cur = cards[id]; if (!cur || c[0] > cur[0] || (c[0] === cur[0] && c[1] > cur[1])) cards[id] = c; });
+  saveCards(); buildQueue(); fcCard = null; renderCards();
   paint(); renderScenList(); checkAchievements();
   return n;
 }
@@ -2811,6 +2949,7 @@ document.getElementById("zhelp").addEventListener("click", e => {
 });
 renderScenList();
 renderQuiz();
+buildQueue(); renderCards();
 // redraw the rank once the display font has loaded so its measurements are right
 document.fonts && document.fonts.ready.then(() => { badgeRank = -1; paint(); });
 // phones start zoomed in on the inner rings, where most people begin
