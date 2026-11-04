@@ -2136,7 +2136,21 @@ function setPath(k, mode) {
   shimmerPath(pathSet, mode === "up" ? 1 : byKey[k].tier, mode === "up" ? "var(--gold)" : "#7fd4ff", 3);
 }
 function clearPath() { pathSet = null; filter.path = filter.mode = null; }
-function applyFilter() { renderFilters(); paint(); fitVisible(); refilterPractice(); }
+function applyFilter() { renderFilters(); paint(); fitVisible(); refilterPractice(); saveFilters(); }
+// filters are remembered per browser: branches by name, so they survive branches being added or reordered
+const FKEY2 = "climb-filters-v1";
+function saveFilters() {
+  try { localStorage.setItem(FKEY2, JSON.stringify({ lanes: [...filter.lanes].map(i => LANES[i][0]), show: filter.show, path: filter.path, mode: filter.mode })); } catch (e) {}
+}
+function loadFilters() {
+  const o = load(FKEY2);
+  (o.lanes || []).forEach(k => { const i = LANES.findIndex(l => l[0] === k); if (i >= 0) filter.lanes.add(i); });
+  if (SHOWS.some(s => s[0] === o.show)) filter.show = o.show;
+  if (o.path && byKey[o.path] && (o.mode === "up" || o.mode === "down")) {
+    filter.path = o.path; filter.mode = o.mode;
+    pathSet = new Set([o.path, ...(o.mode === "up" ? ancestors(o.path) : descendants(o.path))]);
+  }
+}
 // practice follows the filters; anything open that no longer matches moves on to something that does
 function refilterPractice() {
   const note = document.getElementById("pFilter");
@@ -3021,6 +3035,7 @@ document.getElementById("zhelp").addEventListener("click", e => {
   e.currentTarget.setAttribute("aria-expanded", on);
   if (on) lg.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
+loadFilters();
 renderScenList();
 renderQuiz();
 buildQueue(); renderCards();
@@ -3030,6 +3045,7 @@ document.fonts && document.fonts.ready.then(() => { badgeRank = -1; paint(); });
 if (innerWidth < 640) { const e = R(3) + 90; vb = { x: -e, y: -e, w: e * 2, h: e * 2 }; applyVB(); } else fit();
 renderFilters();
 paint();
+if (filtering()) { refilterPractice(); fitVisible(); }
 // phones open on the list; a view you pick yourself is remembered
 try { localStorage.removeItem("climb-view"); } catch (e) {}
 { let v = null; try { v = localStorage.getItem("climb-view2"); } catch (e) {} if (!v && matchMedia("(max-width: 700px)").matches) v = "list"; if (v === "list") setView("list"); }
