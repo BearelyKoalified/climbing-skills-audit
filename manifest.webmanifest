@@ -1,0 +1,15 @@
+{
+  "name": "Climbing Skills Audit",
+  "short_name": "Climb Skills",
+  "description": "An interactive skill map for climbing technique, rescue and knots.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090a",
+  "theme_color": "#07090a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
