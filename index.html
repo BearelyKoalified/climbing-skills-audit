@@ -456,6 +456,7 @@ button, .chip, .quest { touch-action: manipulation; }
 @media (pointer: coarse) { .swipehint { display: block; } }
 /* rusty: learned but not practiced in a while */
 .nd.rusty .ring { stroke-dasharray: 5 4; }
+.lrow.opt .ltier::before { content: "optional · "; }
 .lrow.rusty .ltier::after { content: " · rusty"; color: var(--gold); }
 .redrill.due { border-style: solid; background: color-mix(in srgb, var(--gold) 14%, transparent); }
 /* knot time trial */
@@ -552,6 +553,7 @@ button, .chip, .quest { touch-action: manipulation; }
     <div class="fbody" id="fBody">
       <div class="fgroup"><span class="flabel">Branches</span><div class="chips" id="fLanes"></div></div>
       <div class="fgroup"><span class="flabel">Show</span><div class="chips" id="fShow"></div></div>
+      <div class="fgroup"><span class="flabel">Optional</span><div class="chips" id="fOpt"></div></div>
       <div class="fpath" id="fPath" hidden></div>
     </div>
   </div>
@@ -755,6 +757,30 @@ const N = [
  ["cair","cave",6,0,"chypo","Bad air awareness","Recognize signs of low oxygen or high carbon dioxide and turn back.","gas meter or lighter test","Pushing on through headaches and heavy breathing."],
  ["cpick","cave",7,1,"cchange,rescape","Pick-off rescue","Reach a caver stuck hanging on the rope, take their weight onto your system and bring them down.","full SRT kit, spare cows tail, knife","Delay. Hanging still in a harness becomes dangerous within minutes."],
  ["chaul","cave",7,0,"cyhang,kprus","Hauling underground","Rig mechanical advantage hauls on static rope for gear and rescue.","pulleys, ascenders, static rope","Overloading a single anchor."],
+ // gaps from the curriculum research (2026-11)
+ ["blead","belay",2,1,"btr","Lead belaying","Feed slack quickly as the leader pulls up to clip, take it back after, and stand close to the wall and a little to the side.","belay device, locker","Short-roping the leader as they clip, or standing far back with a big loop of slack."],
+ ["babd","belay",2,0,"btr","Assisted-braking devices","Belaying and lowering with a Grigri-type device: brake hand always on the rope, feed with the maker's technique, lower slowly with the handle.","assisted-braking device, locker","Letting go of the brake strand because the device locks itself, or gripping the cam to feed slack."],
+ ["jetiquette","judg",1,0,"","Crag etiquette and Leave No Trace","Stay on trails, pack out everything, keep noise and gear sprawl down, share routes, and respect access rules and closures.","trash bag","Damaging access for everyone: bad parking, ignoring bird-nesting closures, or cutting new trails."],
+ ["kcoil","knots",1,0,"","Flaking and coiling the rope","Flaking the rope into a tidy pile before climbing, and coiling it to carry with a butterfly or mountaineer's coil.","rope","Starting to climb off an unflaked pile that tangles at the first clip."],
+ ["jplan","judg",2,1,"jcheck","Agreeing the plan at the anchor","Before your partner leaves the ground, agree whether they'll lower or rappel from the top, and the exact calls you'll both use.","none","Assuming. A climber who expects a lower while the belayer thinks they're rappelling gets taken off belay."],
+ ["lstick","lead",3,0,"lclip","Stick clipping","Clipping the first bolt from the ground with a stick clip so the start isn't a ground fall.","stick clip, quickdraw","Clipping the rope so it runs the wrong way through the quickdraw."],
+ ["jsos","judg",3,1,"jcheck","Calling for help","Know how you'd raise a rescue: phone signal, satellite messenger or PLB, your exact location, and what to tell them.","phone, satellite messenger or PLB","Not knowing the crag's name, access route or coordinates when you call."],
+ ["jgrades","judg",3,0,"jlength","Route choice: grades and protection","Reading grades and protection ratings like R and X, and picking routes where a fall is safe for your level and gear.","guidebook","Choosing by grade alone without checking how well the route protects."],
+ ["lsteep","lead",4,0,"lclean","Cleaning steep and traversing routes","Cleaning quickdraws on overhangs and traverses: tramming in with a draw, clipping in short, and planning for the swing.","quickdraws, spare locker","Unclipping the last draw on a steep route and swinging into the ground or the wall."],
+ ["jhuman","judg",6,0,"jweather","Human factors and decision traps","Spotting the pressures behind bad calls: summit fever, group pressure, familiarity, and rushing to beat the dark.","none","Pushing on because you drove a long way or because someone else wants to."],
+ ["rsusp","res",6,1,"jfirst","Suspension syndrome","Someone hanging still in a harness can faint within minutes. Get them unweighted fast, then follow first aid guidance on positioning.","none","Leaving an injured climber hanging while you build a slow system."],
+ ["rassist","res",6,0,"bguide","Assisted raise (drop loop)","Lowering a loop of rope on a carabiner to a struggling second so you both pull, with the guide-mode device catching every gain.","locker, prusik","Releasing the guide-mode device to give them slack while they're weighting the rope."],
+ ["rknotlower","res",7,0,"rlower,keo","Passing a knot while lowering","Lowering past the join of two ropes: transfer the load to a friction hitch, pass the knot through, and reload the device.","prusiks, lockers","Letting the knot jam in the device with the full load on it."],
+ ["rconvert","res",7,0,"rlower,ipulley","Converting a lower to a raise","Switching a lowering system to a haul and back without ever losing control of the load.","pulleys, prusiks, lockers","Removing the backup before the new system is built and weighted."],
+ ["rrelease","rap",6,0,"rpre,kmmo","Releasable rappel setup","Rigging the rope at the anchor with a releasable hitch, like an MMO, so you can lower a stuck rappeller from above.","lockers, spare rope length","Too little spare rope to lower them all the way."],
+ ["mdouble","mp",5,0,"mcomm","Double and twin ropes","Leading and belaying on two thinner ropes: half ropes clipped alternately to cut drag, twins clipped together, and full-length rappels.","half or twin ropes, suitable device","Clipping both half ropes into every piece, or crossing them."],
+ ["jnav","judg",5,0,"jtopo","Map, compass and GPS navigation","Finding approaches and descents with a map, compass and GPS, and knowing where you are before the weather closes in.","map, compass, GPS or phone app","Relying on a phone with no offline maps or a dying battery."],
+ ["acrampon","alp",6,0,"jscramble","Crampon and ice axe technique","Walking in crampons by flat-footing and front-pointing, and using the axe for balance and self-belay on snow.","crampons, ice axe","Catching a crampon point on your trousers or the other boot."],
+ ["aaval","alp",6,0,"jweather","Avalanche awareness","Recognizing avalanche terrain, reading forecasts and warning signs, and choosing safer routes and timing.","transceiver, probe, shovel, and training to use them","Assuming a spring snow route or a gully can't slide."],
+ ["ashort","alp",7,0,"jscramble,bdirect","Short-roping and short-pitching","Moving together on exposed easy ground on a short rope, and switching to quick belays for harder steps.","rope, slings","Short-roping where you couldn't hold a slip. If you can't hold it, pitch it."],
+ ["aalt","alp",7,0,"jfirst","Altitude illness","Recognizing acute mountain sickness, HAPE and HACE, ascending gradually, and descending when symptoms get worse.","none","Going higher with a worsening headache, breathlessness at rest, or confusion."],
+ ["cladder","cave",4,0,"crope","Ladders and lifelining","Climbing caving ladders on a lifeline belayed from above, and rigging the ladder and the belay.","caving ladder, lifeline rope, belay device","Climbing a ladder without a lifeline."],
+ ["ctyro","cave",7,0,"cyhang","Tyrolean traverse","Rigging and crossing a tensioned rope between two points, with backups and sensible tension.","static rope, pulleys, rigging kit","Overtensioning the line, which multiplies the load on the anchors."]
 ];
 
 // Images from Wikimedia Commons: [file, caption, credit key]
@@ -929,6 +955,29 @@ const DRILL = {
   asnow: "Place a picket, a deadman and a bollard, and test each.",
   aglacier: "Practice a crevasse rescue Z-drag on flat ground with a team.",
   aice: "Place 10 ice screws and build 3 V-threads on top rope.",
+  blead: "Belay 10 lead clips on a top-rope-backed route: feed fast for each clip, then take in, without short-roping once.",
+  babd: "Lower 5 climbers smoothly with the handle while your brake hand never leaves the rope; have a partner watch your hands.",
+  jetiquette: "On your next crag day, leave the base cleaner than you found it and check the area's access page beforehand.",
+  kcoil: "Flake a full rope in under 3 minutes, then coil it with a butterfly coil and tie it to carry.",
+  jplan: "Before every climb this session, say the lower-or-rappel plan out loud and get your partner to repeat it back.",
+  lstick: "Stick-clip the first bolt on 5 routes, checking each time that the rope runs from the wall out toward you.",
+  jsos: "Write down the coordinates, access and nearest road for your local crag, and send a test message from your satellite device.",
+  jgrades: "Pick 5 routes from a guidebook and explain for each where a fall would be dangerous and why.",
+  lsteep: "Clean a steep sport route on toprope practice: tram in, clip short, and lower without a big swing.",
+  jhuman: "After your next trip, list one decision you made under pressure and what would have changed it.",
+  rsusp: "In a mock scenario, get a hanging partner unweighted within 3 minutes using only what's on your harness.",
+  rassist: "Rig a drop-loop assisted raise for a partner hanging below a guide-mode device and raise them 3 m.",
+  rknotlower: "Lower a partner past a knot joining two ropes, close to the ground, with a backup belayer.",
+  rconvert: "Lower a partner 2 m, convert to a 3:1 raise, lift them 1 m, then convert back to lowering.",
+  rrelease: "Rig a releasable rappel with an MMO and lower your partner off it from the anchor, close to the ground.",
+  mdouble: "Lead a pitch on half ropes, clipping alternately to keep both ropes running straight.",
+  jnav: "Navigate an approach using only map and compass, then check your position against GPS.",
+  acrampon: "Practice flat-footing and front-pointing on a gentle snow slope, then descend with the axe as a cane and self-belay.",
+  aaval: "Take an avalanche awareness course, then read the local forecast every day for a week before you go.",
+  ashort: "With a mentor, short-rope a partner on easy ground and switch to a quick belay at a harder step.",
+  aalt: "Before a high trip, plan a gradual ascent and write down the symptoms that mean you go down.",
+  cladder: "Climb and descend a ladder pitch on a lifeline, then rig the ladder and belay a partner.",
+  ctyro: "Rig a low practice Tyrolean between two solid anchors with a backup, and cross it."
 };
 
 // short emergencies: put the steps in the right order
@@ -978,6 +1027,13 @@ const QUIZ = [
   ["What does a partner check cover?", ["Knots, harness buckles, lockers, device threading and the rope end", "Only the knot", "Only the harness", "Just shoes and chalk"], "Check everything, every time. Familiarity is when mistakes slip through.", "jcheck"],
   ["When can a soft catch be dangerous?", ["Low on the route, where extra slack could mean a ground fall", "High on a steep overhang", "Never", "Only in the gym"], "Below about the third clip, keep the catch tighter.", "bsoft"],
   ["A clove hitch should go on what kind of carabiner?", ["A locking carabiner", "Any non-locking carabiner", "A wire gate", "No carabiner"], "A locker stops the rope from opening the gate and rolling out.", "kclove"],
+  ["When should a lead belayer feed slack?",["As the leader pulls up rope to clip, then take it back after","Keep a big loop out the whole time","Only when the leader shouts for it","Never: it's the same as a top-rope belay"],"Give slack quickly for the clip, then take in the extra so a fall stays short.","blead"],
+  ["What's the biggest mistake with an assisted-braking device?",["Letting go of the brake strand because it locks itself","Using a locking carabiner","Keeping your brake hand low","Lowering slowly"],"Assisted braking isn't automatic. Keep your brake hand on the rope at all times.","babd"],
+  ["When should you agree whether the climber will lower or rappel?",["On the ground, before they leave","At the anchor, by shouting down","Once they're back down","No need: the belayer will work it out"],"Agree the plan before they climb. Shouting at the anchor is where misunderstandings happen.","jplan"],
+  ["What should you have ready before calling a rescue?",["Your exact location, the injuries and how many people are involved","Only the injured person's name","The route's grade","Nothing: they'll find you"],"Rescuers need a precise location and what's wrong to send the right help.","jsos"],
+  ["Why is a climber hanging still in a harness urgent?",["They can faint within minutes","The rope will stretch too far","The harness will fail","It isn't urgent if they're talking"],"Suspension syndrome can cause fainting quickly, even in a conscious climber. Get them unweighted fast.","rsusp"],
+  ["Which is good crag etiquette?",["Pack out everything, including tape and food scraps","Leave fixed quickdraws you don't need","Play music for the whole crag","Shortcut between trails to save time"],"Leave no trace and keep access open for everyone.","jetiquette"],
+  ["Why clip half ropes alternately?",["To keep each rope running straight and cut rope drag","So you only need half the quickdraws","Because twin ropes can't be clipped together","To make the ropes last longer"],"Alternating keeps each strand in a straighter line, which cuts drag and spreads the load.","mdouble"]
 ];
 
 
@@ -1687,7 +1743,9 @@ const SHORT = { k8:"Figure-8 tie-in", kbight:"Fig-8 on a bight", keo:"Flat overh
   aedge:"Edge safety", acord:"Cordelette", aquad:"Quad anchor", areach:"In-reach anchors", aload:"Anchor angles", aoreach:"Out-of-reach anchors",
   ccons:"Cave conservation", clight:"Lighting", cplan:"Callout plans", cmove:"Crawls & squeezes", chypo:"Staying warm", csrtkit:"SRT kit", crope:"Static rope care",
   cdesc:"Rack & bobbin", cfrog:"Frog ascending", cprotect:"Rope protection", cnav:"Cave navigation", cchange:"SRT changeovers", crebelay:"Rebelays", cdev:"Deviations",
-  cyhang:"Y-hangs & traverses", cknot:"SRT knot pass", cnat:"Natural cave anchors", cflood:"Flood awareness", cair:"Bad air", cpick:"Pick-off rescue", chaul:"Cave hauling" };
+  cyhang:"Y-hangs & traverses", cknot:"SRT knot pass", cnat:"Natural cave anchors", cflood:"Flood awareness", cair:"Bad air", cpick:"Pick-off rescue", chaul:"Cave hauling",
+  blead: "Lead belaying", babd: "Grigri belaying", jetiquette: "Crag etiquette", kcoil: "Coiling the rope", jplan: "Lower or rappel?", lstick: "Stick clipping", jsos: "Calling for help", jgrades: "Route choice", lsteep: "Cleaning steep", jhuman: "Human factors", rsusp: "Suspension", rassist: "Assisted raise", rknotlower: "Knot pass lower", rconvert: "Lower to raise", rrelease: "Releasable rap", mdouble: "Double ropes", jnav: "Navigation", acrampon: "Crampons & axe", aaval: "Avalanches", ashort: "Short-roping", aalt: "Altitude", cladder: "Ladders", ctyro: "Tyrolean"
+};
 
 const Q = { btr:"how to belay top rope", kgarda:"garda hitch", kbowl:"yosemite bowline", keo:"flat overhand bend rappel", kmmo:"munter mule overhand",
   bweight:"belaying a heavier climber", bdirect:"direct vs redirected belay", bmp:"belaying leader multipitch anchor",
@@ -1705,11 +1763,17 @@ const Q = { btr:"how to belay top rope", kgarda:"garda hitch", kbowl:"yosemite b
   cyhang:"y hang rigging", cknot:"passing a knot SRT", cpick:"SRT pick off rescue", chaul:"cave rescue hauling system", cnav:"cave survey navigation" };
 
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-const skills = N.map(([key, lane, tier, crit, pre, name, what, gear, pit]) =>
+// niche skills are optional: hidden from the map, list, practice and totals unless switched on
+const OPTIONAL = new Set(["rrelease","mdouble","jnav","acrampon","aaval","ashort","aalt","cladder","ctyro"]);
+const OPT_KEY = "climb-optional-v1";
+let showOpt = false; try { showOpt = localStorage.getItem(OPT_KEY) === "1"; } catch (e) {}
+const ALL = N.map(([key, lane, tier, crit, pre, name, what, gear, pit]) =>
   ({ key, lane, tier, crit: !!crit, pre: pre ? pre.split(",") : [], name, short: SHORT[key] || name, what, gear, pit, id: slug(name),
      ci: LANES.findIndex(l => l[0] === lane) }));
-const byKey = Object.fromEntries(skills.map(s => [s.key, s]));
-skills.forEach(s => s.unlocks = skills.filter(o => o.pre.includes(s.key)).map(o => o.key));
+ALL.forEach(s => { s.opt = OPTIONAL.has(s.key); s.on = showOpt || !s.opt; });
+const skills = ALL.filter(s => s.on);
+const byKey = Object.fromEntries(ALL.map(s => [s.key, s]));
+ALL.forEach(s => s.unlocks = skills.filter(o => o.pre.includes(s.key)).map(o => o.key));
 const TOTAL_XP = skills.reduce((a, s) => a + s.tier * 20, 0);
 
 const KEY = "climb-audit-v1", DKEY = "climb-audit-dates-v1";
@@ -1729,7 +1793,7 @@ const OLD_NAMES = {"cmove":"Horizontal caving movement","rlower":"Lowering an in
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(marks)); localStorage.setItem(DKEY, JSON.stringify(dates)); } catch (e) {} };
 // every learned skill keeps a "last practiced" date so it can go rusty; older saves start the clock today
 { const today = new Date().toISOString().slice(0, 10); let stamped = false;
-  for (const s of skills) if (marks[s.id] >= 1 && !dates[s.id]) { dates[s.id] = today; stamped = true; }
+  for (const s of ALL) if (marks[s.id] >= 1 && !dates[s.id]) { dates[s.id] = today; stamped = true; }
   if (stamped) save(); }
 const level = s => marks[s.id];
 const learned = s => level(s) >= 1;
@@ -2124,7 +2188,7 @@ function countText() {
   return `${parts.join(" · ")} · ${skills.filter(isVisible).length} of ${skills.length}`;
 }
 const filtering = () => !!pathSet || filter.lanes.size > 0 || filter.show !== "all";
-const relevant = keys => !filtering() || keys.some(k => byKey[k] && isVisible(byKey[k]));
+const relevant = keys => keys.some(k => byKey[k] && byKey[k].on && (!filtering() || isVisible(byKey[k])));
 function setPath(k, mode) {
   pathSet = new Set([k, ...(mode === "up" ? ancestors(k) : descendants(k))]);
   filter.path = k; filter.mode = mode;
@@ -2177,6 +2241,10 @@ function renderFilters() {
   fl.replaceChildren(chipBtn("All branches", filter.lanes.size === 0 && !pathSet, () => { filter.lanes.clear(); clearPath(); applyFilter(); }),
     ...LANES.map(([, label], i) => chipBtn(label, filter.lanes.has(i), () => { filter.lanes.has(i) ? filter.lanes.delete(i) : filter.lanes.add(i); applyFilter(); }, i)));
   fs.replaceChildren(...SHOWS.map(([k, label]) => chipBtn(label, filter.show === k && !(k === "all" && pathSet), () => { filter.show = k; if (k === "all") clearPath(); applyFilter(); })));
+  document.getElementById("fOpt").replaceChildren(chipBtn(`Include ${OPTIONAL.size} optional skills`, showOpt, () => {
+    try { localStorage.setItem(OPT_KEY, showOpt ? "0" : "1"); } catch (e) {}
+    location.reload(); // the map is laid out once, so a reload brings the optional skills in or out
+  }));
   fp.hidden = !pathSet;
   if (pathSet) {
     fp.innerHTML = `<span>${filter.mode === "up" ? "Showing everything you need before" : "Showing everything that builds on"} <b>${esc(byKey[filter.path].name)}</b></span>`;
@@ -2209,7 +2277,7 @@ const PKEY = "climb-practice-v1";
 let practice = Object.assign({ scen: {}, best: 0, streak: 0, answered: 0, correct: 0 }, load(PKEY));
 const savePractice = () => { try { localStorage.setItem(PKEY, JSON.stringify(practice)); } catch (e) {} };
 const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
-const skillLinks = keys => keys.map(k => `<a data-k="${k}">${esc(byKey[k].name)}</a>`).join(", ");
+const skillLinks = keys => keys.filter(k => byKey[k].on).map(k => `<a data-k="${k}">${esc(byKey[k].name)}</a>`).join(", ");
 const wireLinks = root => root.querySelectorAll("a[data-k]").forEach(a => a.addEventListener("click", () => select(a.dataset.k, true)));
 
 // four ways to work a scenario: make the calls, spot the mistake, talk it through, or put the steps in order
@@ -2344,7 +2412,7 @@ function playTalk(play) {
 }
 
 const quizPool = () => QUIZ.map((q, i) => i).filter(i => relevant(QUIZ[i][3] ? [QUIZ[i][3]] : []));
-let quizOrder = shuffle(QUIZ.map((_, i) => i)), quizIdx = 0;
+let quizOrder = shuffle(quizPool()), quizIdx = 0;
 function renderQuiz() {
   if (!quizOrder.length) { document.getElementById("quizBody").innerHTML = `<p class="sub">No quiz questions match your filters.</p>`; return; }
   const [q, opts, why, key] = QUIZ[quizOrder[quizIdx % quizOrder.length]];
@@ -2523,7 +2591,7 @@ function renderList() {
     const list = skills.filter(s => s.ci === i && isVisible(s)).sort((a, b) => a.tier - b.tier);
     if (!list.length) return "";
     return `<section class="lgroup" style="--c: var(--c${i})"><h3><i></i>${label}<span>${list.filter(learned).length}/${list.length}</span></h3>${list.map(s =>
-      `<div class="lrow ${status(s)}${lvClass(s)}" data-k="${s.key}"><button class="lmain" data-k="${s.key}"><span class="ldot"></span><span class="lname">${esc(s.name)}</span><span class="ltier">${TIERS[s.tier - 1][0]}</span></button><button class="lcheck" data-k="${s.key}" aria-pressed="${learned(s)}" aria-label="Mark ${esc(s.name)} learned">✓</button></div>`).join("")}</section>`;
+      `<div class="lrow ${status(s)}${lvClass(s)}${s.opt ? " opt" : ""}" data-k="${s.key}"><button class="lmain" data-k="${s.key}"><span class="ldot"></span><span class="lname">${esc(s.name)}</span><span class="ltier">${TIERS[s.tier - 1][0]}</span></button><button class="lcheck" data-k="${s.key}" aria-pressed="${learned(s)}" aria-label="Mark ${esc(s.name)} learned">✓</button></div>`).join("")}</section>`;
   }).join("") || '<p class="empty">No skills match these filters.</p>';
   box.querySelectorAll(".lmain").forEach(b => b.addEventListener("click", () => select(b.dataset.k)));
   box.querySelectorAll(".lcheck").forEach(b => b.addEventListener("click", () => quickToggle(b.dataset.k, false)));
@@ -2717,7 +2785,7 @@ function select(key, move) {
   const credits = [...new Set(pics.map(p => p[2]))].map(c => { const [a, lic, f] = CREDITS[c]; return `<a href="https://commons.wikimedia.org/wiki/File:${f}" target="_blank" rel="noopener noreferrer">${esc(a)}, ${esc(lic)}</a>`; });
   panel.innerHTML = `<div class="grab" aria-hidden="true"></div><button class="close" aria-label="Close details">×</button>
     <h2>${esc(s.name)}</h2>
-    <div class="meta"><span class="pill lane">${LANES[s.ci][1]}</span><span class="pill">Tier ${TIERS[s.tier - 1][0]} · ${TIERS[s.tier - 1][1]}</span>${s.crit ? '<span class="pill crit">Critical</span>' : ""}<span class="pill">up to +${s.tier * 20} XP</span></div>
+    <div class="meta"><span class="pill lane">${LANES[s.ci][1]}</span><span class="pill">Tier ${TIERS[s.tier - 1][0]} · ${TIERS[s.tier - 1][1]}</span>${s.opt ? '<span class="pill">Optional</span>' : ""}${s.crit ? '<span class="pill crit">Critical</span>' : ""}<span class="pill">up to +${s.tier * 20} XP</span></div>
     ${yt.length && CAN_EMBED ? `<div class="pics">${yt.map(([id, cap, src], i) => `<figure class="vid"><div class="ytframe"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=${i === 0 ? 1 : 0}&mute=0&loop=1&playlist=${id}&controls=1&rel=0&iv_load_policy=3&cc_load_policy=0&playsinline=1" title="${esc(cap)}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div><figcaption>${esc(cap)} · ${esc(src)} · <a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">open on YouTube ↗</a></figcaption></figure>`).join("")}</div>` : ""}
     ${yt.length && !CAN_EMBED ? `<div class="ytlinks">${yt.map(([id, cap, src]) => `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">▶ Watch: ${esc(cap)}<span>${esc(src)} ↗</span></a>`).join("")}</div>` : ""}
     ${pics.length ? `<div class="pics">${pics.map(([src, cap]) => src.endsWith(".webm") ? `<figure class="vid"><video src="${src}" muted autoplay loop playsinline controls preload="auto" aria-label="${esc(cap)}"></video><figcaption>${esc(cap)}</figcaption></figure>` : `<figure><button data-src="${src}" aria-label="Enlarge image"><img src="${src}" alt="${esc(cap)}" loading="lazy"></button><figcaption>${esc(cap)}</figcaption></figure>`).join("")}</div>` : ""}
@@ -2937,7 +3005,7 @@ const b64u = bytes => { let s = ""; bytes.forEach(b => s += String.fromCharCode(
 const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
 const pipe = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
 function snapshot() {
-  const by = obj => Object.fromEntries(skills.filter(s => obj[s.id] !== undefined).map(s => [s.key, obj[s.id]]));
+  const by = obj => Object.fromEntries(ALL.filter(s => obj[s.id] !== undefined).map(s => [s.key, obj[s.id]]));
   return { v: 1, m: by(marks), d: by(dates), a: achDone, s: practice.scen, q: [practice.best, practice.answered, practice.correct], t: times, f: cards };
 }
 async function packCode() {
