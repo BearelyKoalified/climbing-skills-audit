@@ -2462,14 +2462,15 @@ function rateCard(knew) {
 
 // drills to work on next: skills you've learned or practiced but not drilled yet, then skills ready to learn
 function renderDrills() {
-  const rusty = skills.filter(needsReview).sort((a, b) => (b.crit - a.crit) || (daysSince(b) - daysSince(a)));
-  const levelUp = skills.filter(s => learned(s) && effective(s) < 2 && !needsReview(s)).sort((a, b) => (b.crit - a.crit) || (effective(b) - effective(a)) || (a.tier - b.tier));
-  const fresh = skills.filter(s => status(s) === "avail").sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier));
+  // drills follow the filters: pick from matching skills first, so a filtered branch you have not started still offers drills
+  const rusty = skills.filter(s => needsReview(s) && isVisible(s)).sort((a, b) => (b.crit - a.crit) || (daysSince(b) - daysSince(a)));
+  const levelUp = skills.filter(s => learned(s) && effective(s) < 2 && !needsReview(s) && isVisible(s)).sort((a, b) => (b.crit - a.crit) || (effective(b) - effective(a)) || (a.tier - b.tier));
+  const fresh = skills.filter(s => status(s) === "avail" && isVisible(s)).sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier));
   const list = [...rusty, ...(levelUp.length ? levelUp : fresh)].filter(isVisible).slice(0, 8);
   document.getElementById("drillSub").textContent = (rusty.length ? "Rusty skills first: run the drill, then tap \"I practiced it today\" in the skill. " : "")
     + (levelUp.length ? "Then skills you've learned but not drilled yet. Hit the target to mark them Drilled." : "Start with these. Learn a skill, then come back to drill it.");
   const ul = document.getElementById("drillList");
-  ul.innerHTML = list.map(s => `<li style="--c: var(--c${s.ci})"><a data-k="${s.key}">${needsReview(s) ? "Rusty · " : ""}${esc(s.name)}</a><span>${esc(effective(s) >= 1.5 && DRILL2[s.key] ? DRILL2[s.key] : DRILL[s.key])}</span></li>`).join("") || "<li>Everything here is drilled. Nice work.</li>";
+  ul.innerHTML = list.map(s => `<li style="--c: var(--c${s.ci})"><a data-k="${s.key}">${needsReview(s) ? "Rusty · " : ""}${esc(s.name)}</a><span>${esc(effective(s) >= 1.5 && DRILL2[s.key] ? DRILL2[s.key] : DRILL[s.key])}</span></li>`).join("") || (filtering() ? "<li>Nothing in these filters is ready to drill yet. Learn the skills that unlock them first.</li>" : "<li>Everything here is drilled. Nice work.</li>");
   wireLinks(ul);
 }
 
