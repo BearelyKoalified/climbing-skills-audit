@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="An interactive skill map for climbing technique, rescue and knots.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07090a">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Climb Skills">
 <style>[hidden]{display:none!important}body{margin:0}</style>
 <title>Climbing Skills Audit</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -78,7 +86,8 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 .grab { display: none; }
 .controls #zhelp { display: none; }
 .lghint { flex-basis: 100%; font-size: 12px; color: var(--muted); }
-.searchrow { position: relative; }
+.searchrow { position: relative; display: flex; gap: 8px; align-items: center; }
+.searchrow #search { flex: 1; min-width: 0; }
 #search { width: 100%; font: 500 14px var(--body); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
 .sresults { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.45); padding: 4px; display: flex; flex-direction: column; max-height: 320px; overflow-y: auto; }
 .sresults button { display: flex; align-items: center; gap: 8px; text-align: left; background: none; border: 0; color: var(--fg); font: 500 14px var(--body); padding: 9px 10px; border-radius: 7px; cursor: pointer; }
@@ -86,10 +95,9 @@ h1 { font-size: clamp(32px, 5vw, 50px); line-height: 1; }
 .sresults i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
 .sresults span { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; }
 .sresults p { margin: 8px 10px; color: var(--muted); font-size: 13px; }
-.viewtoggle { display: flex; gap: 4px; margin-top: 16px; }
+.viewtoggle { display: flex; gap: 4px; flex: none; }
 .viewtoggle button { font: 600 13px var(--body); padding: 6px 16px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 8px; cursor: pointer; }
 .viewtoggle button[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
-.viewtoggle + .mapwrap { margin-top: 8px; }
 .skilllist { margin-top: 8px; display: flex; flex-direction: column; gap: 12px; }
 .lgroup { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
 .lgroup h3 { display: flex; align-items: center; gap: 8px; font-size: 18px; color: var(--c); margin-bottom: 4px; }
@@ -360,6 +368,23 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .scen-step.wrong, .q-opt.wrong { border-color: var(--crit); animation: shake .35s; }
 .q-opt.right { border-color: var(--learned); background: color-mix(in srgb, var(--learned) 15%, var(--bg)); }
 .q-opt:disabled { cursor: default; }
+.scen-types { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px; }
+.scen-types .chip { flex: none; }
+.chip .tg { font: 600 11px var(--mono); color: var(--muted); }
+.chip.on .tg { color: var(--surface); }
+.stage { font: 600 11.5px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0; }
+.scen-how { margin: 0; font-size: 13px; color: var(--muted); }
+.scen-q { margin: 0; font-weight: 600; font-size: 14.5px; }
+.scen-fb { margin: 0; font-size: 13.5px; padding: 8px 10px; border-radius: 8px; background: var(--bg); }
+.scen-fb.ok { color: var(--learned); box-shadow: inset 3px 0 0 var(--learned); }
+.scen-fb.no { color: #ff9b9b; box-shadow: inset 3px 0 0 var(--crit); }
+.scen-step.right { border-color: var(--learned); background: color-mix(in srgb, var(--learned) 15%, var(--bg)); }
+.scen-step:disabled { cursor: default; }
+.scen-step:disabled:not(.right):not(.wrong) { opacity: .55; }
+.scen-play { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.scen-play > .chip { align-self: flex-start; }
+.expert { margin: 0; padding-left: 20px; font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; }
+.rate { display: flex; gap: 6px; flex-wrap: wrap; }
 .scen-msg { margin: 0; min-height: 1.2em; font-size: 13px; color: var(--muted); }
 .q { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
 .q-opts { display: flex; flex-direction: column; gap: 6px; }
@@ -396,12 +421,62 @@ button, .chip, .quest { touch-action: manipulation; }
   .pics figure:only-child img { height: 240px; }
 }
 @media (prefers-reduced-motion: reduce) { .nd.avail .halo, .badge-back.spin, .center-badge.pulse, .selring, .ach-card, .ach-card::after { animation: none; } .xpbar i { transition: none; } }
+/* skill panel: swipe left or right for the next skill, down to close */
+.panel.swiping { transition: none !important; }
+.panel.slide-next { animation: slideNext .22s ease-out; }
+.panel.slide-prev { animation: slidePrev .22s ease-out; }
+@keyframes slideNext { from { transform: translateX(40px); opacity: .3; } }
+@keyframes slidePrev { from { transform: translateX(-40px); opacity: .3; } }
+.pnav { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.swipehint { display: none; font-size: 12px; color: var(--muted); text-align: center; }
+@media (pointer: coarse) { .swipehint { display: block; } }
+/* rusty: learned but not practiced in a while */
+.nd.rusty .ring { stroke-dasharray: 5 4; }
+.lrow.rusty .ltier::after { content: " · rusty"; color: var(--gold); }
+.redrill.due { border-style: solid; background: color-mix(in srgb, var(--gold) 14%, transparent); }
+/* knot time trial */
+.timer { border-radius: 8px; padding: 10px 11px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; }
+.timer h3 { font-size: 15px; }
+.tmodes { display: flex; gap: 6px; }
+.tbig { font: 700 46px/1 var(--display); text-align: center; font-variant-numeric: tabular-nums; padding: 20px 8px; border-radius: 10px; border: 2px solid var(--c); background: var(--surface); color: var(--fg); cursor: pointer; width: 100%; }
+.tbig.run { background: color-mix(in srgb, var(--c) 24%, var(--surface)); }
+.tbig small { display: block; font: 500 13px/1.35 var(--body); color: var(--muted); margin-top: 8px; }
+.tbest { font-size: 13px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.tbest b { color: var(--fg); }
+/* backup and sync */
+.sync p { font-size: 13px; color: var(--muted); margin: 8px 0 4px; }
+.syncbtns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.sync textarea, .sync input { width: 100%; font: 12px var(--mono); background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 7px; padding: 8px; }
+.sync .syncmsg { color: var(--learned); min-height: 1em; }
+.qr { background: #fff; padding: 12px; border-radius: 10px; width: min(300px, 100%); margin-top: 8px; }
+.qr svg, .qr img { display: block; width: 100%; height: auto; }
+/* phones held upright: search, filters and Map/List live in a bar at the bottom, in thumb reach */
+@media (max-width: 700px) and (min-height: 521px) {
+  .filters { position: fixed; top: auto; bottom: 0; left: 0; right: 0; z-index: 15; margin: 0; border-radius: 16px 16px 0 0; border-bottom: 0; flex-direction: column-reverse;
+    padding: 9px max(12px, env(safe-area-inset-right, 0px)) calc(9px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); box-shadow: 0 -10px 26px rgba(0,0,0,.45); }
+  .fbody { max-height: 46vh; overflow-y: auto; }
+  .viewtoggle button { padding: 8px 12px; }
+  .sresults { top: auto; bottom: calc(100% + 6px); max-height: 50vh; }
+  .filters.collapsed .ftoggle .caret { transform: rotate(180deg); }
+  .wrap { padding-bottom: 150px; }
+  #map { height: calc(100vh - 250px); height: calc(100svh - 250px); }
+}
+/* phones held sideways: the map fills the screen and the skill panel docks on the right */
+@media (orientation: landscape) and (max-height: 520px) {
+  .panel { top: 0; bottom: 0; right: 0; left: auto; width: min(48vw, 460px); max-height: none; height: 100vh; height: 100dvh; border-radius: 0; border: 0; border-left: 5px solid var(--c);
+    padding: max(14px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) 16px; }
+  .panel.full { max-height: none; }
+  .grab { display: none !important; }
+  #map { height: calc(100vh - 64px); height: calc(100dvh - 64px); min-height: 0; }
+  .wrap { padding-block: 10px 30px; }
+  .lede { display: none; }
+}
 </style>
 
 <div class="wrap">
   <header>
     <h1>Climbing Skills Audit</h1>
-    <p class="lede" id="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Earn a green ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Gold rings go dashed after six months as a reminder to re-drill. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
+    <p class="lede" id="lede">Start in the center and work outward. Each ring is a tier, from your first top-rope belay to crevasse rescue, and each color is a branch. The star chart in the middle shows how strong you are in each branch. Earn a green ring when you've learned a skill, silver once you've practiced it for real, and gold when it's drilled so well you could do it tired, cold and in the dark. Skills you haven't practiced in a while go rusty: their ring turns dashed and they come back in Up next. Tap a branch name to zoom into it, or any skill for photos, use cases and tutorials.</p>
   </header>
 
   <div class="hud">
@@ -416,10 +491,22 @@ button, .chip, .quest { touch-action: manipulation; }
         </div>
       </div>
       <details class="achlist" id="achList"><summary id="achSummary">Achievements</summary><ul id="achUl"></ul></details>
+      <details class="achlist sync" id="syncBox"><summary>Back up, sync &amp; install</summary>
+        <p>Your progress is saved only in this browser. Send a backup link to your other device, or scan the QR code with it, to combine progress there. Do it both ways to keep two devices matched.</p>
+        <div class="syncbtns"><button class="chip" id="syncCopy">Copy backup link</button><button class="chip" id="syncShare" hidden>Share link</button><button class="chip" id="syncQR">Show QR code</button></div>
+        <div class="qr" id="syncQRBox" hidden></div>
+        <textarea id="syncOut" rows="3" readonly hidden aria-label="Backup link"></textarea>
+        <p>Got a link or code from another device? Paste it here:</p>
+        <input id="syncIn" placeholder="Paste a backup link or code" autocomplete="off" aria-label="Backup link or code">
+        <div class="syncbtns"><button class="chip" id="syncLoad">Combine with this device</button></div>
+        <p class="syncmsg" id="syncMsg" role="status"></p>
+        <p id="installTip"></p>
+        <div class="syncbtns"><button class="chip" id="installBtn" hidden>Install as an app</button></div>
+      </details>
     </div>
     <div class="card next">
       <h2>Up next</h2>
-      <p id="nextNote">Skills due for review, then unlocked skills you haven't learned, critical ones first.</p>
+      <p id="nextNote">Rusty skills, then unlocked skills you haven't learned, critical ones first.</p>
       <div class="quests" id="quests"></div>
     </div>
   </div>
@@ -427,6 +514,10 @@ button, .chip, .quest { touch-action: manipulation; }
   <div class="card filters" id="filters">
     <div class="searchrow">
       <input id="search" type="search" placeholder="Search skills" autocomplete="off" aria-label="Search skills">
+      <div class="viewtoggle" role="group" aria-label="View">
+        <button id="vMap" aria-pressed="true">Map</button>
+        <button id="vList" aria-pressed="false">List</button>
+      </div>
       <div class="sresults" id="sresults" hidden></div>
     </div>
     <div class="fsum">
@@ -439,11 +530,6 @@ button, .chip, .quest { touch-action: manipulation; }
       <div class="fgroup"><span class="flabel">Show</span><div class="chips" id="fShow"></div></div>
       <div class="fpath" id="fPath" hidden></div>
     </div>
-  </div>
-
-  <div class="viewtoggle" role="group" aria-label="View">
-    <button id="vMap" aria-pressed="true">Map</button>
-    <button id="vList" aria-pressed="false">List</button>
   </div>
 
   <div class="mapwrap">
@@ -475,7 +561,8 @@ button, .chip, .quest { touch-action: manipulation; }
     </div>
     <div class="card scen" id="scen">
       <h2>Scenario challenges</h2>
-      <p class="sub" id="scenSub">Put the steps in the right order. Finishing one earns it a ✓.</p>
+      <p class="sub" id="scenSub"></p>
+      <div class="scen-types" id="scenTypes"></div>
       <div class="scen-list" id="scenList"></div>
       <div class="scen-body" id="scenBody" hidden></div>
     </div>
@@ -1401,6 +1488,45 @@ QUIZ.push(
   ["What makes an anchor in-reach?", ["Every piece is within arm's reach of the master point", "It's within reach of the ground", "It uses only one piece", "It's built by the belayer"], "You can build and inspect all of it from one spot.", "areach"]
 );
 
+SCENARIOS.push(
+  {"id":"d-leaderdown","type":"choose","title":"Leader hurt and unresponsive","setup":"You're belaying from a multipitch anchor. Your leader falls about 8 m onto a cam, hits a ledge and now hangs still, not answering.","skills":["rescape","kmmo","rlower","jfirst"],"stages":[{"q":"What do you do first?","opts":[["Lock off and tie off your belay device with a mule overhand so your hands are free","Right. A hands-free tie-off keeps them held while you think and act."],["Take them off belay so you can climb up to them","Never. Taking them off belay leaves an unconscious climber held by nothing but one cam."],["Keep your brake hand on and shout until they answer","Shout, yes, but with your hand pinned to the rope you can't do anything else. Free your hands first."]]},{"q":"You're tied off. They're 10 m below the next ledge on that line. What's the simplest way to get them somewhere safe?","opts":[["Check the rope reaches, then lower them to the ledge with a friction-hitch backup","Lowering is usually the fastest rescue when the rope reaches a safe spot."],["Haul them up to the anchor","Hauling a full body weight is slow and exhausting. Save it for when lowering won't work."],["Untie from the rope so you can move around the stance","You'd lose your own connection to the system. Stay tied in."]]},{"q":"They're on the ledge but still groggy. How do you get to them?","opts":[["Escape the belay, fix the rope to the anchor, and rappel to them with an autoblock","Right. Transfer the load to the anchor first, then go down on a fixed line."],["Rappel on the rope while it's still running through your belay device","Their weight and your device are both on that rope. Escape the belay and fix it first."],["Wait and hope they recover","Head injuries can get worse. Get to them, keep them safe, and call for help."]]},{"q":"You reach them. They're breathing and confused, with a cut on the head. What now?","opts":[["Clip them to an anchor, check airway, bleeding and spine, keep them warm and call for rescue","Right. Secure them, treat what you can, then call for help with your exact location."],["Take their helmet off to look at the cut","Leave the helmet on if a neck injury is possible. Treat bleeding around it."],["Have them climb out under their own power","A confused climber shouldn't be climbing. Keep them anchored and get help."]]}],"debrief":"Secure, assess, lower if you can, then get to them on a fixed line. Practice the tie-off and escape close to the ground."},
+  {"id":"d-stuckpull","type":"choose","title":"Rope won't pull","setup":"You've rappelled a pitch and you're pulling the rope down. Halfway through it stops dead.","skills":["rstuck","rasc","rpre"],"stages":[{"q":"First move?","opts":[["Walk out from the wall or sideways to change the angle, then try steady pulls and flicks","Right. A new angle frees most stuck ropes."],["Hang your full weight on it and bounce","Bouncing can jam the knot harder or pull loose rock onto you."],["Climb up the strand you were pulling","That strand may be held only by a snag that can let go. Never climb a single stuck strand."]]},{"q":"Still stuck, and both strands are still within reach. What's the safest way up?","opts":[["Ascend both strands together with friction hitches, so the anchor holds you if the snag frees","Right. With both strands still running through the anchor, you're held even if the snag pops."],["Ascend whichever strand feels tighter","A tight strand might be held by a snag, not the anchor. Climb both or lead back up."],["Leave it and descend without a rope","Only abandon the rope if you can get down safely without it, and you probably can't here."]]},{"q":"At the anchor you find the joining knot jammed in a crack below it. Before you rappel again?","opts":[["Put the knot just below the lip and pull the side that runs clear, then test the pull a little","Right. Knot placement and a short test pull stop it happening twice."],["Rappel the same way and pull harder this time","Same setup, same result. Fix the cause before you go."]]}],"debrief":"Change the angle, never climb a single stuck strand, and test the pull before the last person rappels."},
+  {"id":"d-storm","type":"choose","title":"Storm on a multipitch","setup":"You're on pitch 3 of 6. Thunder rumbles in the distance and the sky to the west is going dark.","skills":["jweather","mretreat","rpre"],"stages":[{"q":"What's the call?","opts":[["Start retreating now while the rock is dry and you can still communicate","Right. Retreating early beats being caught high on wet rock."],["Climb faster to top out before it hits","Three more pitches takes longer than you think, and the top is the worst place to be in lightning."],["Wait at the belay to see if it passes","Waiting costs you the dry rock and daylight you need to get down."]]},{"q":"How do you get down?","opts":[["Rappel the route you came up, using anchors you've already seen","Right. Known anchors and a known line are the quickest way down."],["Traverse to an unknown gully that looks shorter","Unknown ground in a storm adds route-finding to everything else."],["Top out and walk off the exposed ridge","Ridges and summits are where lightning strikes. Go down, not up."]]},{"q":"Lightning is close and you're stuck at a ledge mid-rappel. What do you do?","opts":[["Stay anchored, move away from wet cracks and edges, crouch on your pack with feet together","Right. Stay clipped in and make yourself small, away from water-filled cracks."],["Unclip from everything so the metal can't attract a strike","Falling off the ledge is a bigger risk than your gear. Stay anchored."],["Keep rappelling quickly down the wet rope","Rushing on a wet rope in a storm is how mistakes happen. Wait out the worst of it secured."]]}],"debrief":"Set a turnaround time before you leave the ground and retreat early."},
+  {"id":"d-tooshort","type":"choose","title":"Rope too short while lowering","setup":"You're lowering your partner off a long sport route. The middle mark went by a while ago and the pile at your feet is almost gone. They're still 4 m off the ground.","skills":["rshort","jlength","rclose"],"stages":[{"q":"What do you do right now?","opts":[["Stop lowering, keep your brake hand on, and tell them","Right. Stop before the end comes anywhere near your device."],["Keep lowering slowly. They'll be close enough to jump","If the end passes through your device they fall the rest of the way."],["Untie from your end to give them extra rope","Never. The rope would run straight through your device."]]},{"q":"They're hanging 4 m up. What's the fix?","opts":[["Have them clip a bolt and go in direct, then plan a two-stage descent from there","Right. Get them secured on the wall, then lower or rappel in two stages."],["Tie a second rope to your end and keep going without telling them","Passing a knot through a belay device mid-lower needs a plan and communication, not a surprise."],["Ask them to downclimb unprotected","A fall from 4 m off the end of the rope can still break legs. Keep them protected."]]},{"q":"What would have stopped this before they left the ground?","opts":[["A stopper knot in the belay end, and checking the route length against half the rope","Right. Close the system every time, and know the route length."],["Nothing. You can't tell until you're lowering","You can: guidebooks list route lengths, and a stopper knot makes the end impossible to miss."]]}],"debrief":"Close the system on every climb. A stopper knot costs five seconds."},
+  {"id":"d-coreshot","type":"choose","title":"Core shot on rappel","setup":"Halfway down a rappel you see white core poking out of the rope sheath about 3 m below your device.","skills":["rdamage","rext","kfly","rknot"],"stages":[{"q":"What do you do first?","opts":[["Stop well above it, let your autoblock hold you, and add a leg-wrap backup","Right. Stop and secure yourself before you think it through."],["Rappel over it slowly","A core shot can fail under load. Don't put the device on it."],["Grab the rope above you and climb back up hand over hand","You can't climb a rope by hand. Secure yourself first."]]},{"q":"You have to get past it. How?","opts":[["Isolate the damage in an alpine butterfly, then pass the knot as if it were a rope join","Right. The butterfly takes the damaged section out of the load path."],["Wrap the damage in tape and continue","Tape doesn't restore strength and jams in your device."],["Cut the rope above the damage while you hang on it","Never cut a rope you're hanging on."]]},{"q":"Back home, what happens to the rope?","opts":[["Cut it at the damage or retire it, and mark the new length on both ends","Right. A shorter, marked rope is fine; a damaged one isn't."],["Keep using it and avoid that section","Someday you won't remember, and someone else won't know."]]}],"debrief":"Isolate the damage, pass it like a knot, and retire or cut the rope afterwards."},
+  {"id":"d-dropdevice","type":"choose","title":"Dropped belay device","setup":"At a hanging multipitch belay, your belay device slips out of your hands and falls. Your second is about to climb.","skills":["imunter","imrap","icbrake"],"stages":[{"q":"How do you belay your second?","opts":[["Munter hitch on a pear-shaped locking carabiner clipped to the master point","Right. The Munter needs only a locker and works for belaying from above."],["Hip belay at the hanging stance","A hip belay is weak and hard to hold with no stance. Use a Munter."],["Let them climb unbelayed since it's easy","Easy ground still has loose holds. Always belay."]]},{"q":"Now you both need to rappel. What do you use?","opts":[["A Munter hitch rappel backed up with an autoblock","Right. It kinks the rope, but it works."],["A body rappel on the steep, wet rock","A body rappel is for low-angle ground only."],["Share your partner's device by going one at a time and dropping it back down","Dropping gear down the cliff is how you lost the first one. Use a Munter."]]},{"q":"The rope keeps twisting as you rappel. What helps?","opts":[["Keep the brake strand parallel to the load strand and untwist the rope at each stance","Right. Parallel strands cut down Munter kinks."],["Grip the rope tighter","Grip doesn't change the twist. Strand angle does."]]}],"debrief":"Carry the skills to belay and rappel with just a locker. Then you can't be stranded by one dropped piece."},
+  {"id":"d-bail","type":"choose","title":"Bailing mid-route","setup":"You're on a sport route, pumped out, two bolts below the anchor. You can't make the next clip.","skills":["lbail","mcomm","afixed"],"stages":[{"q":"How do you set up to lower off?","opts":[["Check both bolts, then lower from the top one on a locker or quick link, with the bolt below backed up","Right. Two bolts and solid hardware you're willing to leave."],["Thread the rope straight through the bolt hanger","A hanger's edge can damage the rope and wasn't made to be lowered through."],["Lower off a single old fixed sling you find on the route","Old tat can be rotten from sun. Use your own metal."]]},{"q":"Before you weight it?","opts":[["Tell your belayer you're bailing and lowering, and wait for them to confirm","Right. They need to know the plan before you hang on new gear."],["Just sit back. They'll figure it out","Surprises in the system lead to mistakes. Say the plan."]]},{"q":"Your belayer lowers you to the second-to-last bolt. You want to remove that backup. What stays?","opts":[["The locker or quick link on the top bolt, which the rope runs through as you're lowered","Right. Metal-on-rope is what you lower through."],["A nylon sling, so you save your carabiners","Never lower with the rope running through nylon. The friction can melt it through."]]}],"debrief":"Leave metal, not nylon, and talk before you weight anything new."},
+  {"id":"d-crevasse","type":"choose","title":"Partner falls into a crevasse","setup":"Roped up on a glacier, your partner punches through a snow bridge and drops into a crevasse.","skills":["aself","asnow","aglacier","rhaul"],"stages":[{"q":"First reaction?","opts":[["Drop into self-arrest and dig your feet in to stop their fall","Right. Stop the fall first, everything else later."],["Run toward the hole to see them","You'd be dragged in after them. Arrest first."],["Unclip from the rope so you don't get pulled in","They'd fall to the bottom. Hold them."]]},{"q":"You're holding them in self-arrest. Next?","opts":[["Build a snow anchor beside you, transfer the load with a friction hitch, and back it up","Right. Get the weight off your body and onto the snow."],["Shout and wait for another team","There may be no one coming, and holding them wears you out fast."],["Let go of the axe to dig with your hands","You'd lose the arrest. Build the anchor while still holding."]]},{"q":"The load is on the anchor. How do you get them out?","opts":[["Pad the lip, check on them, then let them prusik out or haul with a Z-drag","Right. Padding stops the rope cutting deeper, then choose by how they're doing."],["Pull them up hand over hand","A body weight plus rope friction at the lip is too much to pull by hand."]]}],"debrief":"Arrest, anchor, transfer, pad the lip, then extract. Practice it on a slope first."},
+  {"id":"d-cavelight","type":"choose","title":"Light fails underground","setup":"Deep in a cave, your headlamp dies. You're in a passage you've only been through once.","skills":["clight","cplan","cnav","chypo"],"stages":[{"q":"What do you do first?","opts":[["Stop where you are and switch on your backup light","Right. Stop moving in the dark and use your backup."],["Feel your way forward to keep up with the group","Moving blind is how people fall into pits or get lost. Stop."],["Use your phone light and keep going","A phone can work in a pinch, but you need a proper backup and to rethink the trip."]]},{"q":"Your backup is weak and you have one more spare. What now?","opts":[["Tell the group, turn the trip around, and head out with lights shared","Right. Fading lights mean the trip is over."],["Keep going to the end and come back out","If the last light fails deep in, you're stuck until rescue."]]},{"q":"How do you travel out?","opts":[["Together, at the slowest person's pace, retracing the known route","Right. Stay together and don't take shortcuts."],["Split up so the fastest can get help","Splitting up doubles the number of people who can get lost."]]}],"debrief":"Carry three lights. Turn back when you're down to your last spare."},
+  {"id":"d-tiredsecond","type":"choose","title":"Second stuck at the crux","setup":"You're belaying your second in guide mode from a multipitch anchor. They're hanging below the crux and can't do the move.","skills":["bguide","rhaul","brelease","ipulley"],"stages":[{"q":"First thing to try?","opts":[["Keep the rope snug, let them rest on it, and coach them through the move","Right. A rest and some beta often gets them through."],["Release the guide-mode device to lower them","Lowering is an option later. First try getting them through."],["Tell them to untie and climb a different line","Never untie mid-pitch."]]},{"q":"They still can't do it. How do you help them up?","opts":[["Set up an assisted haul: a 3:1 using the guide-mode device as the ratchet","Right. The device holds what you gain, and they can help by climbing."],["Pull the rope hand over hand","Without a ratchet, you can't hold what you gain and you'll tire fast."]]},{"q":"Instead, you decide to lower them to a ledge. How do you release the guide-mode device?","opts":[["Redirect the brake strand through a high carabiner, back it up with a friction hitch, then lever the device slowly","Right. Redirect and back up, then release gently."],["Yank the release hole hard to get it going","Guide-mode devices can let go all at once. Release slowly with a backup."]]}],"debrief":"Coach first, haul with a ratchet second, lower with a redirect and a backup."},
+  {"id":"d-oldanchor","type":"choose","title":"Sketchy top anchor","setup":"You top out on a single-pitch route and find the anchor: two old bolts joined by faded webbing, and one hanger spins.","skills":["afixed","abolt","aedge","lclean"],"stages":[{"q":"What do you do first?","opts":[["Clip in to the solid bolt and inspect everything before trusting it","Right. Secure yourself, then judge the anchor."],["Lower straight off the webbing, it's been there a while so it must be fine","Sun rots webbing. Age is a reason to distrust it."],["Unclip from the rope to move around the ledge","Stay connected the whole time."]]},{"q":"The spinning bolt can be finger-tightened but not trusted. How do you get down?","opts":[["Back up the good bolt with gear or the spinner, leave your own locker or quick link, and lower","Right. Use redundancy and leave hardware you trust."],["Thread the old webbing and lower through it","Rope running over nylon can melt through it."]]},{"q":"Afterwards?","opts":[["Report the bolt to the local climbing group or guidebook site","Right. Someone can replace it before it fails."],["Nothing, someone else will notice","Everyone thinks that. Report it."]]}],"debrief":"Don't trust old tat, keep redundancy, and report bad bolts."},
+  {"id":"d-belayerhit","type":"choose","title":"Belayer hit by rockfall","setup":"You're 10 m up on a top rope. A rock knocks your belayer down. They're dazed but still holding the brake strand.","skills":["jrock","btr","mcomm","jfirst"],"stages":[{"q":"What's your first call?","opts":[["Tell them to lock off and hold. Don't move until someone takes over or you're secure","Right. Keep the belay solid before anything else."],["Jump down toward them to help","You'd shock-load a dazed belayer."],["Keep climbing to the top","Your belayer may lose control. Stop and secure the situation."]]},{"q":"Another climber is nearby. What do you ask?","opts":[["Ask them to back up the brake strand, then take over the belay","Right. A backup belayer keeps you safe while your belayer is checked."],["Ask them to film it","Not now."]]},{"q":"You're on the ground. Your belayer has a lump on the head and feels sick. Next?","opts":[["Stop climbing for the day and get them checked; watch for worsening symptoms","Right. Nausea after a head knock needs medical attention."],["Give them a few minutes, then keep climbing","Head injuries can worsen hours later."]]}],"debrief":"Wear helmets at the base too, and know how to take over a belay."},
+  {"id":"s-rap","type":"spot","title":"Rappel setup check","setup":"You're about to rappel. Here's your setup:","skills":["rclose","rext","rpre"],"items":["Rappel device on a sling extended from your belay loop","Autoblock on the brake strand, clipped to your belay loop","Both strands through the device and locking carabiner","Locking carabiner screwed shut","Rope ends hanging to the ground with no knots","Tether still clipped to the anchor until you've weighted the device"],"bad":4,"why":"Tie stopper knots in both rope ends, even if you can see the ground. It closes the system."},
+  {"id":"s-tiein","type":"spot","title":"Tie-in check","setup":"Your partner says they're ready to climb.","skills":["k8","jcheck"],"items":["Rope runs through both harness tie-in points","Figure-8 follow-through dressed with parallel strands","Knot snug up against the harness","Tail about 2 cm long","Belayer's carabiner locked"],"bad":3,"why":"A tail that short can work loose. Leave at least a fist's width (about 10 cm)."},
+  {"id":"s-trbelay","type":"spot","title":"Top-rope belay check","setup":"Watch this belayer set up:","skills":["btr","bsoft"],"items":["Device on the belay loop with a locking carabiner","Locker screwed shut","Brake hand never leaves the rope","Standing 5 m back from the wall with a big loop of slack","Helmet on"],"bad":3,"why":"Stand close to the wall and keep the rope snug. Far back with slack means a longer fall and getting yanked into the wall."},
+  {"id":"s-quad","type":"spot","title":"Quad anchor check","setup":"Here's the quad you've rigged on two bolts:","skills":["aquad","abolt"],"items":["Double-length sling doubled into four strands","Sling folded with no knots","Lockers on each bolt","Master point positioned above the climb"],"bad":1,"why":"A quad needs overhand limiter knots on each side. Without them, if one bolt fails the other gets shock-loaded."},
+  {"id":"s-gearanchor","type":"spot","title":"Gear anchor check","setup":"Your three-piece trad anchor:","skills":["agear","acord","aload"],"items":["Three solid cams in good rock","Cordelette joined with a double fisherman's","Overhand master point aimed at the load","Arms meeting at about 120° at the master point"],"bad":3,"why":"Keep the angle under 60°. At 120° each piece holds the full load, so the anchor is no stronger than one piece."},
+  {"id":"s-lower","type":"spot","title":"Cleaning a sport anchor","setup":"You're at the top, about to thread the anchor and be lowered.","skills":["lclean","mcomm"],"items":["Clip in direct to a bolt with a locking carabiner","Call \"Off belay\" to your belayer","Thread the rope through both rings","Retie your figure-8 and check it","Call \"Take\" and weight the rope before unclipping"],"bad":1,"why":"If you're going to be lowered, never call off belay. Agree the plan on the ground and stay on belay the whole time."},
+  {"id":"s-multi","type":"spot","title":"Multipitch stance check","setup":"You've arrived at the belay and are setting up to bring up your second.","skills":["bguide","mchange","abolt"],"items":["Clove hitch on the rope to the master point","Call \"Off belay\" once secure","Guide-mode device clipped to a single anchor bolt","Pull up slack, then call \"On belay\""],"bad":2,"why":"The guide-mode device belongs on the master point, backed by the whole anchor, not on one bolt."},
+  {"id":"s-fireman","type":"spot","title":"Fireman's belay check","setup":"You're giving a fireman's belay to your partner on rappel.","skills":["rfire","jrock"],"items":["Both rope strands held loosely in your hands","Ready to pull down hard if they lose control","Standing directly under them in the fall line","Helmet on"],"bad":2,"why":"Stand out of the fall line. Rocks knocked loose by the rappeller come straight down."},
+  {"id":"s-cam","type":"spot","title":"Cam placement check","setup":"Your leader's cam:","skills":["tcams","tnuts"],"items":["Placed in a parallel-sided crack","Stem pointing in the direction of a fall","Lobes fully open, barely touching the walls","Extended with a sling to cut down rope drag"],"bad":2,"why":"That's a tipped-out cam and it can pull. Aim for lobes in the middle of their range."},
+  {"id":"s-srt","type":"spot","title":"Pitch head check","setup":"You approach a caving pitch head along a traverse line.","skills":["cdesc","cyhang","crope"],"items":["Descender rigged and locked off before you leave the ledge","Rope protector on the rub point","Knot in the end of the rope","Cowstails unclipped while you move along the traverse line"],"bad":3,"why":"Stay clipped to the traverse line. That's what it's there for."},
+  {"id":"s-glacier","type":"spot","title":"Glacier rope team check","setup":"Your two-person rope team crossing a glacier:","skills":["aglacier","aself"],"items":["About 10 m of rope between you","Prusiks pre-rigged on the rope","Big loops of slack carried in hand between you","Ice axes in hand"],"bad":2,"why":"Slack means a longer fall into a crevasse and a harder arrest. Keep the rope nearly taut."},
+  {"id":"s-escape","type":"spot","title":"Belay escape check","setup":"You're escaping the belay to go for help.","skills":["rescape","kmmo","kprus"],"items":["Tie off the belay device with a mule overhand","Friction hitch on the load strand, clipped to the anchor","Release the mule overhand to load the friction hitch","Remove the belay device before backing up the hitch"],"bad":3,"why":"Back up the friction hitch with a second connection (like an MMO to the anchor) before you take anything else apart."},
+  {"id":"t-spinner","type":"talk","title":"One bad bolt","setup":"You top out on a sport route. The anchor has two bolts, but one hanger spins freely.","skills":["afixed","lclean","lbail"],"q":"How do you get down safely?","answer":["Clip in to the good bolt and stay on belay","Try to tighten the spinner by hand; still treat it as weak","Back up the good bolt with gear or the last bolt below","Leave your own locker or quick link and lower or rappel","Report the spinner when you get home"]},
+  {"id":"t-dark","type":"talk","title":"Caught by darkness","setup":"Two pitches up, it gets dark faster than you planned. No one brought a headlamp.","skills":["jtopo","mretreat","jweather"],"q":"What's your plan?","answer":["Stop and talk it over before anyone moves","Use phone lights sparingly and save battery for the descent","Rappel the known route rather than pushing up","Double-check every system with a partner check at each anchor","If you can't descend safely, stay put, stay clipped and stay warm until dawn"]},
+  {"id":"t-ankle","type":"talk","title":"Broken ankle at the crag","setup":"A climber decks onto a ledge and has an obviously broken ankle.","skills":["jfirst","jcheck"],"q":"What do you do?","answer":["Make the scene safe: watch for rockfall, anchor anyone on exposed ground","Check airway, breathing and bleeding before the ankle","Look for spine or head injuries; don't move them if you suspect one","Splint the ankle in the position you found it","Keep them warm and call for rescue with your exact location"]},
+  {"id":"t-weight","type":"talk","title":"Much heavier leader","setup":"Your partner weighs 30 kg more than you and wants to lead a steep sport route.","skills":["bweight","bsoft"],"q":"How do you set up to belay safely?","answer":["Stand close to the wall below the first bolt","Consider a ground anchor or extra-friction device","Expect to be lifted and plan where you'll go","Keep slack tidy so the fall isn't longer than it needs to be","Talk through the first clips; stick-clip if needed"]},
+  {"id":"t-rock","type":"talk","title":"Rock knocked loose on lead","setup":"You knock a fist-sized rock off on lead. People are at the base.","skills":["jrock","trock"],"q":"What do you do?","answer":["Yell \"Rock!\" loudly, right away","Hug the wall to stay out of its path","Once it's clear, check that everyone below is OK","Test holds on the rest of the pitch before using them","Tell other parties about loose rock on the route"]},
+  {"id":"t-lowersecond","type":"talk","title":"Lower your injured second","setup":"Your second is hurt and hanging 25 m below your multipitch anchor. You have one 60 m rope.","skills":["rlower","brelease","rescape"],"q":"How do you get them to the ground?","answer":["Tie off the belay so your hands are free","Check the rope length against the distance to a safe ledge or the ground","Redirect the brake strand and back it up with a friction hitch","Lower them slowly, talking all the way if they can hear","If it won't reach, lower to a ledge, secure them, then plan the next stage"]},
+  {"id":"t-extended","type":"talk","title":"Top rope from trees back from the edge","setup":"The only good anchors are two trees 6 m back from the edge of a crag.","skills":["aoreach","anat","aedge"],"q":"How do you build the top rope?","answer":["Tether to a tree or fixed line before going near the edge","Tie static rope around both trees with low, solid knots","Run the legs to the edge and tie a master point just over the lip","Pad the rope where it runs over the edge","Check everything with your partner before anyone climbs"]},
+  {"id":"t-freehang","type":"talk","title":"Second hanging free under a roof","setup":"Your second fell on a traverse under a roof and is hanging in space, unable to reach the rock.","skills":["rasc","rhaul","rlower"],"q":"What are your options?","answer":["Ask them to stay calm and tell you what they have on their harness","Lower them to a ledge or the ground if the rope reaches","Otherwise, have them ascend the rope with friction hitches","If they can't, set up an assisted haul from your anchor","Talk the whole time so they know what's happening"]},
+  {"id":"t-turnaround","type":"talk","title":"Setting a turnaround time","setup":"You're planning a long alpine route with a midday storm forecast.","skills":["jweather","jtopo"],"q":"How do you plan the day?","answer":["Check the forecast the night before and the morning of","Start early enough to be down before the storm window","Set a turnaround time you'll stick to, wherever you are","Agree on retreat points before you start","Tell someone your plan and when to raise the alarm"]},
+  {"id":"t-lostcave","type":"talk","title":"Lost underground","setup":"You realize you can't recognize the passage you're in.","skills":["cnav","cplan","clight"],"q":"What do you do?","answer":["Stop and stay together","Retrace to the last spot you recognized","Use the survey or your notes, and look back at junctions","Save light; turn off all but one","If you can't find the way, stay put and wait for the callout"]},
+  {"id":"t-offroute","type":"talk","title":"Off route and running out of gear","setup":"You're leading a multipitch trad route, you've wandered off route, and you've only got a few pieces left.","skills":["mretreat","tcams","lbail"],"q":"What do you do?","answer":["Stop and place the best gear you can","Look for the line: chalk, gear, the topo","If you can't continue, build an anchor and bring your second up","Or downclimb or lower back to the last good gear","Re-rack and reassess with your partner before going on"]},
+  {"id":"t-squeezestuck","type":"talk","title":"Stuck in a squeeze","setup":"Your caving partner gets stuck in a tight squeeze and starts to panic.","skills":["cmove","chypo"],"q":"How do you help?","answer":["Talk calmly and help them slow their breathing","Have them breathe out to make their chest smaller","Suggest they reverse the way they came in","Pass back gear that's snagging","Keep them warm while you work it out"]}
+);
+
 // embedded players work on the public site; inside the Claude artifact viewer they are blocked, so it links out instead
 const CAN_EMBED = /github.io$/.test(location.hostname) || location.protocol === "file:";
 const CREDITS = {
@@ -1530,18 +1656,24 @@ const OLD_NAMES = {"cmove":"Horizontal caving movement","rlower":"Lowering an in
   }
   if (moved) { try { localStorage.setItem(KEY, JSON.stringify(marks)); localStorage.setItem(DKEY, JSON.stringify(dates)); } catch (e) {} } }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(marks)); localStorage.setItem(DKEY, JSON.stringify(dates)); } catch (e) {} };
+// every learned skill keeps a "last practiced" date so it can go rusty; older saves start the clock today
+{ const today = new Date().toISOString().slice(0, 10); let stamped = false;
+  for (const s of skills) if (marks[s.id] >= 1 && !dates[s.id]) { dates[s.id] = today; stamped = true; }
+  if (stamped) save(); }
 const level = s => marks[s.id];
 const learned = s => level(s) >= 1;
 const daysSince = s => dates[s.id] ? (Date.now() - new Date(dates[s.id]).getTime()) / 864e5 : 0;
-const needsReview = s => level(s) === 2 && daysSince(s) > REVIEW_DAYS;
-const effective = s => needsReview(s) ? 1.5 : level(s);
+// learned skills go rusty without practice: 3 months for Learned, 4 for Practiced, 6 for Drilled
+const RUSTY_DAYS = { 1: 90, 1.5: 120, 2: REVIEW_DAYS };
+const needsReview = s => level(s) >= 1 && daysSince(s) > RUSTY_DAYS[level(s)];
+const effective = s => level(s) === 2 && needsReview(s) ? 1.5 : level(s);
 const status = s => level(s) !== undefined ? "rated" : s.pre.every(p => learned(byKey[p])) ? "avail" : "locked";
 const skillXP = s => ({ 1: 10, 1.5: 15, 2: 20 })[effective(s)] * s.tier || 0;
 const xp = () => skills.reduce((a, s) => a + skillXP(s), 0);
 const rankIndex = x => { let i = 0; RANKS.forEach(([need], j) => { if (x >= need) i = j; }); return i; };
 function setLevel(s, v) {
   if (v === undefined) { delete marks[s.id]; delete dates[s.id]; }
-  else { marks[s.id] = v; if (v === 2) dates[s.id] = new Date().toISOString().slice(0, 10); else delete dates[s.id]; }
+  else { marks[s.id] = v; if (v >= 1) dates[s.id] = new Date().toISOString().slice(0, 10); else delete dates[s.id]; }
   save();
 }
 
@@ -1754,7 +1886,7 @@ function shimmerPath(keys, from, color, times = 1) {
 }
 // sparks and a shockwave at the skill, then a shimmer running along every line from the center out to it
 function celebrate(k) {
-  if (navigator.vibrate) navigator.vibrate(25); // a short buzz on phones that support it
+  buzz([20, 40, 30]); // a short buzz on phones that support it
   const s = byKey[k], reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   shimmerPath(new Set([k, ...ancestors(k)]), 1);
   if (reduce) return;
@@ -1800,7 +1932,8 @@ function fit() { vb = { x: -EXTENT, y: -EXTENT, w: EXTENT * 2, h: EXTENT * 2 }; 
 function fitBox(x0, y0, x1, y1, minW = 380) {
   const r = svg.getBoundingClientRect(); if (!r.width || !r.height) return;
   let L = r.left, T = r.top, Rt = r.right, B = r.bottom;
-  const bar = document.getElementById("filters").getBoundingClientRect(); if (bar.bottom > T && bar.top <= T + 4) T = bar.bottom;
+  const bar = document.getElementById("filters").getBoundingClientRect();
+  if (barAtBottom()) B = Math.min(B, bar.top); else if (bar.bottom > T && bar.top <= T + 4) T = bar.bottom;
   const panel = document.getElementById("panel");
   if (!panel.hidden) {
     const p = panel.getBoundingClientRect();
@@ -1828,7 +1961,7 @@ function quickToggle(k, open = true) {
   const s = byKey[k], prev = level(s), prevDate = dates[s.id];
   setLevel(s, learned(s) ? undefined : 1);
   if (open) select(k); else paint();
-  if (learned(s)) celebrate(k); else if (navigator.vibrate) navigator.vibrate(10);
+  if (learned(s)) celebrate(k); else buzz(10);
   toast(learned(s) ? `${s.short}: Learned` : `${s.short}: cleared`, () => {
     if (prev === undefined) delete marks[s.id]; else marks[s.id] = prev;
     if (prevDate) dates[s.id] = prevDate; else delete dates[s.id];
@@ -1892,12 +2025,12 @@ document.getElementById("legend").innerHTML = [
   [ringIcon("var(--learned)", "", "var(--c1)", "✓"), "Learned"],
   [ringIcon("var(--silver)", "", "var(--c1)", "★"), "Practiced"],
   [ringIcon("var(--gold)", "", "var(--c1)", "★", "var(--gold)"), "Drilled"],
-  [ringIcon("var(--gold)", "4 3", "var(--c1)", "★", "var(--gold)"), "Due for review"],
+  [ringIcon("var(--learned)", "4 3", "var(--c1)", "✓"), "Rusty (not practiced in a while)"],
 ].map(([i, t]) => `<span>${i}${t}</span>`).join("") + `<span class="lghint">Double-tap a skill to mark it learned · tap a branch name to zoom in · drag to pan, pinch to zoom</span>`;
 
 /* ---------- Filters ---------- */
 const filter = { lanes: new Set(), show: "all", path: null, mode: null };
-const SHOWS = [["all", "Everything"], ["todo", "Gaps & unrated"], ["avail", "Ready to learn"], ["done", "Learned or better"], ["review", "Due for review"], ["crit", "Critical only"]];
+const SHOWS = [["all", "Everything"], ["todo", "Gaps & unrated"], ["avail", "Ready to learn"], ["done", "Learned or better"], ["review", "Rusty"], ["crit", "Critical only"]];
 let pathSet = null;
 function ancestors(k, set = new Set()) { byKey[k].pre.forEach(p => { if (!set.has(p)) { set.add(p); ancestors(p, set); } }); return set; }
 function descendants(k, set = new Set()) { byKey[k].unlocks.forEach(p => { if (!set.has(p)) { set.add(p); descendants(p, set); } }); return set; }
@@ -1927,7 +2060,7 @@ function setPath(k, mode) {
   pathSet = new Set([k, ...(mode === "up" ? ancestors(k) : descendants(k))]);
   filter.path = k; filter.mode = mode;
   // bring the map into view first so the path lands in the middle of the screen
-  const m = document.querySelector(".mapwrap").getBoundingClientRect(), bar = document.getElementById("filters").getBoundingClientRect().height;
+  const m = document.querySelector(".mapwrap").getBoundingClientRect(), bar = barAtBottom() ? 0 : document.getElementById("filters").getBoundingClientRect().height;
   if (m.top < 0 || m.top > innerHeight * .4) scrollBy(0, m.top - bar - 24);
   applyFilter();
   // path to: flows from the center in to the skill; leads to: flows out from the skill
@@ -1982,40 +2115,125 @@ const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) 
 const skillLinks = keys => keys.map(k => `<a data-k="${k}">${esc(byKey[k].name)}</a>`).join(", ");
 const wireLinks = root => root.querySelectorAll("a[data-k]").forEach(a => a.addEventListener("click", () => select(a.dataset.k, true)));
 
-let scenActive = null, scenPos = 0;
+// four ways to work a scenario: make the calls, spot the mistake, talk it through, or put the steps in order
+const SCEN_TYPES = [["all", "All"], ["choose", "Decisions"], ["spot", "Spot the mistake"], ["talk", "Talk it through"], ["order", "Put in order"]];
+const SCEN_HOW = {
+  choose: "Make the call at each stage. A wrong pick shows what would happen, then you choose again.",
+  spot: "Something in this setup is wrong. Tap it.",
+  talk: "Think it through or say your plan out loud, then reveal the expert plan and rate yourself.",
+  order: "Tap the steps in the order you'd do them.",
+};
+const scenType = sc => sc.type || "order";
+let scenActive = null, scenPos = 0, scenMiss = 0, scenFilter = "all";
+const scenPool = () => SCENARIOS.filter(s => scenFilter === "all" || scenType(s) === scenFilter);
 function renderScenList() {
+  const done = SCENARIOS.filter(s => practice.scen[s.id]).length;
+  document.getElementById("scenSub").textContent = `Work through real situations four ways. ${done} of ${SCENARIOS.length} complete.`;
+  const types = document.getElementById("scenTypes");
+  types.innerHTML = SCEN_TYPES.map(([k, l]) => `<button class="chip${scenFilter === k ? " on" : ""}" data-t="${k}">${l} <span class="tg">${k === "all" ? SCENARIOS.length : SCENARIOS.filter(s => scenType(s) === k).length}</span></button>`).join("")
+    + `<button class="chip" data-t="random">Random</button>`;
+  types.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.t === "random") { pickNextScenario(true); return; }
+    scenFilter = b.dataset.t; renderScenList();
+  }));
   const list = document.getElementById("scenList");
-  document.getElementById("scenSub").textContent = `Put the steps in the right order. ${Object.keys(practice.scen).filter(id => SCENARIOS.some(s => s.id === id)).length} of ${SCENARIOS.length} complete.`;
-  list.innerHTML = SCENARIOS.map(sc => `<button class="chip${scenActive && scenActive.id === sc.id ? " on" : ""}" data-id="${sc.id}">${practice.scen[sc.id] ? "✓ " : ""}${esc(sc.title)}</button>`).join("");
+  list.innerHTML = scenPool().map(sc => `<button class="chip${scenActive && scenActive.id === sc.id ? " on" : ""}" data-id="${sc.id}">${practice.scen[sc.id] ? "✓ " : ""}${esc(sc.title)}</button>`).join("");
   list.querySelectorAll("button").forEach(b => b.addEventListener("click", () => startScenario(b.dataset.id)));
+}
+// the next unfinished scenario in the current format, or a random one
+function pickNextScenario(random) {
+  const pool = scenPool(), fresh = pool.filter(s => !practice.scen[s.id] && s !== scenActive), from = fresh.length ? fresh : pool;
+  const i = scenActive ? pool.indexOf(scenActive) : -1;
+  const next = random ? from[Math.floor(Math.random() * from.length)] : pool.slice(i + 1).concat(pool.slice(0, i + 1)).find(s => !practice.scen[s.id] && s !== scenActive) || pool[(i + 1) % pool.length];
+  startScenario(next.id);
 }
 function startScenario(id) {
   setPracticeTab("scen");
-  scenActive = SCENARIOS.find(s => s.id === id); scenPos = 0;
-  const body = document.getElementById("scenBody"); body.hidden = false;
-  body.innerHTML = `<p class="setup">${esc(scenActive.setup)}</p><ol class="scen-done" id="scenDone"></ol>
-    <div class="scen-opts" id="scenOpts"></div><p class="scen-msg" id="scenMsg"></p>
+  scenActive = SCENARIOS.find(s => s.id === id); scenPos = 0; scenMiss = 0; keepAwake("scen", true);
+  const t = scenType(scenActive), body = document.getElementById("scenBody"); body.hidden = false;
+  body.innerHTML = `<p class="stage">${SCEN_TYPES.find(x => x[0] === t)[1]} · ${esc(scenActive.title)}</p><p class="setup">${esc(scenActive.setup)}</p>
+    <p class="scen-how">${SCEN_HOW[t]}</p><div class="scen-play" id="scenPlay"></div><p class="scen-msg" id="scenMsg"></p>
     <p class="rel"><b>Skills used:</b> ${skillLinks(scenActive.skills)}</p>`;
   wireLinks(body);
+  ({ order: playOrder, choose: playChoose, spot: playSpot, talk: playTalk })[t](document.getElementById("scenPlay"));
+  renderScenList();
+}
+function scenDone(note) {
+  keepAwake("scen", false);
+  const first = !practice.scen[scenActive.id];
+  practice.scen[scenActive.id] = new Date().toISOString().slice(0, 10); savePractice();
+  if (first) popAchievement("✓", "Scenario complete", scenActive.title, note || ""); else buzz(30);
+  renderScenList(); checkAchievements();
+  const b = document.createElement("button"); b.className = "chip on"; b.textContent = "Next scenario ›";
+  b.addEventListener("click", () => pickNextScenario(false));
+  document.getElementById("scenPlay").append(b);
+}
+const wrongPick = b => { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); buzz(40); scenMiss++; };
+const missNote = () => scenMiss ? `${scenMiss} wrong call${scenMiss === 1 ? "" : "s"} along the way.` : "Clean run: no wrong calls.";
+
+function playOrder(play) {
+  play.innerHTML = `<ol class="scen-done" id="scenDone"></ol><div class="scen-opts" id="scenOpts"></div>`;
   const opts = document.getElementById("scenOpts");
   shuffle(scenActive.steps.map((t, i) => [t, i])).forEach(([t, i]) => {
     const b = document.createElement("button"); b.className = "scen-step"; b.textContent = t;
     b.addEventListener("click", () => pickStep(b, i)); opts.append(b);
   });
-  renderScenList();
 }
 function pickStep(btn, i) {
   const msg = document.getElementById("scenMsg");
-  if (i !== scenPos) { btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong"); msg.textContent = "Not yet. What has to happen before that?"; return; }
+  if (i !== scenPos) { wrongPick(btn); msg.textContent = "Not yet. What has to happen before that?"; return; }
   const li = document.createElement("li"); li.textContent = btn.textContent; document.getElementById("scenDone").append(li);
   btn.remove(); scenPos++; msg.textContent = "";
-  if (scenPos === scenActive.steps.length) {
-    msg.textContent = "Done. That's the sequence.";
-    const first = !practice.scen[scenActive.id];
-    practice.scen[scenActive.id] = new Date().toISOString().slice(0, 10); savePractice();
-    if (first) popAchievement("✓", "Scenario complete", scenActive.title, "");
-    renderScenList(); checkAchievements();
-  }
+  if (scenPos === scenActive.steps.length) { msg.textContent = "Done. That's the sequence. " + missNote(); scenDone(missNote()); }
+}
+// decisions: each stage lists options with the right call first; every option explains what would happen
+function playChoose(play) {
+  const st = scenActive.stages[scenPos], last = scenPos === scenActive.stages.length - 1;
+  play.innerHTML = `<p class="stage">Stage ${scenPos + 1} of ${scenActive.stages.length}</p><p class="scen-q">${esc(st.q)}</p><div class="scen-opts"></div><p class="scen-fb" hidden></p>`;
+  const opts = play.querySelector(".scen-opts"), fb = play.querySelector(".scen-fb");
+  shuffle(st.opts.map((o, i) => [o, i])).forEach(([[text, why], i]) => {
+    const b = document.createElement("button"); b.className = "scen-step"; b.textContent = text;
+    b.addEventListener("click", () => {
+      fb.hidden = false; fb.textContent = why;
+      if (i !== 0) { wrongPick(b); b.disabled = true; fb.className = "scen-fb no"; return; }
+      b.classList.add("right"); opts.querySelectorAll("button").forEach(x => x.disabled = true); fb.className = "scen-fb ok"; buzz(15);
+      const next = document.createElement("button"); next.className = "chip on"; next.textContent = last ? "Finish" : "Continue ›";
+      next.addEventListener("click", () => {
+        if (!last) { scenPos++; playChoose(play); return; }
+        play.innerHTML = `<p class="scen-fb ok">${esc(scenActive.debrief)} ${missNote()}</p>`; scenDone(missNote());
+      });
+      play.append(next);
+    });
+    opts.append(b);
+  });
+}
+// spot the mistake: one item in the setup is wrong
+function playSpot(play) {
+  play.innerHTML = `<div class="scen-opts"></div><p class="scen-fb" hidden></p>`;
+  const opts = play.querySelector(".scen-opts"), fb = play.querySelector(".scen-fb");
+  scenActive.items.forEach((text, i) => {
+    const b = document.createElement("button"); b.className = "scen-step"; b.textContent = text;
+    b.addEventListener("click", () => {
+      fb.hidden = false;
+      if (i !== scenActive.bad) { wrongPick(b); b.disabled = true; fb.className = "scen-fb no"; fb.textContent = "That part's fine. Look again."; return; }
+      b.classList.add("right"); opts.querySelectorAll("button").forEach(x => x.disabled = true);
+      fb.className = "scen-fb ok"; fb.textContent = "Found it. " + scenActive.why; scenDone(missNote());
+    });
+    opts.append(b);
+  });
+}
+// talk it through: plan it in your head, then compare with the expert plan
+function playTalk(play) {
+  play.innerHTML = `<p class="scen-q">${esc(scenActive.q)}</p><button class="chip on">Reveal the expert plan</button>`;
+  play.querySelector("button").addEventListener("click", () => {
+    play.innerHTML = `<p class="scen-q">${esc(scenActive.q)}</p><ol class="expert">${scenActive.answer.map(t => `<li>${esc(t)}</li>`).join("")}</ol>
+      <p class="scen-q">How did you do?</p><div class="rate"><button class="chip" data-r="2">Nailed it</button><button class="chip" data-r="1">Got part of it</button><button class="chip" data-r="0">Missed it</button></div>`;
+    play.querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => {
+      const r = +b.dataset.r; play.querySelector(".rate").remove();
+      document.getElementById("scenMsg").textContent = r === 2 ? "Nice. Try explaining it to your partner next time you're at the crag." : r === 1 ? "Good start. Come back to this one in a few days." : "That's what practice is for. Read the skills below, then try it again soon.";
+      scenDone(["Back to the books", "Getting there", "Nailed it"][r]);
+    }));
+  });
 }
 
 let quizOrder = shuffle(QUIZ.map((_, i) => i)), quizIdx = 0;
@@ -2034,6 +2252,7 @@ function answer(right, btn, why, key) {
   const body = document.getElementById("quizBody");
   body.querySelectorAll(".q-opt").forEach(b => { b.disabled = true; if (QUIZ[quizOrder[quizIdx % quizOrder.length]][1][0] === b.textContent) b.classList.add("right"); });
   if (!right) btn.classList.add("wrong");
+  buzz(right ? 15 : [60, 40, 60]);
   practice.answered++; if (right) { practice.correct++; practice.streak++; practice.best = Math.max(practice.best, practice.streak); } else practice.streak = 0;
   savePractice();
   const after = body.querySelector(".q-after"); after.hidden = false;
@@ -2046,14 +2265,14 @@ function answer(right, btn, why, key) {
 
 // drills to work on next: skills you've learned or practiced but not drilled yet, then skills ready to learn
 function renderDrills() {
-  const levelUp = skills.filter(s => learned(s) && effective(s) < 2).sort((a, b) => (b.crit - a.crit) || (effective(b) - effective(a)) || (a.tier - b.tier));
+  const rusty = skills.filter(needsReview).sort((a, b) => (b.crit - a.crit) || (daysSince(b) - daysSince(a)));
+  const levelUp = skills.filter(s => learned(s) && effective(s) < 2 && !needsReview(s)).sort((a, b) => (b.crit - a.crit) || (effective(b) - effective(a)) || (a.tier - b.tier));
   const fresh = skills.filter(s => status(s) === "avail").sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier));
-  const list = (levelUp.length ? levelUp : fresh).filter(isVisible).slice(0, 8);
-  document.getElementById("drillSub").textContent = levelUp.length
-    ? "Skills you've learned but not drilled yet. Hit the target to mark them Drilled."
-    : "Start with these. Learn a skill, then come back to drill it.";
+  const list = [...rusty, ...(levelUp.length ? levelUp : fresh)].filter(isVisible).slice(0, 8);
+  document.getElementById("drillSub").textContent = (rusty.length ? "Rusty skills first: run the drill, then tap \"I practiced it today\" in the skill. " : "")
+    + (levelUp.length ? "Then skills you've learned but not drilled yet. Hit the target to mark them Drilled." : "Start with these. Learn a skill, then come back to drill it.");
   const ul = document.getElementById("drillList");
-  ul.innerHTML = list.map(s => `<li style="--c: var(--c${s.ci})"><a data-k="${s.key}">${esc(s.name)}</a><span>${esc(effective(s) >= 1.5 && DRILL2[s.key] ? DRILL2[s.key] : DRILL[s.key])}</span></li>`).join("") || "<li>Everything here is drilled. Nice work.</li>";
+  ul.innerHTML = list.map(s => `<li style="--c: var(--c${s.ci})"><a data-k="${s.key}">${needsReview(s) ? "Rusty · " : ""}${esc(s.name)}</a><span>${esc(effective(s) >= 1.5 && DRILL2[s.key] ? DRILL2[s.key] : DRILL[s.key])}</span></li>`).join("") || "<li>Everything here is drilled. Nice work.</li>";
   wireLinks(ul);
 }
 
@@ -2104,7 +2323,7 @@ function wireSearch() {
   const go = k => {
     res.hidden = true; input.value = ""; input.blur();
     if (view === "list") { select(k); document.querySelector(`.lrow[data-k="${k}"]`)?.scrollIntoView({ block: "center" }); }
-    else { document.querySelector(".mapwrap").scrollIntoView({ block: "start" }); scrollBy(0, -document.getElementById("filters").offsetHeight - 8); select(k, true); }
+    else { document.querySelector(".mapwrap").scrollIntoView({ block: "start" }); scrollBy(0, barAtBottom() ? -8 : -document.getElementById("filters").offsetHeight - 8); select(k, true); }
   };
   input.addEventListener("input", () => {
     const q = input.value.trim().toLowerCase();
@@ -2145,6 +2364,10 @@ const ACHS = [
   { id: "scenall", name: "Calm in a Crisis", desc: "Complete every scenario challenge", test: () => SCENARIOS.every(s => practice.scen[s.id]) },
   { id: "quiz5", name: "Book Smart", desc: "Answer 5 quiz questions in a row correctly", test: () => practice.best >= 5 },
   { id: "quiz15", name: "Walking Guidebook", desc: "Answer 15 quiz questions in a row correctly", test: () => practice.best >= 15 },
+  { id: "timer1", name: "Against the Clock", desc: "Finish a knot time trial", test: () => Object.keys(times).length >= 1 },
+  { id: "fast8", name: "Speed Tier", desc: "Tie a figure-8 follow-through in under 15 seconds", test: () => (times.k8 || {}).open < 15000 },
+  { id: "blind5", name: "Tied It in the Dark", desc: "Set eyes-closed times on 5 knots", test: () => Object.values(times).filter(t => t.blind).length >= 5 },
+  { id: "rustfree", name: "No Rust Here", desc: "Have 10 learned skills and none of them rusty", test: c => c.learned >= 10 && !skills.some(needsReview) },
   { id: "nodevice", name: "Who Needs a Belay Device?", desc: "Learn the Munter belay, Munter rappel and hip belay", test: () => ["imunter", "imrap", "ihip"].every(k => learned(byKey[k])) },
   ...LANES.map(([lane, label, title], i) => ({ id: "branch-" + lane, name: title, desc: `Learn every ${label} skill`, test: () => skills.filter(s => s.ci === i).every(learned) })),
   ...LANES.map(([lane, label, title], i) => ({ id: "gold-" + lane, name: "Golden " + title, desc: `Drill every ${label} skill`, test: () => skills.filter(s => s.ci === i).every(s => effective(s) === 2) })),
@@ -2164,7 +2387,7 @@ function checkAchievements() {
 }
 function popAchievement(icon, kicker, title, desc) {
   const stack = document.getElementById("achStack"), card = document.createElement("div");
-  card.className = "ach-card";
+  card.className = "ach-card"; buzz([30, 60, 30, 60, 90]);
   card.innerHTML = `<div class="ach-icon">${esc(String(icon))}</div><div><div class="ach-k">${esc(kicker)}</div><div class="ach-t">${esc(title)}</div>${desc ? `<div class="ach-d">${esc(desc)}</div>` : ""}</div>`;
   stack.append(card);
   setTimeout(() => { card.classList.add("out"); setTimeout(() => card.remove(), 450); }, 4200);
@@ -2190,8 +2413,8 @@ function highlight(key) {
   // draw the emphasized node last so its label sits on top of its neighbors
   if (key && nodeEls[key].nextSibling) nodeEls[key].parentNode.append(nodeEls[key]);
 }
-const lvClass = s => { const v = level(s); if (v === undefined) return ""; if (needsReview(s)) return " lv-review"; return " lv-" + ({ 0: "gap", 1: "1", 1.5: "15", 2: "2" })[v]; };
-const lvName = s => { const v = level(s); if (v === undefined) return "not rated"; if (needsReview(s)) return "drilled, due for review"; return LEVELS.find(l => l[0] === v)[1].toLowerCase(); };
+const lvClass = s => { const v = level(s); if (v === undefined) return ""; if (needsReview(s) && v === 2) return " lv-review rusty"; return " lv-" + ({ 0: "gap", 1: "1", 1.5: "15", 2: "2" })[v] + (needsReview(s) ? " rusty" : ""); };
+const lvName = s => { const v = level(s); if (v === undefined) return "not rated"; return LEVELS.find(l => l[0] === v)[1].toLowerCase() + (needsReview(s) ? ", rusty" : ""); };
 
 function paint() {
   skills.forEach(s => {
@@ -2232,7 +2455,7 @@ function paint() {
   const nL = skills.filter(learned).length, nR = skills.filter(needsReview).length;
   document.getElementById("rankSub").textContent = (ri < RANKS.length - 1
     ? `Rank ${ri + 1} of ${RANKS.length} · ${Math.ceil(hi - x)} XP to ${RANKS[ri + 1][1]}`
-    : `Top rank`) + ` · ${nL} of ${skills.length} learned` + (nR ? ` · ${nR} due for review` : "");
+    : `Top rank`) + ` · ${nL} of ${skills.length} learned` + (nR ? ` · ${nR} rusty` : "");
 
   // Up next follows the active filters, so picking one branch narrows it to that branch
   const review = skills.filter(s => needsReview(s) && isVisible(s));
@@ -2247,13 +2470,13 @@ function paint() {
   }
   const qe = document.getElementById("quests"); qe.innerHTML = "";
   document.getElementById("nextNote").textContent = filtering()
-    ? `Matching your filters: skills due for review, then unlocked skills you haven't learned, critical ones first.`
-    : "Skills due for review, then unlocked skills you haven't learned, critical ones first.";
+    ? `Matching your filters: rusty skills, then unlocked skills you haven't learned, critical ones first.`
+    : "Rusty skills, then unlocked skills you haven't learned, critical ones first.";
   if (leadIn) document.getElementById("nextNote").textContent = "Nothing in your filters is unlocked yet. Learn these first to open them up:";
   if (!q.length) qe.textContent = filtering() ? "Nothing in these filters is ready to learn or due for review." : "Nothing unlocked is left to learn. Move learned skills up to Practiced and Drilled.";
   q.forEach(s => {
     const b = document.createElement("button"); b.className = "quest" + (needsReview(s) ? " review" : s.crit ? " crit" : ""); b.style.setProperty("--c", `var(--c${s.ci})`);
-    b.innerHTML = "<i></i><span></span>"; b.querySelector("span").textContent = needsReview(s) ? `Review · ${s.short}` : `${TIERS[s.tier - 1][0]} · ${s.short}`;
+    b.innerHTML = "<i></i><span></span>"; b.querySelector("span").textContent = needsReview(s) ? `Rusty · ${s.short}` : `${TIERS[s.tier - 1][0]} · ${s.short}`;
     b.addEventListener("click", () => select(s.key, true)); qe.append(b);
   });
 
@@ -2270,6 +2493,8 @@ const link = k => `<a data-k="${k}" class="${learned(byKey[k]) ? "" : "miss"}">$
 const list = items => `<ul>${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
 
 function select(key, move) {
+  stopTimer();
+  if (document.getElementById("panel").hidden) { pushLayer("panel", closePanel); keepAwake("panel", true); }
   selected = key;
   const s = byKey[key], panel = document.getElementById("panel"), how = HOW[key], yt = YT[key] || [];
   const pics = (IMG[key] || []).filter(p => !(CAN_EMBED && yt.length && p[0].endsWith(".webm")));
@@ -2285,7 +2510,9 @@ function select(key, move) {
     <p>${esc(s.what)}</p>
     ${DRILL[key] ? `<div class="drill"><h3>How to drill it</h3><p><b>Start:</b> ${esc(DRILL[key])}</p>${DRILL2[key] ? `<p><b>Level up:</b> ${esc(DRILL2[key])}</p>` : ""}${(DRILL_EXTRA[key] || []).length ? `<p class="drill-more"><b>More drills</b></p><ul>${DRILL_EXTRA[key].map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}</div>` : ""}
     ${how ? `<div class="usegrid"><div class="yes"><h3>Use it for</h3>${list(how.use)}</div><div class="no"><h3>Don't use it for</h3>${list(how.avoid)}</div></div>
-      <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>` : ""}
+      <div class="steps"><h3>How to tie it</h3><ol>${how.steps.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>
+      <div class="timer" id="timer"><h3>Time trial</h3><div class="tmodes" role="group" aria-label="Mode"><button class="chip" data-mode="open" aria-pressed="true">Eyes open</button><button class="chip" data-mode="blind" aria-pressed="false">Eyes closed</button></div>
+        <button class="tbig" id="tbig">Start<small>3-second countdown, then tie it. Tap again once it's dressed and checked.</small></button><div class="tbest" id="tbest"></div></div>` : ""}
     ${SCENARIOS.some(x => x.skills.includes(key)) ? `<div class="scenlinks"><b>Practice scenarios:</b> ${SCENARIOS.filter(x => x.skills.includes(key)).map(x => `<button class="chip" data-scen="${x.id}">${practice.scen[x.id] ? "✓ " : ""}${esc(x.title)}</button>`).join("")}</div>` : ""}
     <p class="gear"><b>Gear:</b> ${esc(s.gear)}</p>
     <p class="pit"><b>Watch for:</b> ${esc(s.pit)}</p>
@@ -2295,13 +2522,14 @@ function select(key, move) {
     ${missing.length && !learned(s) ? `<p class="warn">Locked until you learn ${missing.map(k => esc(byKey[k].name)).join(" and ")}. You can still rate it if you already know it.</p>` : ""}
     <div class="levels"><h3>Your level</h3>
       <div class="seg" role="group" aria-label="Your level">${LEVELS.map(([v, n]) => `<button data-v="${v}">${n}</button>`).join("")}</div>
-      <button class="redrill" id="redrill" hidden>I re-drilled it today</button>
+      <button class="redrill" id="redrill" hidden>I practiced it today</button>
       <small id="lvNote"></small>
     </div>
     <div class="learn"><h3>Learn it</h3><small>Opens a search on each source in a new tab.</small>
       ${tutorials(s).map(([what, src, url]) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${what}<span>${src} ↗</span></a>`).join("")}
     </div>
-    ${credits.length ? `<p class="credits">Images via Wikimedia Commons: ${credits.join("; ")}.</p>` : ""}`;
+    ${credits.length ? `<p class="credits">Images via Wikimedia Commons: ${credits.join("; ")}.</p>` : ""}
+    <div class="pnav"><button class="chip" data-step="-1">‹ Previous</button><span class="swipehint">Swipe for the next skill · down to close</span><button class="chip" data-step="1">Next ›</button></div>`;
   // levels stack: Drilled also lights Learned and Practiced. Tapping your current top level steps back one.
   panel.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => {
     const v = +b.dataset.v, cur = level(s), before = cur ?? -1;
@@ -2312,12 +2540,14 @@ function select(key, move) {
     if (learned(s) && level(s) > before) celebrate(key);
   }));
   updateLevelUI(s);
-  panel.querySelector("#redrill").addEventListener("click", () => { setLevel(s, 2); updateLevelUI(s); paint(); celebrate(key); toast("Re-drilled. Nice work."); });
+  panel.querySelector("#redrill").addEventListener("click", () => { const was = needsReview(s); setLevel(s, level(s)); updateLevelUI(s); paint(); if (was) celebrate(key); else buzz(15); toast(was ? "Rust knocked off. Nice work." : "Logged for today"); });
   panel.querySelectorAll(".rel a").forEach(a => a.addEventListener("click", () => select(a.dataset.k, true)));
   panel.querySelectorAll(".scenlinks button").forEach(b => b.addEventListener("click", () => { startScenario(b.dataset.scen); document.getElementById("scen").scrollIntoView({ behavior: "smooth", block: "start" }); }));
   panel.querySelectorAll(".pathbtns button").forEach(b => b.addEventListener("click", () => setPath(key, b.dataset.path)));
   panel.querySelectorAll(".pics button").forEach(b => b.addEventListener("click", () => openLight(b.dataset.src)));
   panel.querySelector(".close").addEventListener("click", closePanel);
+  panel.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => stepSkill(+b.dataset.step)));
+  wireTimer(s);
   wireSheet(panel);
   panel.hidden = false;
   paint();
@@ -2328,13 +2558,15 @@ function select(key, move) {
 function updateLevelUI(s) {
   const panel = document.getElementById("panel"), lv = level(s);
   panel.querySelectorAll(".seg button").forEach(b => { const v = +b.dataset.v; b.setAttribute("aria-pressed", v === 0 ? lv === 0 : lv !== undefined && lv >= v); });
-  panel.querySelector("#redrill").hidden = !needsReview(s);
-  panel.querySelector("#lvNote").textContent = lv === 2 && dates[s.id]
-    ? `Drilled on ${dates[s.id]}. ${needsReview(s) ? "It's been over six months, so it counts as Practiced until you re-drill it." : "You'll be reminded to re-drill it after six months."}`
+  const rd = panel.querySelector("#redrill"); rd.hidden = !learned(s); rd.classList.toggle("due", needsReview(s));
+  rd.textContent = needsReview(s) ? "It's rusty: I practiced it today" : "I practiced it today";
+  panel.querySelector("#lvNote").textContent = learned(s) && dates[s.id]
+    ? `Last practiced ${dates[s.id]}. ${needsReview(s) ? (lv === 2 ? "It's been over six months, so it counts as Practiced until you drill it again." : "It's gone rusty. Run a drill, then log it here.") : `It goes rusty after ${RUSTY_DAYS[lv] / 30} months without practice.`} Tap your top level again to step back.`
     : "Learned: you know how. Practiced: you've done it for real. Drilled: you could do it tired, cold and in the dark. Tap your top level again to step back.";
   const warn = panel.querySelector(".warn"); if (warn && learned(s)) warn.remove();
 }
 function closePanel() {
+  stopTimer(); dropLayer("panel"); keepAwake("panel", false);
   selected = null;
   const panel = document.getElementById("panel");
   panel.hidden = true;
@@ -2350,11 +2582,12 @@ function markSelected() {
   el("circle", { class: "selring", r: 27 }, g);
 }
 const lb = document.getElementById("lightbox");
-function openLight(src) { document.getElementById("lightimg").src = src; lb.hidden = false; }
-lb.addEventListener("click", () => { lb.hidden = true; });
+function openLight(src) { document.getElementById("lightimg").src = src; lb.hidden = false; pushLayer("photo", () => { lb.hidden = true; }); }
+const closeLight = () => { lb.hidden = true; dropLayer("photo"); };
+lb.addEventListener("click", closeLight);
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
-  if (!lb.hidden) lb.hidden = true; else if (selected) closePanel();
+  if (!lb.hidden) closeLight(); else if (selected) closePanel();
 });
 
 let toastTimer;
@@ -2368,8 +2601,209 @@ function toast(msg, undo) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, undo ? 5000 : 2600);
 }
 
+/* ---------- Phone helpers ---------- */
+const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const barAtBottom = () => getComputedStyle(document.getElementById("filters")).position === "fixed";
+
+// the phone's back button closes the top layer (photo, skill panel) instead of leaving the page
+const layers = []; let skipPop = 0;
+function pushLayer(name, close) {
+  if (layers.some(l => l.name === name)) return;
+  try { history.pushState({ layer: name }, ""); layers.push({ name, close }); } catch (e) {}
+}
+function dropLayer(name) {
+  const i = layers.findIndex(l => l.name === name); if (i < 0) return;
+  layers.splice(i, 1); skipPop++; history.back();
+}
+addEventListener("popstate", () => { if (skipPop) { skipPop--; return; } const l = layers.pop(); if (l) l.close(); });
+
+// keep the screen on while a skill, scenario or time trial is open
+let wakeLock = null; const wakeWant = new Set();
+function keepAwake(reason, on) { on ? wakeWant.add(reason) : wakeWant.delete(reason); syncWake(); }
+async function syncWake() {
+  if (!("wakeLock" in navigator)) return;
+  try {
+    if (wakeWant.size && !wakeLock && document.visibilityState === "visible") {
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => { wakeLock = null; });
+    } else if (!wakeWant.size && wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
+  } catch (e) {}
+}
+document.addEventListener("visibilitychange", syncWake);
+
+// next and previous follow the list order: branch by branch, inner tiers first
+const ordered = pick => LANES.flatMap((_, i) => skills.filter(s => s.ci === i && pick(s)).sort((a, b) => a.tier - b.tier)).map(s => s.key);
+function stepSkill(dir) {
+  if (!selected) return;
+  let seq = ordered(isVisible); if (!seq.includes(selected)) seq = ordered(() => true);
+  const k = seq[(seq.indexOf(selected) + dir + seq.length) % seq.length], panel = document.getElementById("panel");
+  select(k, view === "map");
+  panel.scrollTop = 0;
+  panel.classList.remove("slide-next", "slide-prev"); void panel.offsetWidth; panel.classList.add(dir > 0 ? "slide-next" : "slide-prev");
+  if (view === "list") document.querySelector(`.lrow[data-k="${k}"]`)?.scrollIntoView({ block: "nearest" });
+}
+// swipe the panel sideways for the next skill, or down from its top to close it and get back to the map or list
+function wirePanelSwipe() {
+  const panel = document.getElementById("panel");
+  let x0 = null, y0 = 0, axis = null, top0 = 0, dx = 0, dy = 0;
+  panel.addEventListener("touchstart", e => {
+    if (e.touches.length !== 1 || e.target.closest(".pics, .grab, .tbig, input, textarea")) { x0 = null; return; }
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; axis = null; dx = dy = 0; top0 = panel.scrollTop;
+  }, { passive: true });
+  panel.addEventListener("touchmove", e => {
+    if (x0 === null || axis === "none") return;
+    dx = e.touches[0].clientX - x0; dy = e.touches[0].clientY - y0;
+    if (!axis && Math.hypot(dx, dy) > 10) axis = Math.abs(dx) > Math.abs(dy) * 1.4 ? "x" : dy > 0 && top0 <= 0 ? "down" : "none";
+    if (axis === "x") { e.preventDefault(); panel.classList.add("swiping"); panel.style.transform = `translateX(${dx}px)`; panel.style.opacity = 1 - Math.min(Math.abs(dx) / 420, .5); }
+    else if (axis === "down" && dy > 0) { e.preventDefault(); panel.classList.add("swiping"); panel.style.transform = `translateY(${dy}px)`; }
+  }, { passive: false });
+  const end = () => {
+    if (x0 === null) return;
+    if (axis === "x" || axis === "down") {
+      panel.classList.remove("swiping"); panel.style.transform = ""; panel.style.opacity = "";
+      if (axis === "x" && Math.abs(dx) > 70) stepSkill(dx < 0 ? 1 : -1);
+      else if (axis === "down" && dy > 90) {
+        const a = panel.animate([{ transform: `translateY(${dy}px)` }, { transform: "translateY(110%)" }], { duration: 170, easing: "ease-in" });
+        a.onfinish = closePanel;
+      }
+    }
+    x0 = null; axis = null;
+  };
+  panel.addEventListener("touchend", end); panel.addEventListener("touchcancel", end);
+}
+
+/* ---------- Knot time trials ---------- */
+const TKEY = "climb-times-v1";
+let times = load(TKEY), timer = null;
+const secs = ms => (ms / 1000).toFixed(1) + "s";
+function stopTimer() { if (!timer) return; clearInterval(timer.cd); cancelAnimationFrame(timer.raf); timer = null; keepAwake("timer", false); }
+function wireTimer(s) {
+  const box = document.getElementById("timer"); if (!box) return;
+  const big = box.querySelector("#tbig"), best = box.querySelector("#tbest");
+  let mode = "open";
+  const showBest = () => { const t = times[s.key] || {};
+    best.innerHTML = `<span>Best, eyes open: <b>${t.open ? secs(t.open) : "–"}</b></span><span>Best, eyes closed: <b>${t.blind ? secs(t.blind) : "–"}</b></span><span>Tries: <b>${t.n || 0}</b></span>`; };
+  showBest();
+  box.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => {
+    if (timer) return; mode = b.dataset.mode;
+    box.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  }));
+  big.addEventListener("click", () => {
+    if (!timer) {
+      let n = 3; timer = { phase: "count" }; keepAwake("timer", true); big.classList.add("run");
+      big.innerHTML = `${n}<small>Get ready${mode === "blind" ? " and close your eyes" : ""}</small>`; buzz(30);
+      timer.cd = setInterval(() => {
+        if (--n > 0) { big.innerHTML = `${n}<small>Get ready${mode === "blind" ? " and close your eyes" : ""}</small>`; buzz(30); return; }
+        clearInterval(timer.cd); buzz(150); timer.phase = "run"; timer.t0 = performance.now();
+        const tick = () => { if (!timer || timer.phase !== "run") return; big.innerHTML = `${secs(performance.now() - timer.t0)}<small>Tap once it's dressed and checked</small>`; timer.raf = requestAnimationFrame(tick); };
+        tick();
+      }, 1000);
+    } else if (timer.phase === "run") {
+      const ms = performance.now() - timer.t0; stopTimer(); big.classList.remove("run");
+      const t = times[s.key] = times[s.key] || {}, pb = !t[mode] || ms < t[mode];
+      t.n = (t.n || 0) + 1; if (pb) t[mode] = Math.round(ms);
+      try { localStorage.setItem(TKEY, JSON.stringify(times)); } catch (e) {}
+      big.innerHTML = `${secs(ms)}<small>${pb ? "New personal best! " : ""}Check it with a partner, then tap to go again</small>`;
+      buzz(pb ? [30, 50, 30, 50, 90] : 40); showBest(); checkAchievements();
+    } else { stopTimer(); big.classList.remove("run"); big.innerHTML = "Start<small>Cancelled. Tap to start again.</small>"; }
+  });
+}
+
+/* ---------- Backup and sync ---------- */
+// progress travels as a compressed code inside a link; opening the link on another device combines it there
+const SITE = "https://bearelykoalified.github.io/climbing-skills-audit/";
+const b64u = bytes => { let s = ""; bytes.forEach(b => s += String.fromCharCode(b)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+const pipe = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+function snapshot() {
+  const by = obj => Object.fromEntries(skills.filter(s => obj[s.id] !== undefined).map(s => [s.key, obj[s.id]]));
+  return { v: 1, m: by(marks), d: by(dates), a: achDone, s: practice.scen, q: [practice.best, practice.answered, practice.correct], t: times };
+}
+async function packCode() {
+  const raw = new TextEncoder().encode(JSON.stringify(snapshot()));
+  return window.CompressionStream ? "z" + b64u(await pipe(raw, new CompressionStream("deflate-raw"))) : "j" + b64u(raw);
+}
+async function unpackCode(text) {
+  let code = text.trim(); const m = code.match(/sync=([\w-]+)/); if (m) code = m[1];
+  const bytes = unb64u(code.slice(1));
+  const raw = code[0] === "z" ? await pipe(bytes, new DecompressionStream("deflate-raw")) : bytes;
+  const o = JSON.parse(new TextDecoder().decode(raw)); if (!o || o.v !== 1) throw new Error("bad code"); return o;
+}
+// combining keeps the best of both devices: the higher level, the latest practice date, every achievement and best time
+function mergeSnapshot(o) {
+  let n = 0;
+  for (const [k, v] of Object.entries(o.m || {})) {
+    const s = byKey[k]; if (!s) continue;
+    const cur = marks[s.id], d = (o.d || {})[k];
+    if (cur === undefined || v > cur) { marks[s.id] = v; if (d) dates[s.id] = d; n++; }
+    else if (v === cur && d && (!dates[s.id] || d > dates[s.id])) dates[s.id] = d;
+  }
+  save();
+  Object.entries(o.a || {}).forEach(([id, d]) => { if (!achDone[id]) achDone[id] = d; });
+  try { localStorage.setItem(ACH_KEY, JSON.stringify(achDone)); } catch (e) {}
+  Object.entries(o.s || {}).forEach(([id, d]) => { if (!practice.scen[id]) practice.scen[id] = d; });
+  const [best = 0, ans = 0, cor = 0] = o.q || [];
+  practice.best = Math.max(practice.best, best); if (ans > practice.answered) { practice.answered = ans; practice.correct = cor; }
+  savePractice();
+  Object.entries(o.t || {}).forEach(([k, t]) => {
+    const c = times[k] = times[k] || {};
+    ["open", "blind"].forEach(m => { if (t[m] && (!c[m] || t[m] < c[m])) c[m] = t[m]; });
+    c.n = Math.max(c.n || 0, t.n || 0);
+  });
+  try { localStorage.setItem(TKEY, JSON.stringify(times)); } catch (e) {}
+  paint(); renderScenList();
+  return n;
+}
+function loadQR() {
+  return window.qrcode ? Promise.resolve() : new Promise((ok, no) => {
+    const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";
+    sc.onload = ok; sc.onerror = no; document.head.append(sc);
+  });
+}
+let installEvt = null;
+function wireSync() {
+  const $ = id => document.getElementById(id), msg = t => { $("syncMsg").textContent = t; };
+  const link = async () => SITE + "#sync=" + await packCode();
+  $("syncCopy").addEventListener("click", async () => {
+    const url = await link();
+    try { await navigator.clipboard.writeText(url); msg("Backup link copied. Open it on your other device."); }
+    catch (e) { $("syncOut").hidden = false; $("syncOut").value = url; $("syncOut").select(); msg("Copy the link below and open it on your other device."); }
+  });
+  if (navigator.share) { $("syncShare").hidden = false; $("syncShare").addEventListener("click", async () => { try { await navigator.share({ title: "Climbing progress backup", url: await link() }); } catch (e) {} }); }
+  $("syncQR").addEventListener("click", async () => {
+    const box = $("syncQRBox");
+    if (!box.hidden) { box.hidden = true; $("syncQR").textContent = "Show QR code"; return; }
+    try {
+      await loadQR(); const qr = qrcode(0, "L"); qr.addData(await link()); qr.make();
+      box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); box.hidden = false; $("syncQR").textContent = "Hide QR code";
+      msg("Scan this with your other phone's camera to open the link there.");
+    } catch (e) { msg("The QR code couldn't load. Use Copy backup link instead."); }
+  });
+  $("syncLoad").addEventListener("click", async () => {
+    try { const n = mergeSnapshot(await unpackCode($("syncIn").value)); $("syncIn").value = ""; msg(`Combined. ${n} skill${n === 1 ? "" : "s"} moved up.`); toast("Progress synced"); }
+    catch (e) { msg("That link or code didn't work. Copy the whole thing and try again."); }
+  });
+  // opening a backup link asks before combining
+  if (/[#&]sync=/.test(location.hash)) {
+    const code = location.hash; try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    unpackCode(code).then(o => {
+      if (confirm("Combine the progress from your other device with this one? Each skill keeps the higher level.")) { const n = mergeSnapshot(o); toast(`Synced · ${n} skill${n === 1 ? "" : "s"} moved up`); }
+    }).catch(() => toast("That backup link didn't work"));
+  }
+  // installing as an app: Android offers a button, iPhone needs the Share menu
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  $("installTip").textContent = standalone ? "Running as an app on this device."
+    : /iPhone|iPad/.test(navigator.userAgent) ? "Install it as an app: open this page in Safari, tap Share, then Add to Home Screen."
+    : CAN_EMBED ? "Install it as an app from your browser's menu (Add to Home screen or Install app)." : "Open the public page to install it as an app.";
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; $("installBtn").hidden = false; });
+  $("installBtn").addEventListener("click", async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice.catch(() => {}); installEvt = null; $("installBtn").hidden = true; });
+  if ("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
 build();
 wireSearch();
+wirePanelSwipe();
+wireSync();
 document.getElementById("vMap").addEventListener("click", () => setView("map"));
 document.getElementById("vList").addEventListener("click", () => setView("list"));
 document.querySelectorAll(".ptabs button").forEach(b => b.addEventListener("click", () => setPracticeTab(b.dataset.tab)));
