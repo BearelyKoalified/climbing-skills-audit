@@ -2083,7 +2083,7 @@ function setView(v) {
   document.getElementById("vList").setAttribute("aria-pressed", v === "list");
   document.querySelector(".mapwrap").hidden = v === "list";
   document.getElementById("skillList").hidden = v !== "list";
-  try { localStorage.setItem("climb-view", v); } catch (e) {}
+  try { localStorage.setItem("climb-view2", v); } catch (e) {}
   if (v === "list") renderList(); else fit();
 }
 function renderList() {
@@ -2386,7 +2386,8 @@ document.fonts && document.fonts.ready.then(() => { badgeRank = -1; paint(); });
 if (innerWidth < 640) { const e = R(3) + 90; vb = { x: -e, y: -e, w: e * 2, h: e * 2 }; applyVB(); } else fit();
 renderFilters();
 paint();
-{ let v = null; try { v = localStorage.getItem("climb-view"); } catch (e) {} if (v === "list") setView("list"); }
+// phones open on the list; a view you pick yourself is remembered
+{ let v = null; try { v = localStorage.getItem("climb-view2"); } catch (e) {} if (!v && matchMedia("(max-width: 700px)").matches) v = "list"; if (v === "list") setView("list"); }
 </script>
 </body>
 </html>
