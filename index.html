@@ -2127,7 +2127,7 @@ let foldTimer;
 document.getElementById("filters").addEventListener("click", e => {
   if (!e.target.closest(".fbody .chip") || !matchMedia("(pointer: coarse)").matches) return;
   clearTimeout(foldTimer); foldTimer = setTimeout(() => setFiltersOpen(false), 1100);
-});
+}, true); // capture: picking a filter rebuilds the chips before the click would bubble up
 function setFiltersOpen(open) {
   document.getElementById("filters").classList.toggle("collapsed", !open);
   document.getElementById("fToggle").setAttribute("aria-expanded", open);
