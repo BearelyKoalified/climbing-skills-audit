@@ -330,7 +330,10 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .drill ul { margin: 4px 0 0; padding-left: 18px; font-size: 13.5px; display: flex; flex-direction: column; gap: 3px; }
 .drill .drill-more { margin-top: 8px; }
 .practice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 18px; }
-.practice .drills, .practice .cards { grid-column: 1 / -1; }
+.practice .drills, .practice .cards, .practice .pfilter { grid-column: 1 / -1; }
+.pfilter { margin: 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 8px 12px; border-radius: 10px; font-size: 13.5px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.pfilter span { flex: 1; min-width: 0; }
 .fc-decks { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; }
 .fc-decks .chip { flex: none; }
 .fc-wrap { display: flex; flex-direction: column; gap: 10px; max-width: 720px; }
@@ -570,6 +573,7 @@ button, .chip, .quest { touch-action: manipulation; }
   <div class="legend" id="legend"></div>
 
   <section class="practice" id="practice" data-tab="drills">
+    <p class="pfilter" id="pFilter" hidden><span></span><button class="chip" id="pReset">Show everything</button></p>
     <div class="ptabs" role="tablist">
       <button data-tab="drills" aria-selected="true">Drills</button>
       <button data-tab="cards" aria-selected="false">Cards</button>
@@ -2120,6 +2124,7 @@ function countText() {
   return `${parts.join(" · ")} · ${skills.filter(isVisible).length} of ${skills.length}`;
 }
 const filtering = () => !!pathSet || filter.lanes.size > 0 || filter.show !== "all";
+const relevant = keys => !filtering() || keys.some(k => byKey[k] && isVisible(byKey[k]));
 function setPath(k, mode) {
   pathSet = new Set([k, ...(mode === "up" ? ancestors(k) : descendants(k))]);
   filter.path = k; filter.mode = mode;
@@ -2131,7 +2136,16 @@ function setPath(k, mode) {
   shimmerPath(pathSet, mode === "up" ? 1 : byKey[k].tier, mode === "up" ? "var(--gold)" : "#7fd4ff", 3);
 }
 function clearPath() { pathSet = null; filter.path = filter.mode = null; }
-function applyFilter() { renderFilters(); paint(); fitVisible(); }
+function applyFilter() { renderFilters(); paint(); fitVisible(); refilterPractice(); }
+// practice follows the filters; anything open that no longer matches moves on to something that does
+function refilterPractice() {
+  const note = document.getElementById("pFilter");
+  note.hidden = !filtering();
+  if (filtering()) note.querySelector("span").textContent = "Practice filtered to: " + countText();
+  renderScenList();
+  quizOrder = shuffle(quizPool()); quizIdx = 0; renderQuiz();
+  fcExtra = false; buildQueue(); if (fcCard && !relevant(fcCard.skills)) fcCard = null; else if (fcCard) fcQueue = fcQueue.filter(c => c !== fcCard); renderCards();
+}
 function fitVisible() {
   if (!filtering()) { fit(); return; }
   const v = skills.filter(isVisible); if (!v.length) return;
@@ -2174,6 +2188,7 @@ function setFiltersOpen(open) {
   setFiltersOpen(saved === null ? innerWidth > 700 : saved === "1"); }
 document.getElementById("fToggle").addEventListener("click", () => setFiltersOpen(document.getElementById("filters").classList.contains("collapsed")));
 document.getElementById("fReset").addEventListener("click", () => { filter.lanes.clear(); filter.show = "all"; clearPath(); applyFilter(); });
+document.getElementById("pReset").addEventListener("click", () => document.getElementById("fReset").click());
 
 /* ---------- Scenarios and quiz ---------- */
 const PKEY = "climb-practice-v1";
@@ -2193,24 +2208,29 @@ const SCEN_HOW = {
 };
 const scenType = sc => sc.type || "order";
 let scenActive = null, scenPos = 0, scenMiss = 0, scenFilter = "all";
-const scenPool = () => SCENARIOS.filter(s => scenFilter === "all" || scenType(s) === scenFilter);
+const scenMatch = () => SCENARIOS.filter(s => relevant(s.skills));
+const scenPool = () => scenMatch().filter(s => scenFilter === "all" || scenType(s) === scenFilter);
 function renderScenList() {
   const done = SCENARIOS.filter(s => practice.scen[s.id]).length;
-  document.getElementById("scenSub").textContent = `Work through real situations four ways. ${done} of ${SCENARIOS.length} complete.`;
+  const match = scenMatch();
+  document.getElementById("scenSub").textContent = filtering()
+    ? `${match.length} of ${SCENARIOS.length} scenarios match your filters. ${match.filter(s => practice.scen[s.id]).length} of those complete.`
+    : `Work through real situations four ways. ${done} of ${SCENARIOS.length} complete.`;
   const types = document.getElementById("scenTypes");
-  types.innerHTML = SCEN_TYPES.map(([k, l]) => `<button class="chip${scenFilter === k ? " on" : ""}" data-t="${k}">${l} <span class="tg">${k === "all" ? SCENARIOS.length : SCENARIOS.filter(s => scenType(s) === k).length}</span></button>`).join("")
+  types.innerHTML = SCEN_TYPES.map(([k, l]) => `<button class="chip${scenFilter === k ? " on" : ""}" data-t="${k}">${l} <span class="tg">${k === "all" ? match.length : match.filter(s => scenType(s) === k).length}</span></button>`).join("")
     + `<button class="chip" data-t="random">Random</button>`;
   types.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
     if (b.dataset.t === "random") { pickNextScenario(true); return; }
     scenFilter = b.dataset.t; renderScenList();
   }));
   const list = document.getElementById("scenList");
-  list.innerHTML = scenPool().map(sc => `<button class="chip${scenActive && scenActive.id === sc.id ? " on" : ""}" data-id="${sc.id}">${practice.scen[sc.id] ? "✓ " : ""}${esc(sc.title)}</button>`).join("");
+  list.innerHTML = scenPool().length ? scenPool().map(sc => `<button class="chip${scenActive && scenActive.id === sc.id ? " on" : ""}" data-id="${sc.id}">${practice.scen[sc.id] ? "✓ " : ""}${esc(sc.title)}</button>`).join("") : `<p class="sub">No scenarios of this type match your filters.</p>`;
   list.querySelectorAll("button").forEach(b => b.addEventListener("click", () => startScenario(b.dataset.id)));
 }
 // the next unfinished scenario in the current format, or a random one
 function pickNextScenario(random) {
-  const pool = scenPool(), fresh = pool.filter(s => !practice.scen[s.id] && s !== scenActive), from = fresh.length ? fresh : pool;
+  const pool = scenPool(); if (!pool.length) return;
+  const fresh = pool.filter(s => !practice.scen[s.id] && s !== scenActive), from = fresh.length ? fresh : pool;
   const i = scenActive ? pool.indexOf(scenActive) : -1;
   const next = random ? from[Math.floor(Math.random() * from.length)] : pool.slice(i + 1).concat(pool.slice(0, i + 1)).find(s => !practice.scen[s.id] && s !== scenActive) || pool[(i + 1) % pool.length];
   startScenario(next.id);
@@ -2309,8 +2329,10 @@ function playTalk(play) {
   });
 }
 
+const quizPool = () => QUIZ.map((q, i) => i).filter(i => relevant(QUIZ[i][3] ? [QUIZ[i][3]] : []));
 let quizOrder = shuffle(QUIZ.map((_, i) => i)), quizIdx = 0;
 function renderQuiz() {
+  if (!quizOrder.length) { document.getElementById("quizBody").innerHTML = `<p class="sub">No quiz questions match your filters.</p>`; return; }
   const [q, opts, why, key] = QUIZ[quizOrder[quizIdx % quizOrder.length]];
   document.getElementById("quizScore").textContent = `Streak ${practice.streak} · best ${practice.best} · ${practice.correct} of ${practice.answered} correct`;
   const body = document.getElementById("quizBody");
@@ -2359,7 +2381,7 @@ const DECK = (() => {
   return out;
 })();
 let fcDeck = "all", fcQueue = [], fcCard = null, fcExtra = false;
-const fcPool = () => DECK.filter(c => fcDeck === "all" || c.deck === fcDeck);
+const fcPool = () => DECK.filter(c => (fcDeck === "all" || c.deck === fcDeck) && relevant(c.skills));
 const isDue = c => cards[c.id] && cards[c.id][1] <= dayStr();
 function buildQueue() {
   const pool = fcPool();
@@ -2375,11 +2397,12 @@ const fcNext = c => FC_DAYS[Math.min((cards[c.id] ? cards[c.id][0] : 0) + 1, 5)]
 function renderCards() {
   const st = fcStats();
   document.getElementById("fcSub").textContent = "Tap a card to flip it, then say whether you knew it. Misses come back in a few cards; ones you know space out over days.";
-  document.getElementById("fcDecks").innerHTML = FC_DECKS.map(([k, l]) => `<button class="chip${fcDeck === k ? " on" : ""}" data-d="${k}">${l} <span class="tg">${DECK.filter(c => k === "all" || c.deck === k).length}</span></button>`).join("");
+  document.getElementById("fcDecks").innerHTML = FC_DECKS.map(([k, l]) => `<button class="chip${fcDeck === k ? " on" : ""}" data-d="${k}">${l} <span class="tg">${DECK.filter(c => (k === "all" || c.deck === k) && relevant(c.skills)).length}</span></button>`).join("");
   document.querySelectorAll("#fcDecks button").forEach(b => b.addEventListener("click", () => { fcDeck = b.dataset.d; fcExtra = false; buildQueue(); fcCard = null; renderCards(); }));
   const box = document.getElementById("fcBox");
   if (!fcCard) fcCard = fcQueue.shift() || null;
   const stats = `<p class="fc-stats">${st.due} due · ${st.fresh} new · ${st.known} of ${st.total} known</p>`;
+  if (!fcPool().length) { box.innerHTML = `<p class="fc-done">No cards in this set match your filters. Pick another set or widen the filters.</p>`; return; }
   if (!fcCard) {
     const next = fcPool().map(c => cards[c.id] && cards[c.id][1]).filter(Boolean).sort()[0];
     box.innerHTML = `<p class="fc-done"><b>All caught up.</b> ${next ? `Next card is due ${next}.` : ""} Come back then, or keep going with cards that aren't due yet.</p>
