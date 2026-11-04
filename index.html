@@ -2498,6 +2498,8 @@ function popAchievement(icon, kicker, title, desc) {
   card.className = "ach-card"; buzz([30, 60, 30, 60, 90]);
   card.innerHTML = `<div class="ach-icon">${esc(String(icon))}</div><div><div class="ach-k">${esc(kicker)}</div><div class="ach-t">${esc(title)}</div>${desc ? `<div class="ach-d">${esc(desc)}</div>` : ""}</div>`;
   stack.append(card);
+  // a burst of unlocks shows the newest three
+  [...stack.children].slice(0, -3).forEach(c => c.remove());
   setTimeout(() => { card.classList.add("out"); setTimeout(() => card.remove(), 450); }, 4200);
 }
 
@@ -2692,11 +2694,12 @@ const lb = document.getElementById("lightbox");
 function openLight(src) { document.getElementById("lightimg").src = src; lb.hidden = false; pushLayer("photo", () => { lb.hidden = true; }); }
 const closeLight = () => { lb.hidden = true; dropLayer("photo"); };
 lb.addEventListener("click", closeLight);
+const typing = e => e.target instanceof Element && !!e.target.closest("input, textarea, select");
 document.addEventListener("keydown", e => {
-  if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && selected && lb.hidden && !e.target.closest("input, textarea, select")) { e.preventDefault(); stepSkill(e.key === "ArrowRight" ? 1 : -1); return; }
+  if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && selected && lb.hidden && !typing(e)) { e.preventDefault(); stepSkill(e.key === "ArrowRight" ? 1 : -1); return; }
   // a flipped flashcard on screen takes the arrow keys when no skill is open
   const fc = document.getElementById("fcCard");
-  if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && !selected && fc && fc.classList.contains("flipped") && fc.getBoundingClientRect().bottom > 0 && fc.getBoundingClientRect().top < innerHeight && !e.target.closest("input, textarea, select")) { e.preventDefault(); rateCard(e.key === "ArrowRight"); return; }
+  if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && !selected && fc && fc.classList.contains("flipped") && fc.getBoundingClientRect().bottom > 0 && fc.getBoundingClientRect().top < innerHeight && !typing(e)) { e.preventDefault(); rateCard(e.key === "ArrowRight"); return; }
   if (e.key !== "Escape") return;
   if (!lb.hidden) closeLight(); else if (selected) closePanel();
 });
