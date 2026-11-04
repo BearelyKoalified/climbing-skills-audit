@@ -458,7 +458,7 @@ button, .chip, .quest { touch-action: manipulation; }
   .viewtoggle button { padding: 8px 12px; }
   .sresults { top: auto; bottom: calc(100% + 6px); max-height: 50vh; }
   .filters.collapsed .ftoggle .caret { transform: rotate(180deg); }
-  .wrap { padding-bottom: 150px; }
+  .wrap { padding-bottom: calc(var(--barh, 134px) + 16px); }
   #map { height: calc(100vh - 250px); height: calc(100svh - 250px); }
 }
 /* phones held sideways: the map fills the screen and the skill panel docks on the right */
@@ -744,7 +744,6 @@ const IMG = {
   kwater: [["img/kwater2.jpg", "Water knot joining two pieces of webbing.", "kwater2"]],
   imunter: [["img/imunter2.jpg", "Munter hitch on a pear-shaped locker.", "imunter2"]],
   imrap: [["img/imunter2.jpg", "Munter hitch on a pear-shaped locker.", "imunter2"]],
-  kmmoAlt: [],
   ifriction: [["img/klem2.jpg", "Klemheist with 2, 3 and 4 wraps.", "klem2"], ["img/bach2.png", "Bachmann hitch around a carabiner, step by step.", "bach2"]],
 };
 // YouTube tying tutorials, embedded with YouTube's own player (all checked as embeddable and on-topic)
@@ -1506,13 +1505,13 @@ SCENARIOS.push(
   {"id":"s-trbelay","type":"spot","title":"Top-rope belay check","setup":"Watch this belayer set up:","skills":["btr","bsoft"],"items":["Device on the belay loop with a locking carabiner","Locker screwed shut","Brake hand never leaves the rope","Standing 5 m back from the wall with a big loop of slack","Helmet on"],"bad":3,"why":"Stand close to the wall and keep the rope snug. Far back with slack means a longer fall and getting yanked into the wall."},
   {"id":"s-quad","type":"spot","title":"Quad anchor check","setup":"Here's the quad you've rigged on two bolts:","skills":["aquad","abolt"],"items":["Double-length sling doubled into four strands","Sling folded with no knots","Lockers on each bolt","Master point positioned above the climb"],"bad":1,"why":"A quad needs overhand limiter knots on each side. Without them, if one bolt fails the other gets shock-loaded."},
   {"id":"s-gearanchor","type":"spot","title":"Gear anchor check","setup":"Your three-piece trad anchor:","skills":["agear","acord","aload"],"items":["Three solid cams in good rock","Cordelette joined with a double fisherman's","Overhand master point aimed at the load","Arms meeting at about 120° at the master point"],"bad":3,"why":"Keep the angle under 60°. At 120° each piece holds the full load, so the anchor is no stronger than one piece."},
-  {"id":"s-lower","type":"spot","title":"Cleaning a sport anchor","setup":"You're at the top, about to thread the anchor and be lowered.","skills":["lclean","mcomm"],"items":["Clip in direct to a bolt with a locking carabiner","Call \"Off belay\" to your belayer","Thread the rope through both rings","Retie your figure-8 and check it","Call \"Take\" and weight the rope before unclipping"],"bad":1,"why":"If you're going to be lowered, never call off belay. Agree the plan on the ground and stay on belay the whole time."},
-  {"id":"s-multi","type":"spot","title":"Multipitch stance check","setup":"You've arrived at the belay and are setting up to bring up your second.","skills":["bguide","mchange","abolt"],"items":["Clove hitch on the rope to the master point","Call \"Off belay\" once secure","Guide-mode device clipped to a single anchor bolt","Pull up slack, then call \"On belay\""],"bad":2,"why":"The guide-mode device belongs on the master point, backed by the whole anchor, not on one bolt."},
+  {"id":"s-lower","type":"spot","seq":true,"title":"Cleaning a sport anchor","setup":"You're at the top, about to thread the anchor and be lowered.","skills":["lclean","mcomm"],"items":["Clip in direct to a bolt with a locking carabiner","Call \"Off belay\" to your belayer","Thread the rope through both rings","Retie your figure-8 and check it","Call \"Take\" and weight the rope before unclipping"],"bad":1,"why":"If you're going to be lowered, never call off belay. Agree the plan on the ground and stay on belay the whole time."},
+  {"id":"s-multi","type":"spot","seq":true,"title":"Multipitch stance check","setup":"You've arrived at the belay and are setting up to bring up your second.","skills":["bguide","mchange","abolt"],"items":["Clove hitch on the rope to the master point","Call \"Off belay\" once secure","Guide-mode device clipped to a single anchor bolt","Pull up slack, then call \"On belay\""],"bad":2,"why":"The guide-mode device belongs on the master point, backed by the whole anchor, not on one bolt."},
   {"id":"s-fireman","type":"spot","title":"Fireman's belay check","setup":"You're giving a fireman's belay to your partner on rappel.","skills":["rfire","jrock"],"items":["Both rope strands held loosely in your hands","Ready to pull down hard if they lose control","Standing directly under them in the fall line","Helmet on"],"bad":2,"why":"Stand out of the fall line. Rocks knocked loose by the rappeller come straight down."},
   {"id":"s-cam","type":"spot","title":"Cam placement check","setup":"Your leader's cam:","skills":["tcams","tnuts"],"items":["Placed in a parallel-sided crack","Stem pointing in the direction of a fall","Lobes fully open, barely touching the walls","Extended with a sling to cut down rope drag"],"bad":2,"why":"That's a tipped-out cam and it can pull. Aim for lobes in the middle of their range."},
   {"id":"s-srt","type":"spot","title":"Pitch head check","setup":"You approach a caving pitch head along a traverse line.","skills":["cdesc","cyhang","crope"],"items":["Descender rigged and locked off before you leave the ledge","Rope protector on the rub point","Knot in the end of the rope","Cowstails unclipped while you move along the traverse line"],"bad":3,"why":"Stay clipped to the traverse line. That's what it's there for."},
   {"id":"s-glacier","type":"spot","title":"Glacier rope team check","setup":"Your two-person rope team crossing a glacier:","skills":["aglacier","aself"],"items":["About 10 m of rope between you","Prusiks pre-rigged on the rope","Big loops of slack carried in hand between you","Ice axes in hand"],"bad":2,"why":"Slack means a longer fall into a crevasse and a harder arrest. Keep the rope nearly taut."},
-  {"id":"s-escape","type":"spot","title":"Belay escape check","setup":"You're escaping the belay to go for help.","skills":["rescape","kmmo","kprus"],"items":["Tie off the belay device with a mule overhand","Friction hitch on the load strand, clipped to the anchor","Release the mule overhand to load the friction hitch","Remove the belay device before backing up the hitch"],"bad":3,"why":"Back up the friction hitch with a second connection (like an MMO to the anchor) before you take anything else apart."},
+  {"id":"s-escape","type":"spot","seq":true,"title":"Belay escape check","setup":"You're escaping the belay to go for help.","skills":["rescape","kmmo","kprus"],"items":["Tie off the belay device with a mule overhand","Friction hitch on the load strand, clipped to the anchor","Release the mule overhand to load the friction hitch","Remove the belay device before backing up the hitch"],"bad":3,"why":"Back up the friction hitch with a second connection (like an MMO to the anchor) before you take anything else apart."},
   {"id":"t-spinner","type":"talk","title":"One bad bolt","setup":"You top out on a sport route. The anchor has two bolts, but one hanger spins freely.","skills":["afixed","lclean","lbail"],"q":"How do you get down safely?","answer":["Clip in to the good bolt and stay on belay","Try to tighten the spinner by hand; still treat it as weak","Back up the good bolt with gear or the last bolt below","Leave your own locker or quick link and lower or rappel","Report the spinner when you get home"]},
   {"id":"t-dark","type":"talk","title":"Caught by darkness","setup":"Two pitches up, it gets dark faster than you planned. No one brought a headlamp.","skills":["jtopo","mretreat","jweather"],"q":"What's your plan?","answer":["Stop and talk it over before anyone moves","Use phone lights sparingly and save battery for the descent","Rappel the known route rather than pushing up","Double-check every system with a partner check at each anchor","If you can't descend safely, stay put, stay clipped and stay warm until dawn"]},
   {"id":"t-ankle","type":"talk","title":"Broken ankle at the crag","setup":"A climber decks onto a ledge and has an obviously broken ankle.","skills":["jfirst","jcheck"],"q":"What do you do?","answer":["Make the scene safe: watch for rockfall, anchor anyone on exposed ground","Check airway, breathing and bleeding before the ankle","Look for spine or head injuries; don't move them if you suspect one","Splint the ankle in the position you found it","Keep them warm and call for rescue with your exact location"]},
@@ -1533,18 +1532,13 @@ const CREDITS = {
   kclove2: ["Sawims", "Public domain", "Mastworp.svg"], kfish2: ["LadyofHats", "Public domain", "Double_Fisherman%27s_knot.svg"],
   bach2: ["Wikimedia Commons", "Public domain", "Bachmann_knot.png"], keo2: ["DarthLarwa", "CC BY-SA 3.0", "Climbingknots.overhand.jpg"],
   kwater2: ["David J. Fred", "CC BY-SA 2.5", "Water-knot-webbing-tight-ABOK-296.jpg"], klem2: ["StromBer", "CC BY-SA 2.0 de", "KlemheistKnot2-4X.jpg"],
-  imunter2: ["Climber.Ben.Johnson", "CC BY-SA 4.0", "Munter_Hitch.jpg"],
-  k8: ["Wagner Cxxx", "CC BY-SA 4.0", "Angeseilt_mit_Achter.jpg"], kstop: ["LadyofHats", "Public domain", "Double_overhand_knot.svg"],
-  kclove: ["WikipedianYknOK", "CC BY-SA 3.0", "Clove_hitch_WPK.jpg"], kbight: ["WikipedianYknOK", "CC BY-SA 3.0", "Figure-of-eight_loop_2_WPK.jpg"],
-  kgirth: ["Whidou", "CC BY-SA 4.0", "Cow_hitch.svg"], kobight: ["USCG PTC Developer", "CC BY-SA 4.0", "Loop-overhand-ABoK_1046-USCG.jpg"],
-  kauto: ["Aricooperdavis", "CC BY-SA 4.0", "Prusik_and_Autoblock_Loops.png"], keo: ["WikipedianYknOK", "CC BY-SA 3.0", "One_Sided_Overhand_Bend_WPK.JPG"],
-  kfish: ["WikipedianYknOK", "CC BY-SA 3.0", "Double_fisherman%27s_knot_WPK.jpg"], kprus: ["Bibliothèque nationale de France", "CC0", "Prusik_knot.jpg"],
-  klem: ["WikipedianYknOK", "CC BY-SA 3.0", "Klemheist_knot_WPK.jpg"], kmmo: ["Zaripov999", "CC BY-SA 4.0", "Munter_Mule_Hitch.jpg"],
+  imunter2: ["Climber.Ben.Johnson", "CC BY-SA 4.0", "Munter_Hitch.jpg"], k8: ["Wagner Cxxx", "CC BY-SA 4.0", "Angeseilt_mit_Achter.jpg"],
+  kstop: ["LadyofHats", "Public domain", "Double_overhand_knot.svg"], kgirth: ["Whidou", "CC BY-SA 4.0", "Cow_hitch.svg"],
+  kobight: ["USCG PTC Developer", "CC BY-SA 4.0", "Loop-overhand-ABoK_1046-USCG.jpg"], kauto: ["Aricooperdavis", "CC BY-SA 4.0", "Prusik_and_Autoblock_Loops.png"],
+  kprus: ["Bibliothèque nationale de France", "CC0", "Prusik_knot.jpg"], kmmo: ["Zaripov999", "CC BY-SA 4.0", "Munter_Mule_Hitch.jpg"],
   kfly: ["Mark A. Taff", "CC BY-SA 3.0 US", "Alpine_butterfly_loop.jpg"], kflyhow: ["Johan Andersson", "Public domain", "Alpine_butterfly_on_the_bight_howto.jpg"],
   kgarda: ["WikiTryHardDieHard", "CC0", "Garda_hitch.jpg"], kbowl: ["Nodurosul", "Public domain", "Yosemitebowline.jpg"],
   kbighttie: ["PhilEOS", "CC BY-SA 3.0", "Achterknoten_(Schlaufe).webm"], kbowltie: ["PhilEOS", "CC BY-SA 3.0", "Palstek.webm"],
-  kwater: ["WikipedianYknOK", "CC BY-SA 3.0", "Water_knot_WPK.jpg"], imunter: ["WikipedianYknOK", "CC BY-SA 3.0", "Italian_hitch_WPK.jpg"],
-  bach: ["WikipedianYknOK", "CC BY-SA 3.0", "Bachmann_knot_WPK.jpg"],
 };
 
 // When to use, when not to, and how to tie
@@ -2211,7 +2205,8 @@ function playChoose(play) {
 function playSpot(play) {
   play.innerHTML = `<div class="scen-opts"></div><p class="scen-fb" hidden></p>`;
   const opts = play.querySelector(".scen-opts"), fb = play.querySelector(".scen-fb");
-  scenActive.items.forEach((text, i) => {
+  const items = scenActive.items.map((t, i) => [t, i]);
+  (scenActive.seq ? items : shuffle(items)).forEach(([text, i]) => {
     const b = document.createElement("button"); b.className = "scen-step"; b.textContent = text;
     b.addEventListener("click", () => {
       fb.hidden = false;
@@ -2701,6 +2696,7 @@ function wireTimer(s) {
       }, 1000);
     } else if (timer.phase === "run") {
       const ms = performance.now() - timer.t0; stopTimer(); big.classList.remove("run");
+      if (ms < 3000) { big.innerHTML = `${secs(ms)}<small>Too quick to count. Tap to start again.</small>`; return; }
       const t = times[s.key] = times[s.key] || {}, pb = !t[mode] || ms < t[mode];
       t.n = (t.n || 0) + 1; if (pb) t[mode] = Math.round(ms);
       try { localStorage.setItem(TKEY, JSON.stringify(times)); } catch (e) {}
@@ -2752,7 +2748,7 @@ function mergeSnapshot(o) {
     c.n = Math.max(c.n || 0, t.n || 0);
   });
   try { localStorage.setItem(TKEY, JSON.stringify(times)); } catch (e) {}
-  paint(); renderScenList();
+  paint(); renderScenList(); checkAchievements();
   return n;
 }
 function loadQR() {
@@ -2805,7 +2801,7 @@ build();
 wireSearch();
 wirePanelSwipe();
 wireSync();
-document.getElementById("vMap").addEventListener("click", () => setView("map"));
+if (window.ResizeObserver) new ResizeObserver(([e]) => document.documentElement.style.setProperty("--barh", Math.ceil(e.target.offsetHeight) + "px")).observe(document.getElementById("filters"));document.getElementById("vMap").addEventListener("click", () => setView("map"));
 document.getElementById("vList").addEventListener("click", () => setView("list"));
 document.querySelectorAll(".ptabs button").forEach(b => b.addEventListener("click", () => setPracticeTab(b.dataset.tab)));
 document.getElementById("zhelp").addEventListener("click", e => {
