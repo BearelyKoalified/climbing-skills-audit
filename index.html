@@ -2755,7 +2755,7 @@ function drawLanes() {
   const map = document.querySelector("#lanes .lnmap"); if (!map) return;
   const svgL = map.querySelector(".lnsvg"), o = map.getBoundingClientRect(), vert = lnVertical.matches;
   const pt = k => { const d = map.querySelector(`#ln-${k} .ldot`); if (!d) return null; const r = d.getBoundingClientRect(); return r.width ? [r.left + r.width / 2 - o.left, r.top + r.height / 2 - o.top] : null; };
-  const open = k => map.querySelector(`#ln-${k}`).closest(".lnrow").classList.contains("open");
+  const open = k => !!map.querySelector(`#ln-${k}`)?.closest(".lnrow").classList.contains("open");
   const curve = (a, b) => {
     if (!vert) { const dx = Math.max(18, (b[0] - a[0]) / 2); return `M${a[0]},${a[1]} C${a[0] + dx},${a[1]} ${b[0] - dx},${b[1]} ${b[0]},${b[1]}`; }
     const k = 12 + Math.min(34, Math.abs(b[1] - a[1]) * .12), x = Math.min(a[0], b[0]) - k;
