@@ -3279,6 +3279,8 @@ wireSync();
 if (window.ResizeObserver) new ResizeObserver(([e]) => document.documentElement.style.setProperty("--barh", Math.ceil(e.target.offsetHeight) + "px")).observe(document.getElementById("filters"));document.getElementById("vMap").addEventListener("click", () => setView("map"));
 document.getElementById("vList").addEventListener("click", () => setView("list"));
 document.getElementById("vLanes").addEventListener("click", () => setView("lanes"));
+// tapping open space in the lanes closes the skill panel, like tapping the map background
+document.getElementById("lanes").addEventListener("click", e => { if (selected && !e.target.closest("button, a")) closePanel(); });
 // redraw the lane lines when the layout shifts (rotation, fonts arriving, panel resizing the page)
 if (window.ResizeObserver) new ResizeObserver(() => drawLanes()).observe(document.getElementById("lanes"));
 document.fonts?.ready.then(drawLanes);
