@@ -429,7 +429,7 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .lnedge.cross { stroke: var(--fg); stroke-dasharray: 6 4; }
 .lanes.focus .lnedge:not(.hl) { opacity: .08; }
 .lanes.focus .lnedge.hl { opacity: 1; stroke-width: 2.6; }
-.lntiers, .lnrow { display: grid; grid-template-columns: 136px repeat(7, minmax(0, 1fr)); }
+.lntiers, .lnrow { display: grid; grid-template-columns: 158px repeat(7, minmax(0, 1fr)); }
 .lntiers span { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 6px 6px 4px; border-left: 1px dashed var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lntiers span:first-child { border-left: 0; }
 .lntiers b { font: 700 15px var(--display); color: var(--fg); margin-right: 3px; }
@@ -443,8 +443,9 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .lnrow:not(.open) .lnhead .caret { transform: rotate(-90deg); }
 .lnhead:hover b { text-decoration: underline; }
 .lncol { position: relative; z-index: 1; border-left: 1px dashed var(--line); padding: 9px 6px; display: flex; flex-wrap: wrap; gap: 7px; align-content: flex-start; align-items: center; min-width: 0; }
-.lnrow.open .lncol { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 2px; padding: 6px 4px; }
-.st { display: inline-flex; align-items: center; gap: 7px; background: none; border: 0; padding: 2px; color: var(--fg); font: 500 12.5px/1.25 var(--body); text-align: left; cursor: pointer; border-radius: 6px; min-width: 0; transition: opacity .2s; }
+.lnrow.open .lncol { flex-direction: column; flex-wrap: nowrap; align-items: flex-start; gap: 2px; padding: 6px 4px; }
+/* stations get the panel color so lines pass behind their names, not through them */
+.st { display: inline-flex; align-items: center; gap: 7px; background: var(--surface); border: 0; padding: 2px; color: var(--fg); font: 500 12.5px/1.25 var(--body); text-align: left; cursor: pointer; border-radius: 6px; min-width: 0; transition: opacity .2s; }
 .st .ldot { width: 13px; height: 13px; }
 .lnrow:not(.open) .st:not(.sel):not(.rel) .stn { display: none; }
 .lnrow.open .st { padding: 4px; }
@@ -2744,6 +2745,9 @@ function renderLanes() {
   box.querySelectorAll(".st").forEach(b => b.addEventListener("click", () => select(b.dataset.k)));
   box.querySelector("#lnAll")?.addEventListener("click", () => { lnOpen = new Set(LANES.map(l => l[0])); saveLanes(); renderLanes(); });
   box.querySelector("#lnNone")?.addEventListener("click", () => { lnOpen.clear(); saveLanes(); renderLanes(); });
+  // on wide screens the open skill panel sits beside the lanes instead of covering the far tiers
+  const pn = document.getElementById("panel"), lm = box.querySelector(".lnmap");
+  if (lm && selected && !pn.hidden && !lnVertical.matches) { const over = lm.getBoundingClientRect().right - pn.getBoundingClientRect().left + 12; if (over > 0) lm.style.marginRight = over + "px"; }
   drawLanes();
 }
 // lines are drawn from where each station actually landed, so they follow any screen size
