@@ -447,7 +447,12 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 /* stations get the panel color so lines pass behind their names, not through them */
 .st { display: inline-flex; align-items: center; gap: 7px; background: var(--surface); border: 0; padding: 2px; color: var(--fg); font: 500 12.5px/1.25 var(--body); text-align: left; cursor: pointer; border-radius: 6px; min-width: 0; transition: opacity .2s; }
 .st .ldot { width: 13px; height: 13px; }
-.lnrow:not(.open) .st:not(.sel):not(.rel) .stn { display: none; }
+.lnrow:not(.open) .st:not(.sel):not(.rel):not(.next) .stn { display: none; }
+/* the next skill to learn in each branch keeps its name, even in a closed branch */
+.st.next .stn::before { content: "Next"; font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--c); border: 1px solid var(--c); border-radius: 3px; padding: 0 4px; margin-right: 6px; vertical-align: 1px; }
+.st.next .ldot { animation: nextpulse 2.4s ease-in-out infinite; }
+@keyframes nextpulse { 50% { box-shadow: 0 0 0 2px var(--c), 0 0 0 6px color-mix(in srgb, var(--c) 30%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .st.next .ldot { animation: none; } }
 .lnrow.open .st { padding: 4px; }
 .st .stn { min-width: 0; overflow-wrap: anywhere; }
 .st:hover { background: var(--bg); }
@@ -2726,12 +2731,14 @@ function renderLanes() {
   const shown = s => isVisible(s) || s.key === selected || rel.has(s.key);
   const rows = LANES.map(([lane, label], i) => {
     const list = skills.filter(s => s.ci === i && shown(s));
+    // each branch names its next unlocked skill, ordered like Up next: critical first, then lowest tier
+    const nextK = list.filter(s => status(s) === "avail" && isVisible(s)).sort((a, b) => (b.crit - a.crit) || (a.tier - b.tier))[0]?.key;
     if (!list.length) return "";
     const open = lnOpen.has(lane);
     const cols = TIERS.map(([r, n], t) => {
       const here = list.filter(s => s.tier === t + 1);
       return `<div class="lncol${here.length ? "" : " empty"}" data-t="${r} · ${n}">${here.map(s =>
-        `<button class="st ${status(s)}${lvClass(s)}${s.opt ? " opt" : ""}${s.key === selected ? " sel" : ""}${rel.has(s.key) ? " rel" : ""}" id="ln-${s.key}" data-k="${s.key}" style="--c: var(--c${s.ci})" title="${esc(s.name)}" aria-label="${esc(s.name)}, tier ${r}, ${lvName(s)}${status(s) === "locked" ? ", locked" : ""}"><span class="ldot"></span><span class="stn">${esc(s.name)}</span></button>`).join("")}</div>`;
+        `<button class="st ${status(s)}${lvClass(s)}${s.opt ? " opt" : ""}${s.key === selected ? " sel" : ""}${rel.has(s.key) ? " rel" : ""}${s.key === nextK ? " next" : ""}" id="ln-${s.key}" data-k="${s.key}" style="--c: var(--c${s.ci})" title="${esc(s.name)}" aria-label="${esc(s.name)}, tier ${r}, ${lvName(s)}${status(s) === "locked" ? ", locked" : ""}${s.key === nextK ? ", next up" : ""}"><span class="ldot"></span><span class="stn">${esc(s.name)}</span></button>`).join("")}</div>`;
     }).join("");
     return `<section class="lnrow${open ? " open" : ""}" data-lane="${lane}" style="--c: var(--c${i})"><button class="lnhead" aria-expanded="${open}"><i></i><b>${label}</b><span>${list.filter(learned).length}/${list.length}</span><span class="caret" aria-hidden="true">▾</span></button><div class="lntrack">${cols}</div></section>`;
   }).join("");
