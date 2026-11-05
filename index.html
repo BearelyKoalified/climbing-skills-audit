@@ -418,6 +418,64 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid
 .practice .rel a { color: var(--fg); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 .note { margin-top: 22px; font-size: 13px; color: var(--muted); max-width: 82ch; }
+/* lanes view: each branch is a metro line, tiers are columns; closed branches show just their stations */
+.lanes { margin-top: 8px; }
+.lntools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; font-size: 13px; color: var(--muted); }
+.lntools span { flex: 1; min-width: 200px; }
+.lnmap { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px 8px 8px; }
+.lnsvg { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.lnedge { fill: none; stroke: var(--c); stroke-width: 1.6; opacity: .35; transition: opacity .2s; }
+.lnedge.met { opacity: .8; stroke-width: 2.2; }
+.lnedge.cross { stroke: var(--fg); stroke-dasharray: 6 4; }
+.lanes.focus .lnedge:not(.hl) { opacity: .08; }
+.lanes.focus .lnedge.hl { opacity: 1; stroke-width: 2.6; }
+.lntiers, .lnrow { display: grid; grid-template-columns: 136px repeat(7, minmax(0, 1fr)); }
+.lntiers span { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 6px 6px 4px; border-left: 1px dashed var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lntiers span:first-child { border-left: 0; }
+.lntiers b { font: 700 15px var(--display); color: var(--fg); margin-right: 3px; }
+.lnrow { border-top: 1px solid var(--line); }
+.lntrack { display: contents; }
+.lnhead { display: flex; align-items: center; gap: 7px; background: none; border: 0; color: var(--fg); text-align: left; padding: 8px 4px; cursor: pointer; min-width: 0; align-self: start; }
+.lnhead i { flex: none; width: 4px; align-self: stretch; min-height: 18px; border-radius: 2px; background: var(--c); }
+.lnhead b { font: 700 17px/1.1 var(--display); text-transform: uppercase; letter-spacing: .03em; color: var(--c); flex: 1; min-width: 0; }
+.lnhead span { font: 500 11px var(--mono); color: var(--muted); }
+.lnhead .caret { transition: transform .2s; }
+.lnrow:not(.open) .lnhead .caret { transform: rotate(-90deg); }
+.lnhead:hover b { text-decoration: underline; }
+.lncol { position: relative; z-index: 1; border-left: 1px dashed var(--line); padding: 9px 6px; display: flex; flex-wrap: wrap; gap: 7px; align-content: flex-start; align-items: center; min-width: 0; }
+.lnrow.open .lncol { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 2px; padding: 6px 4px; }
+.st { display: inline-flex; align-items: center; gap: 7px; background: none; border: 0; padding: 2px; color: var(--fg); font: 500 12.5px/1.25 var(--body); text-align: left; cursor: pointer; border-radius: 6px; min-width: 0; transition: opacity .2s; }
+.st .ldot { width: 13px; height: 13px; }
+.lnrow:not(.open) .st:not(.sel):not(.rel) .stn { display: none; }
+.lnrow.open .st { padding: 4px; }
+.st .stn { min-width: 0; overflow-wrap: anywhere; }
+.st:hover { background: var(--bg); }
+.st.locked .stn { color: #c4cbcf; }
+.st.locked .ldot { opacity: .6; }
+.st.opt .stn { font-style: italic; }
+.st.lv-1 .ldot, .st.lv-15 .ldot, .st.lv-2 .ldot, .st.lv-review .ldot { background: var(--c); }
+.st.lv-1 .ldot { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--learned); }
+.st.lv-15 .ldot { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--silver); }
+.st.lv-2 .ldot, .st.lv-review .ldot { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--gold); }
+.st.lv-gap .ldot { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--crit); }
+.st.sel { background: color-mix(in srgb, var(--c) 22%, var(--bg)); outline: 1.5px solid var(--c); }
+.st.sel .stn { font-weight: 700; }
+.st.rel { background: var(--bg); }
+.lanes.focus .st:not(.sel):not(.rel) { opacity: .35; }
+/* phones and tablets: each branch runs top to bottom, tiers become rows */
+@media (max-width: 899px) {
+  .lntiers { display: none; }
+  .lnrow { display: block; }
+  .lnhead { width: 100%; padding: 10px 4px; }
+  .lntrack { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 0 4px 10px 15px; }
+  .lncol { border: 0; padding: 0; gap: 6px; }
+  .lncol.empty { display: none; }
+  .lnrow.open .lntrack { display: block; padding: 0 0 8px 34px; }
+  .lnrow.open .lncol { padding: 0; }
+  .lnrow.open .lncol::before { content: attr(data-t); font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 8px 0 2px 4px; }
+  .lnrow.open .st { padding: 7px 4px; font-size: 14px; }
+  .st .ldot { width: 14px; height: 14px; }
+}
 /* phones */
 button, .chip, .quest { touch-action: manipulation; }
 @media (pointer: coarse) { .controls button { width: 44px; height: 44px; } .chip, .quest { padding-top: 6px; padding-bottom: 6px; } }
@@ -480,7 +538,7 @@ button, .chip, .quest { touch-action: manipulation; }
   .filters { position: fixed; top: auto; bottom: 0; left: 0; right: 0; z-index: 15; margin: 0; border-radius: 16px 16px 0 0; border-bottom: 0; flex-direction: column-reverse;
     padding: 9px max(12px, env(safe-area-inset-right, 0px)) calc(9px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); box-shadow: 0 -10px 26px rgba(0,0,0,.45); }
   .fbody { max-height: 46vh; overflow-y: auto; }
-  .viewtoggle button { padding: 8px 12px; }
+  .viewtoggle button { padding: 8px 10px; }
   .sresults { top: auto; bottom: calc(100% + 6px); max-height: 50vh; }
   .filters.collapsed .ftoggle .caret { transform: rotate(180deg); }
   .wrap { padding-bottom: calc(var(--barh, 134px) + 16px); }
@@ -541,6 +599,7 @@ button, .chip, .quest { touch-action: manipulation; }
       <input id="search" type="search" placeholder="Search skills" autocomplete="off" aria-label="Search skills">
       <div class="viewtoggle" role="group" aria-label="View">
         <button id="vMap" aria-pressed="true">Map</button>
+        <button id="vLanes" aria-pressed="false">Lanes</button>
         <button id="vList" aria-pressed="false">List</button>
       </div>
       <div class="sresults" id="sresults" hidden></div>
@@ -570,6 +629,7 @@ button, .chip, .quest { touch-action: manipulation; }
     <div class="hint">Double-tap a skill to mark it learned · drag to pan · scroll or pinch to zoom</div>
     <button class="linkbtn" id="zlinks" aria-pressed="false">Show all connections</button>
   </div>
+  <div class="lanes" id="lanes" hidden></div>
   <div class="skilllist" id="skillList" hidden></div>
 
   <div class="legend" id="legend"></div>
@@ -2635,10 +2695,12 @@ function setView(v) {
   view = v;
   document.getElementById("vMap").setAttribute("aria-pressed", v === "map");
   document.getElementById("vList").setAttribute("aria-pressed", v === "list");
-  document.querySelector(".mapwrap").hidden = v === "list";
+  document.getElementById("vLanes").setAttribute("aria-pressed", v === "lanes");
+  document.querySelector(".mapwrap").hidden = v !== "map";
   document.getElementById("skillList").hidden = v !== "list";
+  document.getElementById("lanes").hidden = v !== "lanes";
   try { localStorage.setItem("climb-view2", v); } catch (e) {}
-  if (v === "list") renderList(); else fit();
+  if (v === "list") renderList(); else if (v === "lanes") renderLanes(); else fit();
 }
 function renderList() {
   const box = document.getElementById("skillList"); if (box.hidden) return;
@@ -2652,12 +2714,70 @@ function renderList() {
   box.querySelectorAll(".lcheck").forEach(b => b.addEventListener("click", () => quickToggle(b.dataset.k, false)));
 }
 
+// lanes view: one metro line per branch, tiers as stations from left to right; tap a branch to open it
+const LN_KEY = "climb-lanes-v1", lnVertical = matchMedia("(max-width: 899px)");
+let lnOpen = new Set(); try { const v = JSON.parse(localStorage.getItem(LN_KEY)); if (Array.isArray(v)) lnOpen = new Set(v); } catch (e) {}
+const saveLanes = () => { try { localStorage.setItem(LN_KEY, JSON.stringify([...lnOpen])); } catch (e) {} };
+function renderLanes() {
+  const box = document.getElementById("lanes"); if (box.hidden) return;
+  // the selected skill, its prerequisites and its unlocks always show, even when filtered out
+  const rel = selected ? new Set([...byKey[selected].pre, ...byKey[selected].unlocks]) : new Set();
+  const shown = s => isVisible(s) || s.key === selected || rel.has(s.key);
+  const rows = LANES.map(([lane, label], i) => {
+    const list = skills.filter(s => s.ci === i && shown(s));
+    if (!list.length) return "";
+    const open = lnOpen.has(lane);
+    const cols = TIERS.map(([r, n], t) => {
+      const here = list.filter(s => s.tier === t + 1);
+      return `<div class="lncol${here.length ? "" : " empty"}" data-t="${r} · ${n}">${here.map(s =>
+        `<button class="st ${status(s)}${lvClass(s)}${s.opt ? " opt" : ""}${s.key === selected ? " sel" : ""}${rel.has(s.key) ? " rel" : ""}" id="ln-${s.key}" data-k="${s.key}" style="--c: var(--c${s.ci})" title="${esc(s.name)}" aria-label="${esc(s.name)}, tier ${r}, ${lvName(s)}${status(s) === "locked" ? ", locked" : ""}"><span class="ldot"></span><span class="stn">${esc(s.name)}</span></button>`).join("")}</div>`;
+    }).join("");
+    return `<section class="lnrow${open ? " open" : ""}" data-lane="${lane}" style="--c: var(--c${i})"><button class="lnhead" aria-expanded="${open}"><i></i><b>${label}</b><span>${list.filter(learned).length}/${list.length}</span><span class="caret" aria-hidden="true">▾</span></button><div class="lntrack">${cols}</div></section>`;
+  }).join("");
+  box.classList.toggle("focus", !!selected);
+  box.innerHTML = rows ? `<div class="lntools"><button class="chip" id="lnAll">Open all</button><button class="chip" id="lnNone">Close all</button><span>Tap a branch to open it. Tap a skill to see what it needs and unlocks, across every branch.</span></div>
+    <div class="lnmap"><svg class="lnsvg" aria-hidden="true"></svg><div class="lntiers"><span></span>${TIERS.map(([r, n]) => `<span><b>${r}</b> ${n}</span>`).join("")}</div>${rows}</div>`
+    : '<p class="empty">No skills match these filters.</p>';
+  box.querySelectorAll(".lnhead").forEach(b => b.addEventListener("click", () => {
+    const lane = b.parentNode.dataset.lane; lnOpen.has(lane) ? lnOpen.delete(lane) : lnOpen.add(lane); saveLanes(); renderLanes();
+  }));
+  box.querySelectorAll(".st").forEach(b => b.addEventListener("click", () => select(b.dataset.k)));
+  box.querySelector("#lnAll")?.addEventListener("click", () => { lnOpen = new Set(LANES.map(l => l[0])); saveLanes(); renderLanes(); });
+  box.querySelector("#lnNone")?.addEventListener("click", () => { lnOpen.clear(); saveLanes(); renderLanes(); });
+  drawLanes();
+}
+// lines are drawn from where each station actually landed, so they follow any screen size
+function drawLanes() {
+  const map = document.querySelector("#lanes .lnmap"); if (!map) return;
+  const svgL = map.querySelector(".lnsvg"), o = map.getBoundingClientRect(), vert = lnVertical.matches;
+  const pt = k => { const d = map.querySelector(`#ln-${k} .ldot`); if (!d) return null; const r = d.getBoundingClientRect(); return r.width ? [r.left + r.width / 2 - o.left, r.top + r.height / 2 - o.top] : null; };
+  const open = k => map.querySelector(`#ln-${k}`).closest(".lnrow").classList.contains("open");
+  const curve = (a, b) => {
+    if (!vert) { const dx = Math.max(18, (b[0] - a[0]) / 2); return `M${a[0]},${a[1]} C${a[0] + dx},${a[1]} ${b[0] - dx},${b[1]} ${b[0]},${b[1]}`; }
+    const k = 12 + Math.min(34, Math.abs(b[1] - a[1]) * .12), x = Math.min(a[0], b[0]) - k;
+    return `M${a[0]},${a[1]} C${x},${a[1]} ${x},${b[1]} ${b[0]},${b[1]}`;
+  };
+  let out = "", top = "";
+  skills.forEach(s => s.pre.forEach(p => {
+    const from = byKey[p], same = from.ci === s.ci, hl = selected && (s.key === selected || p === selected);
+    // other branches only join in for the selected skill; phones skip lines inside closed branches
+    if (!same && !hl) return;
+    if (same && vert && !open(s.key) && !hl) return;
+    const a = pt(p), b = pt(s.key); if (!a || !b) return;
+    const p2 = `<path class="lnedge${same ? "" : " cross"}${learned(from) ? " met" : ""}${hl ? " hl" : ""}" style="--c: var(--c${from.ci})" d="${curve(a, b)}"/>`;
+    if (hl) top += p2; else out += p2;
+  }));
+  svgL.setAttribute("width", map.offsetWidth); svgL.setAttribute("height", map.offsetHeight);
+  svgL.innerHTML = out + top; // highlighted lines sit on top
+}
+
 // search: jump straight to a skill
 function wireSearch() {
   const input = document.getElementById("search"), res = document.getElementById("sresults");
   const go = k => {
     res.hidden = true; input.value = ""; input.blur();
     if (view === "list") { select(k); document.querySelector(`.lrow[data-k="${k}"]`)?.scrollIntoView({ block: "center" }); }
+    else if (view === "lanes") { lnOpen.add(byKey[k].lane); saveLanes(); select(k); document.getElementById("ln-" + k)?.scrollIntoView({ block: "center" }); }
     else { document.querySelector(".mapwrap").scrollIntoView({ block: "start" }); scrollBy(0, barAtBottom() ? -8 : -document.getElementById("filters").offsetHeight - 8); select(k, true); }
   };
   input.addEventListener("input", () => {
@@ -2822,6 +2942,7 @@ function paint() {
   checkAchievements();
   renderDrills();
   renderList();
+  renderLanes();
   highlight(selected);
 }
 
@@ -2983,6 +3104,7 @@ function stepSkill(dir) {
   panel.scrollTop = 0;
   panel.classList.remove("slide-next", "slide-prev"); void panel.offsetWidth; panel.classList.add(dir > 0 ? "slide-next" : "slide-prev");
   if (view === "list") document.querySelector(`.lrow[data-k="${k}"]`)?.scrollIntoView({ block: "nearest" });
+  if (view === "lanes") document.getElementById("ln-" + k)?.scrollIntoView({ block: "nearest" });
 }
 // swipe the panel sideways for the next skill, or down from its top to close it and get back to the map or list
 function wirePanelSwipe() {
@@ -3152,6 +3274,10 @@ wirePanelSwipe();
 wireSync();
 if (window.ResizeObserver) new ResizeObserver(([e]) => document.documentElement.style.setProperty("--barh", Math.ceil(e.target.offsetHeight) + "px")).observe(document.getElementById("filters"));document.getElementById("vMap").addEventListener("click", () => setView("map"));
 document.getElementById("vList").addEventListener("click", () => setView("list"));
+document.getElementById("vLanes").addEventListener("click", () => setView("lanes"));
+// redraw the lane lines when the layout shifts (rotation, fonts arriving, panel resizing the page)
+if (window.ResizeObserver) new ResizeObserver(() => drawLanes()).observe(document.getElementById("lanes"));
+document.fonts?.ready.then(drawLanes);
 document.querySelectorAll(".ptabs button").forEach(b => b.addEventListener("click", () => setPracticeTab(b.dataset.tab)));
 document.getElementById("zhelp").addEventListener("click", e => {
   const lg = document.getElementById("legend"), on = lg.classList.toggle("show");
@@ -3171,7 +3297,7 @@ paint();
 if (filtering()) { refilterPractice(); fitVisible(); }
 // phones open on the list; a view you pick yourself is remembered
 try { localStorage.removeItem("climb-view"); } catch (e) {}
-{ let v = null; try { v = localStorage.getItem("climb-view2"); } catch (e) {} if (!v && matchMedia("(max-width: 700px)").matches) v = "list"; if (v === "list") setView("list"); }
+{ let v = null; try { v = localStorage.getItem("climb-view2"); } catch (e) {} if (!v && matchMedia("(max-width: 700px)").matches) v = "list"; if (v === "list" || v === "lanes") setView(v); }
 </script>
 </body>
 </html>
